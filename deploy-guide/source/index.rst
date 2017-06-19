@@ -1,17 +1,16 @@
-==============
-charms service
-==============
+=================================
+OpenStack Charms Deployment Guide
+=================================
+
+This guide provides instructions for performing a deployment of
+OpenStack using the OpenStack Charms with Juju and MAAS.
 
 .. toctree::
    :maxdepth: 2
 
-   get_started.rst
-   install.rst
+   overview.rst
+   prepare_env.rst
+   configure_deployment.rst
+   deploy.rst
    verify.rst
-   next-steps.rst
-
-The charms service (charms) provides...
-
-This chapter assumes a working setup of OpenStack following the
-`OpenStack Installation Tutorial
-<https://docs.openstack.org/project-install-guide/ocata/>`_.
+   appendices.rst
