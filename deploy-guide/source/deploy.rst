@@ -1,4 +1,4 @@
 .. _deploy:
 
-Deploy
-~~~~~~
+Deploy the bundle
+~~~~~~~~~~~~~~~~~
