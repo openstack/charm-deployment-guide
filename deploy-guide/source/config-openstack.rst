@@ -450,12 +450,10 @@ Next Steps
 Congratulations! You have now built and successfully deployed a new cloud
 instance running on OpenStack, taking full advantage of both Juju and MAAS.
 
-This is a strong foundation to build upon. You could install Juju `on top of
+This is a strong foundation to build upon. You could use Juju `on top of
 OpenStack <https://jujucharms.com/docs/stable/help-openstack>`__, for example,
 giving your OpenStack deployment the same powerful application modelling
-capabilities we used to deploy OpenStack. You might also want to look into using
-Juju to deploy `Landscape <https://landscape.canonical.com/>`__, Canonical's
-leading management tool.
+capabilities we used to deploy OpenStack.
 
 Whatever you choose to do, MAAS and Juju will scale to manage your needs, while
 making your deployments easier to design, maintain and manage.
