@@ -38,7 +38,7 @@ controller running, the output will look similar to the following:
 .. code:: bash
 
     Model    Controller           Cloud/Region  Version
-    default  maas-controller-two  mymaas        2.2-alpha1
+    default  maas-controller-two  mymaas        2.2.1
 
     App  Version  Status  Scale  Charm  Store  Rev  OS  Notes
 
