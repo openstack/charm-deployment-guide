@@ -29,9 +29,8 @@ this as the framework for our own deployment:
 What you'll need
 ----------------
 
-MAAS can work at any scale, from a test deployment using nothing but `LXD on a
-single machine <http://conjure-up.io/>`__ to thousands of machines deployed
-across multiple regions.
+MAAS can work at any scale, from a test deployment using a handful of machines
+to thousands of machines deployed across multiple regions.
 
 It's our intention to build a useful minimal deployment of OpenStack, capable of
 both performing some real work and scaling to fit more ambitious projects.
