@@ -1,16 +1,32 @@
-=================================
-OpenStack Charms Deployment Guide
-=================================
+.. OpenStack documentation master file, created by
+   sphinx-quickstart on Fri Jun 30 11:14:11 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-This guide provides instructions for performing a deployment of
-OpenStack using the OpenStack Charms with Juju and MAAS.
+OpenStack documentation
+=====================================
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
 
-   overview.rst
-   prepare_env.rst
-   configure_deployment.rst
-   deploy.rst
-   verify.rst
-   appendices.rst
+Installation / Configuration
+++++++++++++++++++++++++++++
+
+.. toctree::
+    :maxdepth: 2
+
+   installation/index.rst
+   install-maas.rst
+   install-juju.rst
+   install-openstack.rst
+   install-openstack-bundle.rst
+   config-openstack.rst
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
