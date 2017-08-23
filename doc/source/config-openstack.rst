@@ -70,7 +70,7 @@ apply.
 Define an external network
 --------------------------
 
-We'll start by defining a network called ``Pub_Net`` that will use a subnet with
+We'll start by defining a network called ``Pub_Net`` that will use a subnet
 within the range of addresses we put aside in MAAS and Juju:
 
 .. code:: bash
@@ -131,11 +131,14 @@ new subnet's configuration:
     | use_default_subnet_pool | None                                 |
     +-------------------------+--------------------------------------+
 
-!!! Note: OpenStack has
-`deprecated <https://docs.openstack.org/developer/python-neutronclient/devref/transition_to_osc.html>`__
-the use of the ``neutron`` command for network configuration, migrating most of
-its functionality into the Python OpenStack client. Version 2.4.0 or later of
-this client is needed for the ``subnet create`` command.
+.. Note::
+
+        OpenStack has `deprecated
+        <https://docs.openstack.org/developer/python-neutronclient/devref/transition_to_osc.html>`__
+        the use of the ``neutron`` command for network configuration, migrating
+        most of its functionality into the Python OpenStack client. Version
+        2.4.0 or later of this client is needed for the ``subnet create``
+        command.
 
 Cloud images
 ------------

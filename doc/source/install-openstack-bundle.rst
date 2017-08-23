@@ -16,10 +16,17 @@ A `bundle <https://jujucharms.com/docs/stable/charms-bundles>`__, as used above,
 encapsulates the entire deployment process, including all applications, their
 configuration parameters and any relations that need to be made. Generally, you
 can use a local file, as above, or deploy a curated bundle from the `charm
-store <./install-openstack-bundle.html>`__.
+store <https://jujucharms.com/store>`__.
 
-For our project, [download the OpenStack][downloadbundle] and deploy OpenStack
+For our project, `download
+<https://api.jujucharms.com/charmstore/v5/openstack-base/archive>`__ the
+`OpenStack <https://jujucharms.com/openstack-base/>`__ and deploy OpenStack
 using the above command.
+
+.. note::
+
+    You will probably need to edit the bundle information to match the actual
+    hardware that you have.
 
 The speed of the deployment depends on your hardware, but may take some time.
 Monitor the output of ``juju status`` to see when everything is ready.

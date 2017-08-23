@@ -80,10 +80,10 @@ of the charms as a ``yaml`` file which we include as we deploy them.
 `Ceph OSD <https://jujucharms.com/ceph-osd>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We're starting with the Ceph object storage daemon and we want to configure Ceph
-to use the second drive of a cloud node, ``/dev/sdb``. Change or ignore this to
-match your own configuration. The configuration is held within the following
-file we've called ``ceph-osd.yaml``:
+We're starting with the Ceph object storage daemon and we want to configure
+Ceph to use the second drive of a cloud node, ``/dev/sdb``. Change this to
+match your own configuration if the device name on your system is different.
+The configuration is held in the file called ``ceph-osd.yaml``:
 
 .. code:: yaml
 
@@ -388,7 +388,7 @@ Relations:
     juju add-relation glance rabbitmq-server
 
 `Ceph monitor <https://jujucharms.com/ceph-mon/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For Ceph monitors (which monitor the topology of the Ceph deployment and
 manage the CRUSH map which is used by clients to read and write data) no
@@ -440,8 +440,20 @@ Relations:
 `Swift proxy <https://jujucharms.com/swift-proxy/>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Swift also needs a unique identifier, best generated with the ``uuid`` command
-used previously. The output UUID is used for the ``swift-hash`` value in the
+Swift also needs a unique identifier, best generated with the ``uuid`` command.
+
+The ``uuid`` command on Ubuntu is in the ``uuid`` package (``sudo apt-get
+install uuid``) and it is best to produce a version 4 uuid, which is based on
+random numbers, rather than a version 1 which is based on the MAC address of a
+network card and a timer.
+
+Generate the uuid by running:
+
+.. code:: bash
+
+        uuid -v 4
+
+The output UUID is used for the ``swift-hash`` value in the
 ``swift-proxy.yaml`` configuration file:
 
 .. code:: yaml
