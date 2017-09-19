@@ -14,7 +14,7 @@ OpenStack Charms Deployment Guide
    install-openstack.rst
    install-openstack-bundle.rst
    config-openstack.rst
-
+   app.rst
 
 * :ref:`genindex`
 * :ref:`search`
