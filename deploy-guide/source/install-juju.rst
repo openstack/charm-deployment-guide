@@ -9,7 +9,7 @@ In the `previous step <./install-maas.html>`__, we installed, deployed and
 configured `MAAS <https://maas.io/>`__ to use as a foundation for Juju to deploy
 a fully fledged OpenStack cloud.
 
-We're now going to install and configure the following two core components of
+We are now going to install and configure the following two core components of
 Juju to use our MAAS deployment:
 
 -  The *controller* is the management node for a cloud environment. We'll be
