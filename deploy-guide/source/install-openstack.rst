@@ -205,7 +205,7 @@ Here are the four deploy commands for the four machines:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Next comes Neutron for OpenStack networking. We have just a couple of
-configuration options than need to be placed within ``neuton.yaml`` and we're
+configuration options than need to be placed within ``neutron.yaml`` and we're
 going to use this for two applications, ``neutron-gateway`` and ``neutron-api``:
 
 .. code:: yaml
