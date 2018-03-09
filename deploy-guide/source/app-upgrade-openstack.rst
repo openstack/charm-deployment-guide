@@ -199,6 +199,18 @@ run:
     juju run --application application-name is-leader
 
 
+.. warning::
+
+    Extra care must be taken when performing OpenStack upgrades in an
+    environment with a converged architecture. If two principle charms have
+    been placed on the same unit (e.g. nova-compute and ceph-osd), then
+    upgrading one of the charms will cause the underlying system to be updated
+    to point at packages from the next Openstack release. If the machine has
+    unattended-upgrades enabled, which is the default in xenial and bionic, the
+    second charm may have its packages updated outside of juju's control. We
+    recommend disabling unattended upgrades for the duration of the upgrade
+    process, and to renable unattended-upgrades once complete.
+
 
 HA with pause/resume
 ~~~~~~~~~~~~~~~~~~~~
