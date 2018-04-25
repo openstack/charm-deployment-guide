@@ -52,7 +52,7 @@ commands:
 .. code:: bash
 
     juju kill-controller maas-controller
-    juju bootstrap --constraints tags=juju maas maas-controller
+    juju bootstrap --constraints tags=juju mymaas maas-controller
 
 During the bootstrap process, Juju will create a model called ``default``, as
 shown in the output from ``juju status`` above.
