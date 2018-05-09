@@ -13,10 +13,10 @@ Environment variables
 ---------------------
 
 When accessing OpenStack from the command line, specific environment variables
-need to be set. We've put these in a file called ``nova.rc`` which easily be
+need to be set. We've put these in a file called ``openrc`` which easily be
 *sourced* (made active) whenever needed.
 
-The file contains the following:
+The file contains among other things the following:
 
 .. code:: yaml
 
@@ -37,7 +37,7 @@ The environment variables can be enabled/sourced with the following command:
 
 .. code:: bash
 
-    source nova.rc
+    source openrc
 
 You can check the variables have been set correctly by seeing if your OpenStack
 endpoints are visible with the ``openstack endpoint list`` command. The output
