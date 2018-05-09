@@ -105,7 +105,7 @@ controller for our cloud:
 
 .. code:: bash
 
-    juju bootstrap --constraints tags=juju maas maas-controller
+    juju bootstrap --constraints tags=juju mymaas maas-controller
 
 The constraint in the above command will ask MAAS to use any nodes tagged with
 ``juju`` to host the controller for the Juju client. We tagged this node within
