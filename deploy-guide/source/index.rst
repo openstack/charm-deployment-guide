@@ -16,5 +16,4 @@ OpenStack Charms Deployment Guide
    config-openstack.rst
    app.rst
 
-* :ref:`genindex`
 * :ref:`search`

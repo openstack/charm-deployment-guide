@@ -35,7 +35,7 @@ updated.
     ...
 
 
-Retrieve csr from vault
+Retrieve CSR from Vault
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Run the *get-csr* action against the lead unit of the vault application:
@@ -70,14 +70,14 @@ Run the *get-csr* action against the lead unit of the vault application:
       started: 2018-06-07 10:21:13 +0000 UTC
 
 
-Retrieve the csr from the action output and place it in a file, removing any
+Retrieve the CSR from the action output and place it in a file, removing any
 leading whitespace.
 
-Sign csr
+Sign CSR
 ~~~~~~~~
 
-The exact command from signing the csr will depend on the setup of the
-external ca. Below is an example:
+The exact command from signing the CSR will depend on the setup of the
+external CA. Below is an example:
 
 .. code:: bash
 
@@ -88,7 +88,7 @@ external ca. Below is an example:
 *If the singing is rejected due to mismatched O or OU or C etc then rerun the
 get-csr actions and specify the mismatched items*
 
-Upload signed csr and root ca cert to vault
+Upload signed CSR and root CA cert to vault
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (Where /tmp/root-ca.pem is the root ca cert)
@@ -116,7 +116,7 @@ process, so monitor keystone units and wait for them to become idle.
 Test
 ~~~~
 
-Where /tmp/root-ca.pem is the root ca cert:
+Where /tmp/root-ca.pem is the root CA cert:
 
 .. code:: bash
 
