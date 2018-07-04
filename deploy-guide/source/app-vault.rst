@@ -99,7 +99,9 @@ and an initial root token for accessing the Vault API.
     Do not lose the root token! Without it the vault deployment will
     be inaccessible.
 
-you can then unseal the vault deployment for operation:
+Each vault unit must be individually unsealed, so if there are multiple vault
+units repeat the unseal process below for each unit changing the VAULT_ADDR
+environment variable each time to point at the individual units.
 
 .. code:: bash
 
@@ -122,7 +124,7 @@ initial root token for this purpose:
 .. code:: bash
 
    export VAULT_TOKEN=ebded15e-c908-5d3a-1df0-1e7e7218c162
-   vault token create -use-limit=1 -ttl=10m
+   vault token create -ttl=10m
 
 you should get a response like:
 
@@ -152,7 +154,10 @@ Enabling HA
 
 The vault charm supports deployment in HA configurations; this requires
 the use of etcd to provide HA storage to vault units, with access to
-vault being provided a virtual IP or DNS-HA hostname:
+vault being provided a virtual IP or DNS-HA hostname.
+
+The etcd application needs to support etcd3 so ensure it is using the latest
+snap channel which supports it:
 
 .. code:: bash
 
@@ -163,7 +168,7 @@ vault being provided a virtual IP or DNS-HA hostname:
     juju deploy hacluster vault-hacluster
     juju add-relation vault vault-hacluster
 
-    juju deploy --to lxd:0 etcd
+    juju deploy --config channel=3.1/stable --to lxd:0 etcd
     juju add-unit --to lxd:1 etcd
     juju add-unit --to lxd:2 etcd
 
@@ -181,5 +186,5 @@ active vault unit over a secure cluster connection between units.
 
     When deploying vault in HA configurations, all vault units must be
     unsealed using the unseal keys generated during initialization
-    in order to unlock the master key.  This is performed externally
+    in order to unlock the master key. This is performed externally
     to the charm using the Vault API.
