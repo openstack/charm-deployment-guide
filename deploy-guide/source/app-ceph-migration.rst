@@ -55,6 +55,9 @@ charm must be deployed to the existing machines running the ceph units:
     juju add-unit --to 1 ceph-osd
     juju add-unit --to 2 ceph-osd
 
+NOTE: as of the 18.05 charm release, the osd-reformat config option has now been
+completely removed.
+
 The charm installation and configuration will not impact any existing running
 Ceph OSD's.
 
