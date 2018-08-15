@@ -20,10 +20,11 @@ The file contains among other things the following:
 
 .. code:: yaml
 
-    export OS_AUTH_URL=http://192.168.100.95:5000/v2.0/
+    export OS_AUTH_URL=http://192.168.100.95:5000/v3
+    export OS_USER_DOMAIN_NAME=admin_domain
     export OS_USERNAME=admin
-    export OS_PASSWORD=openstack
-    export OS_TENANT_NAME=admin
+    export OS_PROJECT_DOMAIN_NAME=admin_domain
+    export OS_PROJECT_NAME=admin
 
 The ``OS_AUTH_URL`` is the address of the `OpenStack
 Keystone <./install-openstack.html#keystone>`__ node for authentication. This
@@ -38,6 +39,12 @@ The environment variables can be enabled/sourced with the following command:
 .. code:: bash
 
     source openrc
+
+For our project, `download
+<https://api.jujucharms.com/charmstore/v5/openstack-base/archive>`__ the
+`OpenStack <https://jujucharms.com/openstack-base/>`__ and source the
+environment variables using the above command.
+
 
 You can check the variables have been set correctly by seeing if your OpenStack
 endpoints are visible with the ``openstack endpoint list`` command. The output
@@ -148,11 +155,11 @@ Canonical's Ubuntu cloud images can be found here:
 
 `https://cloud-images.ubuntu.com <https://cloud-images.ubuntu.com/>`__
 
-You could use ``wget`` to download the image of Ubuntu 16.04 LTS (Xenial):
+You could use ``wget`` to download the image of Ubuntu 18.04 LTS (Bionic):
 
 .. code:: bash
 
-    wget https://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+    wget https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
 
 The following command will add this image to Glance:
 
@@ -161,8 +168,8 @@ The following command will add this image to Glance:
     openstack image create --public --min-disk 3 --container-format bare \
     --disk-format qcow2 --property architecture=x86_64 \
     --property hw_disk_bus=virtio --property hw_vif_model=virtio \
-    --file xenial-server-cloudimg-amd64-disk1.img \
-    "xenial x86_64"
+    --file bionic-server-cloudimg-amd64.img \
+    "bionic x86_64"
 
 To make sure the image was successfully imported, type ``openstack image list``.
 This will output the following:
@@ -172,7 +179,7 @@ This will output the following:
     +--------------------------------------+---------------+--------+
     | ID                                   | Name          | Status |
     +--------------------------------------+---------------+--------+
-    | d4244007-5864-4a2d-9cfd-f008ade72df4 | xenial x86_64 | active |
+    | d4244007-5864-4a2d-9cfd-f008ade72df4 | bionic x86_64 | active |
     +--------------------------------------+---------------+--------+
 
 The 'Compute>Images' page of OpenStack's Horizon web UI lists many more details
@@ -184,59 +191,70 @@ minimum root storage size of any OpenStack flavours used to deploy them.
 
    Horizon image details
 
-Working with projects
----------------------
+Working with domains and projects
+---------------------------------
 
-Projects, users and roles are a vital part of OpenStack operations. We'll create
-a single project and single user for our new deployment, starting with the
-project:
+Domains, projects, users and roles are a vital part of OpenStack operations.
+We'll create a single domain with a single project and single user for our new
+deployment, starting with the domain:
 
 .. code:: bash
 
-    openstack project create --enable --description 'First Project' P01
+    openstack domain create MyDomain
+
+To add a project to the domain:
+
+.. code:: bash
+
+    openstack project create --domain MyDomain \
+        --description 'First Project' MyProject
 
 To add a user and assign that user to the project:
 
 .. code:: bash
 
-    openstack user create --project P01 --password openstack --enable p01user
+    openstack user create --domain MyDomain \
+        --project-domain MyDomain --project MyProject \
+        --password-prompt MyUser
 
 The output to the previous command will be similar to the following:
 
 .. code:: bash
 
-    +------------+----------------------------------+
-    | Field      | Value                            |
-    +------------+----------------------------------+
-    | email      | None                             |
-    | enabled    | True                             |
-    | id         | a1c55e45ec374dacb151a8aa3ecb3571 |
-    | name       | p01user                          |
-    | project_id | 1992e606b51b404c9151f8cb464aa420 |
-    | username   | p01user                          |
-    +------------+----------------------------------+
+    +---------------------+----------------------------------+
+    | Field               | Value                            |
+    +---------------------+----------------------------------+
+    | default_project_id  | 914e59223944433dbf12417ac4cd4031 |
+    | domain_id           | 7993528e51344814be2fd53f1f8f82f9 |
+    | enabled             | True                             |
+    | id                  | e980be28b20b4a2190c41ae478942ab1 |
+    | name                | MyUser                           |
+    | options             | {}                               |
+    | password_expires_at | None                             |
+    +---------------------+----------------------------------+
 
-In the same way we used ``nova.rc`` to hold the OpenStack environment variables
+In the same way we used ``openrc`` to hold the OpenStack environment variables
 for the ``admin`` account, we can create a similar file to hold the details on
 the new project and user:
 
-Create the following ``project.rc`` file:
+Create the following ``myprojectrc`` file:
 
 .. code:: yaml
 
-    export OS_AUTH_URL=http://192.168.100.95:5000/v2.0/
-    export OS_USERNAME=p01user
-    export OS_PASSWORD=openstack
-    export OS_TENANT_NAME=P01
+    export OS_AUTH_URL=http://192.168.100.95:5000/v3
+    export OS_USER_DOMAIN_NAME=MyDomain
+    export OS_USERNAME=MyUser
+    export OS_PROJECT_DOMAIN_NAME=MyDomain
+    export OS_PROJECT_NAME=MyProject
 
 Source this file's contents to effectively switch users:
 
 .. code:: bash
 
-    source project.rc
+    source myprojectrc
 
-Every subsequent action will now be performed by the ``p01user`` user within the
-new ``P01`` project.
+Every subsequent action will now be performed by ``MyUser`` user within the
+new ``MyProject`` project.
 
 Create a virtual network
 ------------------------
@@ -249,16 +267,16 @@ To create the new network, enter the following:
 
 .. code:: bash
 
-    openstack network create P01_Network
+    openstack network create MyNetwork
 
 Create a private subnet with the following parameters:
 
 .. code:: bash
 
-    openstack subnet create P01_Subnet --allocation-pool \
+    openstack subnet create MySubnet --allocation-pool \
     start=10.0.0.10,end=10.0.0.99 --subnet-range 10.0.0.0/24 \
     --gateway 10.0.0.1 --dns-nameserver 192.168.100.3 \
-    --dns-nameserver 8.8.8.8 --network P01_Network 
+    --dns-nameserver 8.8.8.8 --network MyNetwork
 
 You'll see verbose output similar to the following:
 
@@ -279,7 +297,7 @@ You'll see verbose output similar to the following:
     | ip_version              | 4                                    |
     | ipv6_address_mode       | None                                 |
     | ipv6_ra_mode            | None                                 |
-    | name                    | P01_Subnet                           |
+    | name                    | MySubnet                             |
     | network_id              | 8b0baa43-cb25-4a70-bf41-d4136cbfe16e |
     | project_id              | 1992e606b51b404c9151f8cb464aa420     |
     | revision_number         | None                                 |
@@ -295,11 +313,11 @@ Pub\_Net:
 
 .. code:: bash
 
-    openstack router create P01_Public_Router
-    openstack router set P01_Public_Router --external-gateway Pub_Net
-    openstack router add subnet P01_Public_Router P01_Subnet
+    openstack router create MyRouter
+    openstack router set MyRouter --external-gateway Pub_Net
+    openstack router add subnet MyRouter MySubnet
 
-Use ``openstack router show P01_Public_Router`` to verify all parameters have
+Use ``openstack router show MyRouter`` to verify all parameters have
 been set correctly.
 
 Finally, we can add a floating IP address to our project's new network:
@@ -341,20 +359,20 @@ following command:
 
 .. code:: bash
 
-    openstack keypair create P01-keypair > ~/.ssh/p01-keypair.pem
+    openstack keypair create NewKeypair > ~/.ssh/newkeypair.pem
 
 With SSH, it's imperative that the file has the correct permissions:
 
 .. code:: bash
 
-    chmod 600 ~/.ssh/p01-keypair.pem
+    chmod 600 ~/.ssh/newkeypair.pem
 
 Alternatively, you can import your pre-existing keypair with the following
 command:
 
 .. code:: bash
 
-    openstack keypair create --public-key ~/.ssh/id_rsa.pub my-keypair
+    openstack keypair create --public-key ~/.ssh/id_rsa.pub MyKeypair
 
 You can view which keypairs have been added to OpenStack using the
 ``openstack keypair list`` command, which generates output similar to the
@@ -365,8 +383,8 @@ following:
     +-------------------+-------------------------------------------------+
     | Name              | Fingerprint                                     |
     +-------------------+-------------------------------------------------+
-    | my-keypair        | 1d:35:52:08:55:d5:54:04:a3:e0:23:f0:20:c4:b0:eb |
-    | P01-keypair       | 1f:1a:74:a5:cb:87:e1:f3:2e:08:9e:40:dd:dd:7c:c4 |
+    | MyKeypair         | 1d:35:52:08:55:d5:54:04:a3:e0:23:f0:20:c4:b0:eb |
+    | NewKeypair        | 1f:1a:74:a5:cb:87:e1:f3:2e:08:9e:40:dd:dd:7c:c4 |
     +-------------------+-------------------------------------------------+
 
 To permit SSH traffic access to our deployments, we need to define a security
@@ -374,20 +392,20 @@ group and a corresponding network rule:
 
 .. code:: bash
 
-    openstack security group create --description 'Allow SSH' P01_Allow_SSH
+    openstack security group create --description 'Allow SSH' Allow_SSH
 
 The following rule will open TCP port 22 and apply it to the above security
 group:
 
 .. code:: bash
 
-    openstack security group rule create --proto tcp --dst-port 22 P01_Allow_SSH
+    openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
 
 Create a cloud instance
 -----------------------
 
 Before launching our first cloud instance, we'll need the network ID for the
-``P01_Network``. This can be retrieved from the first column of output from the
+``MyNetwork``. This can be retrieved from the first column of output from the
 ``openstack network list`` command:
 
 .. code:: bash
@@ -396,7 +414,7 @@ Before launching our first cloud instance, we'll need the network ID for the
     | ID                                   | Name        | Subnets                |
     +--------------------------------------+-------------+------------------------+
     | fc171d22-d1b0-467d-b6fa-109dfb77787b | Pub_Net     |563ecd06-bbc3-4c98-b93e |
-    | 8b0baa43-cb25-4a70-bf41-d4136cbfe16e | P01_Network |a91a604a-70d6-4688-915e |
+    | 8b0baa43-cb25-4a70-bf41-d4136cbfe16e | MyNetwork   |a91a604a-70d6-4688-915e |
     +--------------------------------------+-------------+------------------------+
 
 Use the network ID to replace the example in the following ``server create``
@@ -404,10 +422,10 @@ command to deploy a new instance:
 
 .. code:: bash
 
-    openstack server create Server_01 --availability-zone nova \
-    --image 'xenial x86_64' --flavor m1.small \
-    --key-name P01-keypair --security-group \
-    P01_Allow_SSH --nic net-id=8b0baa43-cb25-4a70-bf41-d4136cbfe16e
+    openstack server create Ubuntu --availability-zone nova \
+    --image 'bionic x86_64' --flavor m1.small \
+    --key-name NewKeypair --security-group \
+    Allow_SSH --nic net-id=8b0baa43-cb25-4a70-bf41-d4136cbfe16e
 
 You can monitor progress with the ``openstack server list`` command by waiting
 for the server to show a status of ``ACTIVE``:
@@ -417,7 +435,7 @@ for the server to show a status of ``ACTIVE``:
     +--------------------+-----------+--------+--------- ------------+---------------+
     | ID                 | Name      | Status | Networks             | Image Name    |
     +--------------------+-----------+--------+----------------------+---------------+
-    | 4a61f2ad-5d89-43a6 | Server_01 | ACTIVE |P01_Network=10.0.0.11 | xenial x86_64 |
+    | 4a61f2ad-5d89-43a6 | Ubuntu    | ACTIVE | MyNetwork=10.0.0.11  | bionic x86_64 |
     +--------------------+-----------+--------+----------------------+---------------+
 
 All that's left to do is assign a floating IP to the new server and connect with
@@ -439,13 +457,13 @@ the following command to assign the IP address to our new instance:
 
 .. code:: bash
 
-    openstack server add floating ip Server_01 192.168.100.152
+    openstack server add floating ip Ubuntu 192.168.100.152
 
 You will now be able to connect to your new cloud server using SSH:
 
 .. code:: bash
 
-    ssh -i ~/.ssh/p01-keypair.pem 192.168.100.152
+    ssh -i ~/.ssh/newkeypair.pem 192.168.100.152
 
 Next Steps
 ----------
