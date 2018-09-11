@@ -21,8 +21,6 @@
 # serve to show the default.
 
 import os
-# import sys
-
 
 import openstackdocstheme
 
