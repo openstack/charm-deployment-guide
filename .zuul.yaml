@@ -1,3 +1,21 @@
 - project:
     templates:
       - deploy-guide-jobs
+    check:
+      jobs:
+        - build-openstack-deploy-guide:
+            # Override restrictive default filelist since this is the
+            # only job for this repository. Otherwise we cannot merge
+            # changes that only touch files like .zuul.yaml or
+            # tox.ini.
+            files:
+              - ^.*
+    gate:
+      jobs:
+        - build-openstack-deploy-guide:
+            # Override restrictive default filelist since this is the
+            # only job for this repository. Otherwise we cannot merge
+            # changes that only touch files like .zuul.yaml or
+            # tox.ini.
+            files:
+              - ^.*
