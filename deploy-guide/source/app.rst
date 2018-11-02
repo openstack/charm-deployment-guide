@@ -11,3 +11,4 @@ Appendices
    app-encryption-at-rest.rst
    app-certificate-management.rst
    app-series-upgrade.rst
+   app-nova-cells.rst
