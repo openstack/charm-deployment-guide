@@ -181,7 +181,7 @@ and how we'd like connections to be configured.
 These options are managed from the ``Subnets`` page of the web UI. The subnets
 page defaults to listing connections by fabric and MAAS creates one fabric per
 physical NIC on the MAAS server. As we're configuring a machine with a single
-NIC, a single fabric will be be listed linked to the external subnet.
+NIC, a single fabric will be listed linked to the external subnet.
 
 We need to add DHCP to the subnet that's going to manage the nodes. To do this,
 select the ``untagged`` VLAN the subnet to the right of ``fabric-0``.
