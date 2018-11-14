@@ -232,7 +232,7 @@ Evacuate or otherwise prepare the machine
 Juju upgrade-series prepare the machine
  .. code:: bash
 
-    juju upgrade-series prepare 0 xenial
+    juju upgrade-series 0 prepare xenial
 
  .. note::
     The upgrade-series prepare command causes all the charms on the given
@@ -262,7 +262,7 @@ Set openstack-origin or source for new operating system ("distro")
 Juju upgrade-series complete the machine
  .. code:: bash
 
-    juju upgrade-series complete 0
+    juju upgrade-series 0 complete
 
  .. note::
 
@@ -331,7 +331,7 @@ Pause non-leader peer units not undergoing upgrade
 Juju upgrade-series prepare the leader's machine
  .. code:: bash
 
-    juju upgrade-series prepare 0 xenial
+    juju upgrade-series 0 prepare xenial
 
  .. note::
     The upgrade-series prepare command causes all the charms on the given
@@ -360,7 +360,7 @@ Set openstack-origin or source for new operating system ("distro")
 Juju upgrade-series complete the machine
  .. code:: bash
 
-    juju upgrade-series complete 0
+    juju upgrade-series 0 complete
 
  .. note::
 
@@ -424,7 +424,7 @@ Pause non-leader peer units not undergoing upgrade
 Juju upgrade-series prepare the leader's machine
  .. code:: bash
 
-    juju upgrade-series prepare 0 xenial
+    juju upgrade-series 0 prepare xenial
 
  .. note::
     The upgrade-series prepare command causes all the charms on the given
@@ -453,7 +453,7 @@ Set openstack-origin or source for new operating system ("distro")
 Juju upgrade-series complete the machine
  .. code:: bash
 
-    juju upgrade-series complete 0
+    juju upgrade-series 0 complete
 
  .. note::
 
