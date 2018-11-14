@@ -4,11 +4,15 @@ Appendix G: Additional Nova Cells
 Overview
 ++++++++
 
-Since Pike all OpenStack charm deployments have two cells: cell0 which is
-used to store instances which failed to get scheduled and cell1 which is an
-active compute cell. As of the 18.11 charm release multiple nova cells can be
-created when deploying a cloud or an existing deployment can be extended to
-add additional cells.
+
+As of the 18.11 charm release, with OpenStack Rocky and later, multiple nova
+cells can be created when deploying a cloud or an existing deployment can be
+extended to add additional cells.
+
+Prior to Rocky, and since Pike, all OpenStack charm deployments have two
+cells: cell0 which is used to store instances which failed to get scheduled
+and cell1 which is an active compute cell.  Additional cells are not supported
+by the charms prior to Rocky.
 
 Nova Cells v2 Topology
 ++++++++++++++++++++++
