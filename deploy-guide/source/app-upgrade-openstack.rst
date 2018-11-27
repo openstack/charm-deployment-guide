@@ -19,7 +19,7 @@ part of the OpenStack project such as Rabbitmq and MySQL.
 OpenStack Upgrade
 ~~~~~~~~~~~~~~~~~
 
-This is an upgrade of the Openstack software (packages) that are installed
+This is an upgrade of the OpenStack software (packages) that are installed
 and managed by the charms.
 
 Ubuntu Server Package Upgrade
@@ -40,21 +40,29 @@ Testing
 All procedures outlined below should be tested in a non-production environment
 first.
 
-Skipping Releases
------------------
+Skipping Releases or Fast Forward Upgrade
+-----------------------------------------
 
-The charms support triggering a multi-release upgrade and will handle stepping
-through the upgrade. However, given that some OpenStack projects (including
-Nova) only support there being a single release difference between components
-this is not recommended.
+The charms support stepped OpenStack version upgrades (N+1). For example:
+Ocata to Pike, then Pike to Queens, Queens to Rocky and so on.
+
+This stepped N+1 approach in charms is mature, well-tested, and can be used
+back-to-back to achieve N+N upgrade results.
+
+Skipping releases is not supported by many upstream OpenStack projects, and
+it is not supported by the charms.
+
+"Fast-forward-upgrade" is also not supported by the charms.  FFU/FFWD is an
+upgrade approach where the control plane services are stepped through N+1+1+1
+upgrades, typically to achieve an N+3 upgrade result.
 
 1. Charm Upgrades
 -----------------
 
-All charms should be upgraded to the latest stable release before performing
-an OpenStack upgrade. It is recommended to upgrade the Keystone charm first.
-The order of upgrading subsequent charms is usually not important but
-check the release notes for each release to ensure there are no
+All charms should be upgraded to the latest stable charm revision before
+performing an OpenStack upgrade. It is recommended to upgrade the Keystone
+charm first. The order of upgrading subsequent charms is usually not important
+but check the release notes for each release to ensure there are no
 special requirements.
 
 To upgrade a charm that was deployed from the charm store:
@@ -129,8 +137,6 @@ listed here.
 +=======+=======================+===============+
 | 1     | keystone              | Core Identity |
 +-------+-----------------------+---------------+
-| 2     | ceph                  | Storage       |
-+-------+-----------------------+---------------+
 | 2     | ceph-mon              | Storage       |
 +-------+-----------------------+---------------+
 | 2     | ceph-osd              | Storage       |
@@ -170,8 +176,6 @@ listed here.
 | 3     | neutron-gateway       | Control Plane |
 +-------+-----------------------+---------------+
 | 3     | nova-cloud-controller | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | odl-controller        | Control Plane |
 +-------+-----------------------+---------------+
 | 3     | openstack-dashboard   | Control Plane |
 +-------+-----------------------+---------------+
