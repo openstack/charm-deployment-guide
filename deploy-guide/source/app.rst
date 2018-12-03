@@ -12,3 +12,4 @@ Appendices
    app-certificate-management.rst
    app-series-upgrade.rst
    app-nova-cells.rst
+   app-octavia.rst
