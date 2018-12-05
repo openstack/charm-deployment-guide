@@ -128,7 +128,7 @@ The generated certs and keys must then be provided to the octavia charm:
 .. note::
 
     Future versions of the charm may automatically generate the internal
-    Certification Authority required to operator Octavia.
+    Certification Authority required to operate Octavia.
 
 Resource Configuration
 ----------------------
