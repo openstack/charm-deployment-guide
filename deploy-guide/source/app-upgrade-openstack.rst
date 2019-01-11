@@ -280,3 +280,44 @@ is only one unit in the application then this is the only option.
 ---------------------
 
 Check **juju status** and any monitoring solution for errors.
+
+
+Known Issues to be aware of during Upgrades
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before doing an *OpenStack* upgrade (rather than a charm upgrade), the release
+notes for the original and target versions of OpenStack should be read.  In
+particular pay attention to services or configuration parameters that have
+retired, deprecated or changed.  Wherever possible, the latest version of a
+charm has code to handle almost all changes such that the resultant system
+should be configured in the same way.  However, removed, added or replaced
+services **will** require manual intervention.
+
+When charms *can't* perform a change, either due to a bug in the charm (i.e. a
+system configuration that the charms haven't been programmed to handle) or
+because *at the individual charm level* the charm can't change the service
+(i.e. when a service is replaced with another service, a *different* charm
+would be needed).
+
+However, the following list is known issues that an operator may encounter that
+the charm does not automatically take care of, along with mitigation strategies
+to resolve the situation.
+
+
+neutron-gateway charm: upgrading from Mikata to Newton
+------------------------------------------------------
+
+Reference Bug `#1809190: switching from external-network-id and external-port
+to data-port and bridge-mappings does not remove incorrect nics from bridges
+<https://bugs.launchpad.net/charm-neutron-gateway/+bug/1809190>`_
+
+Between the mitaka and newton OpenStack releases, the ``neutron-gateway`` charm
+add two options, ``bridge-mappings`` and ``data-port``, which replaced the
+(now) deprecated ``ext-port`` option.  This was to provide more control over
+how ``neutron-gateway`` can configure external networking.
+
+The charm was designed so that it would work with either ``data-port`` (no
+longer recommended) *or* ``bridge-mappings`` and ``data-port``.  Unfortunately,
+when upgrading from OpenStack Mitaka to Newton the referenced bug above was
+been encountered, and therefore may require manual intervention to resolve the
+issue.
