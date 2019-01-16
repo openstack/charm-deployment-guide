@@ -123,6 +123,25 @@ archive of nova data run the nova-cloud-controller action:
 This action may need to be run multiple times until the action output reports
 'Nothing was archived'
 
+2.4 Purge old compute service entries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Old service entries for compute services on units which are no longer part of
+the model should be purged before upgrade.
+
+Any old service entries will show as 'down' and on machines no longer in the
+model when looking at the current list of compute services:
+
+.. code:: bash
+
+    openstack compute service list
+
+Services can be removed using the 'compute service delete' command:
+
+.. code:: bash
+
+    openstack compute service delete <ID of service>
+
 
 3. Upgrade Order
 ----------------
