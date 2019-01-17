@@ -121,6 +121,11 @@ Per machine preparations. Individual compute nodes are evacuated prior
 to series upgrade. HA routers are moved to network nodes not undergoing
 series upgrade.
 
+`Automatic Updates aka. Unattended Upgrades <https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en>`_
+is enabled by default on Ubuntu Server and must be disabled on all machines
+prior to initiating the upgrade procedure.  This is imperative to stay in
+control of when and where updates are applied throughout the upgrade procedure.
+
 
 Hyper-Converged Architecture
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
