@@ -13,3 +13,4 @@ Appendices
    app-series-upgrade.rst
    app-nova-cells.rst
    app-octavia.rst
+   app-pci-passthrough-gpu.rst
