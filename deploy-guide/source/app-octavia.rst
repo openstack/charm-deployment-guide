@@ -143,6 +143,12 @@ on the lead octavia unit:
 
 This action must be run before Octavia is fully operational.
 
+Access to the Octavia load-balancer API is guarded by policies and end users
+must have specific roles to gain access to the service.  The charm will request
+Keystone to pre-create these roles for you on deployment but you must assign the
+roles to your end users as you see fit.  Take a look at
+`Octavia Policies <https://docs.openstack.org/octavia/latest/configuration/policy.html>`_.
+
 The charm also allows the operator to pre-configure these resources to support
 full custom configuration of the management network for Octavia. If you want
 to manage these resources yourself you must set the `create-mgmt-network`
