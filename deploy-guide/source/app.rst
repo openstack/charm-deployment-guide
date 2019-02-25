@@ -14,3 +14,4 @@ Appendices
    app-nova-cells.rst
    app-octavia.rst
    app-pci-passthrough-gpu.rst
+   app-rgw-multisite.rst
