@@ -143,7 +143,7 @@ Vault:
 
 .. code:: bash
 
-    juju run-action vault/0 authorize-charm token=03ceadf5-529d-6a64-0cfd-1e341b1dacb1
+    juju run-action --wait vault/leader authorize-charm token=03ceadf5-529d-6a64-0cfd-1e341b1dacb1
 
 After the action completes execution, the vault unit will go active
 and any pending requests for secrets storage will be processed for
