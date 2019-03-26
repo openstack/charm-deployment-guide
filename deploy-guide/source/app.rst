@@ -15,3 +15,4 @@ Appendices
    app-octavia.rst
    app-pci-passthrough-gpu.rst
    app-rgw-multisite.rst
+   app-ceph-rbd-mirror.rst
