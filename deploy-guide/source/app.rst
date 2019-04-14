@@ -16,3 +16,4 @@ Appendices
    app-pci-passthrough-gpu.rst
    app-rgw-multisite.rst
    app-ceph-rbd-mirror.rst
+   app-masakari.rst
