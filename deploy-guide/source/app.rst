@@ -17,3 +17,4 @@ Appendices
    app-rgw-multisite.rst
    app-ceph-rbd-mirror.rst
    app-masakari.rst
+   app-erasure-coding.rst
