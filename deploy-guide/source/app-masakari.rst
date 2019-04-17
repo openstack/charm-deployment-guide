@@ -4,15 +4,18 @@ Appendix L: Automated Instance Recovery
 Overview
 ++++++++
 
-As of the 19.04 charm release, with OpenStack Stein and later, masakari can be
+As of the 19.04 charm release, with OpenStack Stein and later, Masakari can be
 a deployed to provide automated instance recovery for guests using shared
 storage. Masakari responds to two different failures types, individual guest
 failure and the loss of an entire compute node.
 
 .. warning::
 
-    The Masakari charms are for use in development environments or PoC work
-    they should not be treated as production ready yet.
+    These charms bring forward upstream Masakari features which need to be
+    carefully considered and pre-validated in test labs by cloud operators.
+    Further upstream Masakari development, charm feature work and scenario
+    validation is likely going to be necessary before the solution can be
+    considered mature on the whole.
 
 STONITH
 +++++++
