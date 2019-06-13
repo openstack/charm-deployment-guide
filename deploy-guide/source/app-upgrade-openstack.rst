@@ -198,7 +198,7 @@ listed here.
 +-------+-----------------------+---------------+
 | 3     | openstack-dashboard   | Control Plane |
 +-------+-----------------------+---------------+
-| 4     | nova-compute          | Compute       |
+| 3     | nova-compute          | Compute       |
 +-------+-----------------------+---------------+
 
 4. Performing The Upgrade
@@ -243,23 +243,39 @@ used to place units of a charm into a state where maintenance operations can
 be carried out. Using these actions along with action managed upgrades allows
 a charm to be removed from service, upgraded and returned to service.
 
-
-For example to upgrade a three node nova-cloud-controller service from Ocata
-to Pike where nova-cloud-controller/2 is the leader:
+For example, to upgrade a three-unit nova-cloud-controller application
+from Ocata to Pike where nova-cloud-controller/2 is the leader:
 
 .. code:: bash
 
     juju config nova-cloud-controller action-managed-upgrade=True
     juju config nova-cloud-controller openstack-origin='cloud:xenial-pike'
+
+    juju run-action nova-cloud-controller-hacluster/2 --wait pause
     juju run-action nova-cloud-controller/2 --wait pause
     juju run-action nova-cloud-controller/2 --wait openstack-upgrade
     juju run-action nova-cloud-controller/2 --wait resume
+    juju run-action nova-cloud-controller-hacluster/2 --wait resume
+    juju run-action nova-cloud-controller-hacluster/1 --wait pause
     juju run-action nova-cloud-controller/1 --wait pause
     juju run-action nova-cloud-controller/1 --wait openstack-upgrade
     juju run-action nova-cloud-controller/1 --wait resume
+    juju run-action nova-cloud-controller-hacluster/1 --wait resume
+    juju run-action nova-cloud-controller-hacluster/0 --wait pause
     juju run-action nova-cloud-controller/0 --wait pause
     juju run-action nova-cloud-controller/0 --wait openstack-upgrade
     juju run-action nova-cloud-controller/0 --wait resume
+    juju run-action nova-cloud-controller-hacluster/0 --wait resume
+
+
+.. warning::
+
+    The hacluster unit numbers may not match the parent
+    unit number. In the example above nova-cloud-controller-hacluster/2 might
+    not be the hacluster subordinate of nova-cloud-controller/2. You should
+    always pause the hacluster subordinate unit respective to the parent unit
+    you wish to upgrade, starting from the leader.
+
 
 Action managed
 ~~~~~~~~~~~~~~
@@ -321,6 +337,20 @@ would be needed).
 However, the following list is known issues that an operator may encounter that
 the charm does not automatically take care of, along with mitigation strategies
 to resolve the situation.
+
+
+Nova RPC version mismatches
+---------------------------
+
+Reference Bug `#1825999: [upgrade] versions N and N+1 are not compatible
+<https://bugs.launchpad.net/charm-nova-compute/+bug/1825999>`_
+
+If it is not possible to upgrade neutron and nova within the same maintenance
+window, be mindful that the RPC communication between nova-cloud-controller,
+nova-compute and nova-api-metadata is very likely to present several errors
+while those services are not running the same version. This is due to the fact
+that currently those charms do not support RPC version pinning or
+auto-negotiation.
 
 
 neutron-gateway charm: upgrading from Mikata to Newton
@@ -390,3 +420,4 @@ with the newly defined cinder-ceph backend:
 
     juju run-action cinder/0 rename-volume-host currenthost='cinder' \
         newhost='cinder@cinder-ceph#cinder.volume.drivers.rbd.RBDDriver'
+
