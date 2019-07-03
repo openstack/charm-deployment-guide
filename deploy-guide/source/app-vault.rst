@@ -19,7 +19,7 @@ First deploy the vault charm along with supporting services:
 .. code:: bash
 
     juju deploy --to lxd:0 vault
-    juju add-relation vault percona-cluster
+    juju add-relation vault:shared-db percona-cluster:shared-db
 
 .. note::
 
@@ -166,7 +166,7 @@ snap channel which supports it:
     juju add-unit --to lxd:2 vault
     juju config vault vip=10.20.30.1
     juju deploy hacluster vault-hacluster
-    juju add-relation vault vault-hacluster
+    juju add-relation vault:ha vault-hacluster:ha
 
     juju deploy --config channel=3.1/stable --to lxd:0 etcd
     juju add-unit --to lxd:1 etcd
@@ -174,9 +174,9 @@ snap channel which supports it:
 
     juju deploy --to lxd:0 easyrsa  # required for TLS certs for etcd
 
-    juju add-relation etcd easyrsa
-    juju add-relation etcd vault
-    juju add-relation vault percona-cluster
+    juju add-relation etcd:certificates easyrsa:client
+    juju add-relation etcd:db vault:etcd
+    juju add-relation vault:shared-db percona-cluster:shared-db
 
 Only a single vault unit is 'active' at any point in time (reflected in juju
 status output). Other vault units will proxy incoming API requests to the
