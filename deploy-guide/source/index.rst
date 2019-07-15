@@ -6,6 +6,22 @@
 OpenStack Charms Deployment Guide
 =================================
 
+Overview
+++++++++
+
+The purpose of this guide is to document the steps necessary to build a
+multi-node OpenStack cluster using `Juju <https://jaas.ai/>`__,
+`MAAS <https://maas.io/>`__, and
+`OpenStack Charms <https://docs.openstack.org/charm-guide/latest/>`__.
+Specific use cases and customization scenarios are documented in the
+appendices.
+
+.. note::
+
+    For OpenStack Charms project information, development guidelines, release
+    notes, and release schedules, please refer to the
+    `charm guide <https://docs.openstack.org/charm-guide/latest/>`__.
+
 .. toctree::
    :maxdepth: 2
 
