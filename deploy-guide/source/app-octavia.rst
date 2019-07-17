@@ -178,21 +178,43 @@ The UUID of the Nova flavor to use for Amphorae can be set using the
 Amphora image
 -------------
 
-Octavia uses Amphorae (cloud instances running haproxy) to provide LBaaS services;
+Octavia uses Amphorae (cloud instances running HAProxy) to provide LBaaS services;
 an appropriate image must be uploaded to Glance with the tag `octavia-amphora`.
+
+You can use the ``octavia-diskimage-retrofit`` tool to transform a stock Ubuntu
+cloud image into a Octavia HAProxy Amphora image.
+
+This tool is available as a snap and for convenience there is also a charm
+available that can transform Ubuntu images already available in your Glance
+image store.
+
+Example usage:
 
 .. code::
 
-    curl http://tarballs.openstack.org/octavia/test-images/test-only-amphora-x64-haproxy-ubuntu-xenial.qcow2 | \
-        openstack image create --tag octavia-amphora --disk-format=qcow2 \
-            --container-format=bare --private amphora-haproxy-xenial
+    juju deploy glance-simplestreams-sync \
+        --config source=ppa:simplestreams-dev/trunk
+    juju deploy octavia-diskimage-retrofit \
+        --config amp-image-tag=octavia-amphora
+
+    juju add-relation glance-simplestreams-sync keystone
+    juju add-relation glance-simplestreams-sync rabbitmq-server
+    juju add-relation octavia-diskimage-retrofit glance-simplestreams-sync
+    juju add-relation octavia-diskimage-retrofit keystone
+
+After the deployment has settled and ``glance-simplestreams-sync`` has
+completed its initial image sync, you may ask a ``octavia-diskimage-retrofit``
+unit to initiate the Amphora image retrofitting process.
+
+This is accomplished through running an action on one of the units.
+
+.. code::
+
+    juju run-action --wait octavia-diskimage-retrofit/leader retrofit-image
 
 Octavia will use this image for all Amphora instances.
 
 .. warning::
-
-    The example above uses the OpenStack published Octavia test image based
-    on Ubuntu Xenial; this is not appropriate for production usage.
 
     It's important to keep the Amphora image up-to-date to ensure that
     LBaaS services remain secure; this process is not covered in this
