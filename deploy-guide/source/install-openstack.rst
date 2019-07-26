@@ -1,8 +1,8 @@
 Install OpenStack
 =================
 
-Now that we've installed and configured `MAAS <./install-maas.html>`__ and
-successfully deployed a `Juju <./install-juju.html>`__ controller, it's time to
+Now that we've installed and configured :doc:`MAAS <install-maas>` and
+successfully deployed a :doc:`Juju <install-juju>` controller, it's time to
 do some real work; use Juju to deploy
 `OpenStack <https://www.openstack.org/>`__, the leading open cloud platform.
 
@@ -23,14 +23,14 @@ recommend starting with the first option. This will give you a stronger
 foundation for maintaining and expanding the default deployment. Our
 instructions for this option continue below.
 
-Alternatively, jump to `Deploying OpenStack as a
-bundle <./install-openstack-bundle.html>`__ to learn about deploying as a
+Alternatively, jump to :doc:`Deploying OpenStack as a
+bundle <install-openstack-bundle>` to learn about deploying as a
 bundle.
 
 Deploy the Juju controller
 --------------------------
 
-`Previously <./install-juju.html>`__, we tested our MAAS and Juju configuration
+:doc:`Previously <install-juju>`, we tested our MAAS and Juju configuration
 by deploying a new Juju controller called ``maas-controller``. You can check
 this controller is still operational by typing ``juju status``. With the Juju
 controller running, the output will look similar to the following:
@@ -497,6 +497,8 @@ All that's now left to do is wait on the output from ``juju status`` to show
 when everything is ready (everything turns green, if your terminal support
 colour).
 
+.. _test_openstack:
+
 Test OpenStack
 --------------
 
@@ -525,8 +527,8 @@ Next steps
 ----------
 
 Congratulations, you've successfully deployed a working OpenStack environment
-using both Juju and MAAS. The next step is to `configure
-OpenStack <./config-openstack.html>`__ for use within a production environment.
+using both Juju and MAAS. The next step is to :doc:`configure
+OpenStack <config-openstack>` for use within a production environment.
 
 .. raw:: html
 

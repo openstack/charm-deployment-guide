@@ -5,7 +5,7 @@ Install Juju
 tool that allows you to deploy, configure, scale and operate your software on
 public and private clouds.
 
-In the `previous step <./install-maas.html>`__, we installed, deployed and
+In the :doc:`previous step <install-maas>`, we installed, deployed and
 configured `MAAS <https://maas.io/>`__ to use as a foundation for Juju to deploy
 a fully fledged OpenStack cloud.
 
@@ -109,7 +109,7 @@ controller for our cloud:
 
 The constraint in the above command will ask MAAS to use any nodes tagged with
 ``juju`` to host the controller for the Juju client. We tagged this node within
-MAAS in the `previous step <./install-maas.md#commision-nodes>`__.
+MAAS in the :ref:`previous step <commision_nodes>`.
 
 The output to a successful bootstrap will look similar to the following:
 

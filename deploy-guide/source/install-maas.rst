@@ -260,6 +260,8 @@ configuration may require.
 Click ``Save changes`` when finished. You should now be able to power off the
 machine using the ``Take action`` menu in the top right.
 
+.. _commision_nodes:
+
 Commission nodes
 ----------------
 
