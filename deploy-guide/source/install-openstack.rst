@@ -23,7 +23,7 @@ recommend starting with the first option. This will give you a stronger
 foundation for maintaining and expanding the default deployment. Our
 instructions for this option continue below.
 
-Alternatively, jump to :doc:`Deploying OpenStack as a
+Alternatively, jump to :doc:`Deploying OpenStack from a
 bundle <install-openstack-bundle>` to learn about deploying as a
 bundle.
 
