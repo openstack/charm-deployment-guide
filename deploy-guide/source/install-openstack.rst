@@ -211,11 +211,18 @@ going to use this for two applications, ``neutron-gateway`` and ``neutron-api``:
 .. code:: yaml
 
     neutron-gateway:
-      ext-port: 'eth1'
+      data-port: br-ex:eth1
     neutron-api:
       neutron-security-groups: True
 
-First, deploy the gateway:
+The ``data-port`` refers to a network interface that Neutron Gateway will bind
+to. In the above example it is ``eth1`` and it should be an unused interface.
+In the MAAS web UI this interface must be given an *IP mode* of 'Unconfigured'
+(see `MAAS documentation <https://maas.io/docs/commission-nodes#heading--post-commission-configuration>`__
+for guidance). Set all four nodes in this way to ensure that any node is able
+to accommodate Neutron.
+
+Deploy neutron-gateway on machine 0 now:
 
 .. code:: bash
 
