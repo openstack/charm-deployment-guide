@@ -1,0 +1,1029 @@
+.. _managing_power_events:
+
+Appendix P: Managing Power Events
+=================================
+
+Overview
+++++++++
+
+Once your OpenStack cloud is deployed and in production you will need to
+consider how to manage applications in terms of shutting them down and starting
+them up. Examples of situations where this knowledge would be useful include
+controlled power events such as node reboots and restarting an AZ (or an entire
+cloud). You will also be better able to counter uncontrolled power events like
+a power outage. This guide covers how to manage these kinds of power events in
+your cloud successfully.
+
+For the purposes of this document, a *node* is any non-containerised system
+that houses at least one cloud service. In practice, this typically constitutes
+a physical host.
+
+In addition, any `known issues`_ affecting the restarting of parts of the cloud
+stack are documented. Although they are presented last, it is highly
+recommended to review them prior to attempting to apply any of the information
+shown here.
+
+An important assumption made in this document is that the cloud is
+*hyperconverged*. That is, multiple applications cohabit each cloud node. This
+aspect makes a power event especially significant as it can potentially affect
+the entire cloud.
+
+.. note::
+
+    This document may help influence a cloud's initial design. Once it is
+    understood how an application should be treated in the context of a power
+    event the cloud architect will be able to make better informed decisions.
+
+Section `Notable applications`_ contains valuable information when stopping and
+starting services. It will be used in the context of power events but its
+contents can also be used during the normal operation of a cloud.
+
+General guidelines
+++++++++++++++++++
+
+As each cloud is unique this section will provide general guidelines on how to
+prepare for and manage power events in your cloud.
+
+.. important::
+
+    It is recommended that every deployed cloud have a list of detailed
+    procedures that cover the uniqueness of that cloud. The guidelines in this
+    current document can act as starting point for such a resource.
+
+HA applications
+~~~~~~~~~~~~~~~
+
+Theoretically, an application with high availability is impervious to a power
+event, meaning that one would have no impact on both client requests to the
+application and the application itself. However, depending on the situation,
+some such applications may still require attention when starting back up. The
+`percona-cluster`_ application is a good example of this.
+
+Cloud applications are typically made highly available through the use of the
+`hacluster`_ subordinate charm. Some applications, though, achieve HA at the
+software layer (outside of Juju), and can be called *natively HA*. One such
+application is ``rabbitmq-server``.
+
+Cloud topology
+~~~~~~~~~~~~~~
+
+The very first step is to map out the topology of your cloud. In other words,
+you need to know what application units are running on what machines, and
+whether those machines are physical (metal), virtual (kvm), or container (lxd)
+in nature. Each application's HA status should also be indicated.
+
+A natural way for Juju operators to map out their cloud is by inspecting the
+output of the ``juju status`` command. For a demonstration see :ref:`Cloud
+topology example <cloud_topology_example>`. It is based on this production
+:ref:`Reference cloud <reference_cloud>`.
+
+Control plane, data plane, and shutdown order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*Data plane* services involve networking, storage, and virtualisation, whereas
+*control plane* services are necessary to administer and operate the cloud.
+See `High availability`_ and `Control plane architecture`_ for more details.
+
+When a cloud is in production the priority for the administrator is to ensure
+that instances and their associated workloads continue to run. This means that
+in terms of the impact a power event may have, the data plane has priority
+over the control plane.
+
+Generally, data plane services (DP) are stopped prior to control plane (CP)
+services. Also, services within a plane will typically depend upon another
+service within that same plane. The conclusion is that the dependant service
+should be brought down before the service being depended upon (e.g. stop Nova
+before stopping Ceph).
+
+In terms of core applications then, an approximate service shutdown ordered
+list can be built to act as a general guideline. Some services, such as API
+services, have less, if any, impact on other services and can therefore be
+turned off in any order.
+
+In the below list, the most notable aspects are the extremes: nova-compute and
+Ceph should be stopped first and keystone, rabbitmq-server, and percona-cluster
+should be stopped last:
+
+#. ``nova-compute`` (DP)
+#. ``ceph-osd`` (DP)
+#. ``ceph-mon`` (DP)
+#. ``ceph-radosgw`` (DP)
+#. ``neutron-gateway`` (DP)
+#. ``neutron-openvswitch`` (DP)
+#. ``glance`` (CP)
+#. ``cinder`` (CP)
+#. ``neutron-gateway`` (CP)
+#. ``neutron-api`` (CP)
+#. ``placement`` (CP)
+#. ``nova-cloud-controller`` (CP)
+#. ``keystone`` (CP)
+#. ``rabbitmq-server`` (CP)
+#. ``percona-cluster`` (CP)
+
+Each node can now be analysed to see what applications it hosts and in what
+order they should be stopped.
+
+Stopping and starting services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When **stopping** a service (not an entire application and not a unit agent) on
+a hyperconverged cloud node it is safer to act on each unit and stop the
+service individually. The alternative is to power down the node hosting the
+service, which will, of course, stop every other service hosted on that node.
+**Ensure that you understand the consequences of powering down a node**.
+
+In addition, whenever a service is stopped on a node you need to know what
+impact that will have on the cloud. For instance, the default effect of turning
+off a Ceph OSD is that data will be re-distributed among the other OSDs,
+resulting in high disk and network activity. Most services should be in HA mode
+but you should be aware of the quorum that must be maintained in order for HA
+to function as designed. For example, turning off two out of three Keystone
+cluster members is not advisable.
+
+Wherever possible, this document shows how to manage services with Juju
+`actions`_. Apart from their intrinsic benefits (i.e. sanctioned by experts),
+actions are not hampered by SSH-restricted environments. Note that a charm may
+not implement every desired command in the form of an action however. In that
+case, the only alternative is to interact directly with the unit's operating
+system via `SSH`_.
+
+.. important::
+
+   When an action is used the resulting state persists within Juju, and, in
+   particular, will **survive a node reboot**. This can be very advantageous in
+   the context of controlled shutdown and startup procedures, but it does
+   demand tracking on the part of the operator. To assist with this, some
+   charms expose action information in the output of the ``juju status``
+   command .
+
+When actions are **not** used, in terms of **starting** services on a single
+node or across a cloud, it may not be possible to do so in a prescribed order
+unless the services were explicitly configured to *not* start automatically
+during the bootup of a node.
+
+.. QUESTION
+    pmatulis: It is possible to start (and stop) LXD containers in a certain
+    order. Is adding this element to bundles a viable response to the above for
+    LXD-based workloads?`
+
+Regardless of whether a service is started with a Juju action, via SSH, or by
+booting the corresponding node, it is vital that you verify afterwards that the
+service is actually running and functioning properly.
+
+Controlled power events
++++++++++++++++++++++++
+
+The heart of managing your cloud in terms of controlled power events is the
+power-cycling of an individual cloud node. Once you're able to make decisions
+on a per-node basis extending the power event to a group of nodes, such as an
+AZ or even an entire cloud, will become less daunting.
+
+Power-cycling a cloud node
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a hyperconverged cloud node requires to be power-cycled begin by
+considering the cloud topology, at least for the machine in question.
+
+To illustrate, machines **17**, **18**, **20** from the :ref:`Cloud topology
+example <cloud_topology_example>` will be used. Note that only fundamental
+applications will be included (i.e. applications such as openstack-dashboard,
+ceilometer, etc. will be omitted).
+
+The main issue behind power-cycling a node is to come up with a **shutdown**
+list of services, as the startup list is typically just the shutdown list in
+reverse. This is what is shown below for each machine. Information regarding HA
+status and machine type has been retained (from the source topology example).
+
+The shutdown lists are based on section `Control plane, data plane, and
+shutdown order`_.
+
+machine 17
+^^^^^^^^^^
+
+#. ``nova-compute`` (metal)
+#. ``ceph-osd`` (natively HA; metal)
+#. ``ceph-mon`` (natively HA; lxd)
+#. ``ceph-radosgw`` (natively HA; lxd)
+#. ``glance`` (HA; lxd)
+#. ``cinder`` (HA; lxd)
+#. ``keystone`` (HA; lxd)
+#. ``percona-cluster`` (HA; lxd)
+
+machine 18
+^^^^^^^^^^
+
+#. ``nova-compute`` (metal)
+#. ``ceph-osd`` (natively HA; metal)
+#. ``neutron-api`` (HA; lxd)
+#. ``nova-cloud-controller`` (HA; lxd)
+#. ``rabbitmq-server`` (natively HA; lxd)
+
+machine 20
+^^^^^^^^^^
+
+#. ``ceph-osd`` (natively HA; metal)
+#. ``neutron-gateway`` (natively HA; metal)
+#. ``neutron-api`` (HA; lxd)
+#. ``nova-cloud-controller`` (HA; lxd)
+#. ``rabbitmq-server`` (natively HA; lxd)
+
+See section `Notable applications`_ for instructions on stopping individual
+services.
+
+Power-cycling an AZ or an entire cloud
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apart from the difference in scale of the service outage, stopping and starting
+an AZ (availability zone) or an entire cloud is a superset of the case of
+power-cycling an individual node. You just need to identify the group of nodes
+that are involved. An AZ or cloud would consist of all of the core services
+listed in section `Control plane, data plane, and shutdown order`_.
+
+Uncontrolled power events
++++++++++++++++++++++++++
+
+In the context of this document, an uncontrolled power event is an unintended
+power outage. The result of such an event is that one or many physical cloud
+hosts have turned off non-gracefully. Since we now know that some cloud
+services should be stopped in a particular order and in a particular way the
+task now is to ascertain what services could have been negatively impacted and
+how to proceed in getting such services back in working order.
+
+Begin as was done in the case of `Power-cycling a cloud node`_ by determining
+the topology of the affected nodes. See whether any corresponding services have
+special shutdown procedures as documented in section `Notable applications`_.
+Any such services will require special scrutiny when they are eventually
+started. Determine an ordered startup list for the affected services. As was
+shown in `Power-cycling a cloud node`_, this list is the reverse of the
+shutdown list. Finally, once the nodes are powered on, by abiding as much as
+possible to the startup list, act on any verification steps found in section
+`Notable applications`_ for all cloud services.
+
+Notable applications
+++++++++++++++++++++
+
+This section contains application-specific shutdown/restart procedures,
+well-known caveats, or just valuable tips.
+
+As noted under `Stopping and starting services`_, this document encourages the
+use of actions for managing application services. The general syntax is::
+
+    juju run-action --wait <unit> <action>
+
+In the procedures that follow, <unit> will be replaced by an example only (e.g.
+``nova-compute/0``). You will need to substitute in the actual unit for your
+cloud.
+
+For convenience, the applications are listed here (you can also use the table
+of contents in the upper left-hand-side):
+
++-----------------+-----------+--------------------+--------------------------+--------------------+
+| `ceph-osd`_     | `cinder`_ | `keystone`_        | `neutron-openvswitch`_   | `percona-cluster`_ |
++-----------------+-----------+--------------------+--------------------------+--------------------+
+| `ceph-mon`_     | `etcd`_   | `landscape`_       | `nova-compute`_          | `rabbitmq-server`_ |
++-----------------+-----------+--------------------+--------------------------+--------------------+
+| `ceph-radosgw`_ | `glance`_ | `neutron-gateway`_ | `nova-cloud-controller`_ | `vault`_           |
++-----------------+-----------+--------------------+--------------------------+--------------------+
+
+-------------------------------------------------------------------------------
+
+.. _ceph-osd:
+.. _ceph-mon:
+.. _ceph-radosgw:
+
+ceph
+~~~~
+
+All Ceph services are grouped under this one heading.
+
+.. note::
+
+   Some ceph-related charms are lacking in actions. Some procedures will
+   involve direct intervention. See bugs `LP #1846049`_, `LP #1846050`_, `LP
+   #1849222`_, and `LP #1849224`_.
+
+shutdown
+^^^^^^^^
+
+With respect to powering down a node that hosts an OSD, by default, the Ceph
+CRUSH map is configured to treat each cluster machine as a failure domain. The
+default pool behaviour is to replicate data across three failure domains, and
+require at least two of them to be present to accept writes. Shutting down
+multiple machines too quickly may cause two of three copies of a particular
+placement group to become temporarily unavailable, which would cause consuming
+applications to block on writes. The CRUSH map can be configured to spread
+replicas over a failure domain other than machines. See `CRUSH maps`_ in the
+Ceph documentation.
+
+The shutdown procedures for Ceph are provided for both a **cluster** and for
+individual **components** (e.g. ``ceph-mon``).
+
+cluster
+"""""""
+
+1. Ensure that the cluster is in a healthy state. From a Juju client, run a
+   status check on any MON unit::
+
+    juju ssh ceph-mon/1 sudo ceph status
+
+2. Shut down all components/clients consuming Ceph before shutting down Ceph
+   components to avoid application-level data loss.
+
+3. Set the ``noout`` option on the cluster a single MON unit, to prevent data
+   rebalancing from occurring when OSDs start disappearing from the network::
+
+    juju run-action --wait ceph-mon/1 set-noout
+
+   Query status again to ensure that the option is set::
+
+    juju ssh ceph-mon/1 sudo ceph status
+
+   Expected partial output is::
+
+    health: HEALTH_WARN
+    noout flag(s) set
+
+4. Stop the RADOS Gateway service on **each** ``ceph-radosgw`` unit.
+
+   First get the current status::
+
+    juju ssh ceph-radosgw/0 systemctl status ceph-radosgw@\*
+
+   Example partial output is::
+
+    ● ceph-radosgw@rgw.ip-172-31-93-254.service - Ceph rados gateway
+       Loaded: loaded (/lib/systemd/system/ceph-radosgw@.service; indirect; vendor
+       preset: enabled)
+          Active: active (running) since Mon 2019-09-30 21:33:53 UTC; 9min ago
+
+   Now pause the service::
+
+    juju run-action --wait ceph-radosgw/0 pause
+
+   Verify that the service has stopped::
+
+    juju ssh ceph-radosgw/0 systemctl status ceph-radosgw@\*
+
+   Expected output is null (no output).
+
+5. Remove all of a unit's OSDs from the cluster. Do this on **each**
+   ``ceph-osd`` unit::
+
+    juju run-action --wait ceph-osd/1 osd-out
+
+   Once done, verify that all of the cluster's OSDs are *out*::
+
+    juju ssh ceph-mon/1 sudo ceph status
+
+   Assuming a total of six OSDs, expected partial output ("0 in") is::
+
+    osd: 6 osds: 6 up, 0 in; 66 remapped pgs
+
+6. Stop the MON service on **each** ``ceph-mon`` unit::
+
+    juju ssh ceph-mon/0 sudo systemctl stop ceph-mon.service
+
+   Verify that the MON service has stopped on each unit::
+
+    juju ssh ceph-mon/0 systemctl status ceph-mon.service
+
+   Expected partial output is::
+
+    Active: inactive (dead) since Mon 2019-09-30 19:46:09 UTC; 1h 1min ago
+
+.. important::
+
+    Once the MON units have lost quorum you will lose the ability to query the
+    cluster.
+
+component
+"""""""""
+
+1. Ensure that the cluster is in a healthy state. On any MON::
+
+    juju ssh ceph-mon/1 sudo ceph status
+
+2. **ceph-mon** - To bring down a single MON service:
+
+   a. Stop the MON service on the ``ceph-mon`` unit::
+
+       juju ssh ceph-mon/0 sudo systemctl stop ceph-mon.service
+
+   b. Do not bring down another MON until the cluster has recovered from the
+      loss of the current one (run a status check).
+
+3. **ceph-osd** - To bring down all the OSDs on a single unit:
+
+   a. Remove all the OSDs on the ``ceph-osd`` unit::
+
+       juju run-action --wait ceph-osd/2 osd-out
+
+   b. Do not remove OSDs on another unit until the cluster has recovered from
+      the loss of the current one (run a status check).
+
+startup
+^^^^^^^
+
+The startup procedures for Ceph are provided for both a **cluster** and for
+individual **components** (e.g. ``ceph-mon``).
+
+cluster
+"""""""
+
+Nodes hosting Ceph services should be powered on such that the services are
+started in this order:
+
+1. ``ceph-mon``
+2. ``ceph-osd``
+3. ``ceph-radosgw``
+
+**Important**: If during cluster shutdown,
+
+a. a unit's OSDs were removed from the cluster then you must re-insert them. Do
+   this for **each** ``ceph-osd`` unit::
+
+    juju run-action --wait ceph-osd/0 osd-in
+
+b. the ``noout`` option was set, you will need to unset it. On any MON unit::
+
+    juju run-action --wait ceph-mon/0 unset-noout
+
+c. a RADOS Gateway service was paused, you will need to resume it. Do this for
+   **each** ``ceph-radosgw`` unit::
+
+    juju run-action --wait ceph-radosgw/0 resume
+
+Finally, ensure that the cluster is in a healthy state by running a status
+check on any MON unit::
+
+    juju ssh ceph-mon/0 sudo ceph status
+
+component
+"""""""""
+
+1. Ensure that the cluster is in a healthy state. On any MON::
+
+    juju ssh ceph-mon/0 sudo ceph status
+
+2. **ceph-mon** - To bring up a single MON service:
+
+   a. Start the MON service on the ``ceph-mon`` unit::
+
+       juju ssh ceph-mon/1 sudo systemctl start ceph-mon.service
+
+   b. Do not bring up another MON until the cluster has recovered from the
+      addition of the current one (run a status check).
+
+3. **ceph-osd** - To bring up all the OSDs on a unit:
+
+   a. Re-insert the OSDs on the ``ceph-osd`` unit::
+
+       juju run-action --wait ceph-osd/1 osd-in
+
+   b. Do not re-insert OSDs on another unit until the cluster has recovered
+      from the addition of the current ones (run a status check).
+
+.. important::
+
+    Individual OSDs on a unit cannot be started or stopped using actions. They
+    are managed as a collective.
+
+-------------------------------------------------------------------------------
+
+cinder
+~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the Cinder service::
+
+    juju run-action --wait cinder/0 pause
+
+startup
+^^^^^^^
+
+To resume the Cinder service::
+
+    juju run-action --wait cinder/0 resume
+
+-------------------------------------------------------------------------------
+
+etcd
+~~~~
+
+.. note::
+
+    The ``etcd`` charm is lacking in actions. Some procedures will involve
+    direct intervention. See bug `LP #1846257`_.
+
+shutdown
+^^^^^^^^
+
+To stop the Etcd service::
+
+    juju ssh etcd/0 sudo systemctl stop snap.etcd.etcd
+
+startup
+^^^^^^^
+
+To start the Etcd service::
+
+    juju ssh etcd/0 sudo systemctl start snap.etcd.etcd
+
+read queries
+^^^^^^^^^^^^
+
+To see the etcd cluster status. On any ``etcd`` unit::
+
+    juju run-action --wait etcd/0 health
+
+loss of etcd quorum
+^^^^^^^^^^^^^^^^^^^
+
+If the majority of the etcd units fail (e.g. 2 out of 3) you can scale down the
+cluster (e.g. 3 to 1). However, if all hooks have not had a chance to run (e.g.
+you may have to force remove and redeploy faulty units) the surviving master
+will not accept new cluster members/units. In that case, do the following:
+
+1. Scale down the cluster to 1 unit any way you can (remove faulty units / stop
+   the etcd service / delete the database on the slave units).
+
+2. Force the surviving master to become a 1-node cluster. On the appropriate
+   unit:
+
+   a. Stop the service::
+
+       juju ssh etcd/0 sudo systemctl stop snap.etcd.etcd
+
+   b. Connect to the unit via SSH and edit
+      `/var/snap/etcd/common/etcd.conf.yml` by setting `force-new-cluster` to
+      'true'.
+
+   c. Start the service::
+
+       juju ssh etcd/0 sudo systemctl start snap.etcd.etcd
+
+   d. Connect to the unit via SSH and edit
+      `/var/snap/etcd/common/etcd.conf.yml` by setting `force-new-cluster` to
+      'false'.
+
+3. Scale up the cluster by adding new etcd units.
+
+-------------------------------------------------------------------------------
+
+glance
+~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the Glance service::
+
+    juju run-action --wait glance/0 pause
+
+.. important::
+
+    If Glance is clustered using the 'hacluster' charm, first **pause**
+    hacluster and then **pause** Glance.
+
+startup
+^^^^^^^
+
+To resume the Glance service::
+
+    juju run-action --wait glance/0 resume
+
+.. important::
+
+    If Glance is clustered using the 'hacluster' charm, first **resume**
+    Glance and then **resume** hacluster.
+
+-------------------------------------------------------------------------------
+
+keystone
+~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the Keystone service::
+
+    juju run-action --wait keystone/0 pause
+
+.. important::
+
+    If Keystone is clustered using the 'hacluster' charm, first **pause**
+    hacluster and then **pause** Keystone.
+
+startup
+^^^^^^^
+
+To resume the Keystone service::
+
+    juju run-action --wait keystone/0 resume
+
+.. important::
+
+    If Keystone is clustered using the 'hacluster' charm, first **resume**
+    Keystone and then **resume** hacluster.
+
+-------------------------------------------------------------------------------
+
+landscape
+~~~~~~~~~
+
+.. note::
+
+    The ``postgresql`` charm, needed by Landscape, is lacking in actions. Some
+    procedures will involve direct intervention. See bug `LP #1846279`_.
+
+shutdown
+^^^^^^^^
+
+1. Pause the Landscape service::
+
+    juju run-action --wait landscape-server/0 pause
+
+2. Stop the PostgreSQL service::
+
+    juju ssh postgresql/0 sudo systemctl stop postgresql
+
+3. Pause the RabbitMQ service::
+
+    juju run-action --wait rabbitmq-server/0 pause
+
+.. caution::
+
+    Services other than Landscape may also be using either of the PostgreSQL or
+    RabbitMQ services.
+
+startup
+^^^^^^^
+
+The startup of Landscape should be done in the reverse order.
+
+1. Ensure the RabbitMQ service is started::
+
+    juju run-action --wait rabbitmq-server/0 pause
+
+2. Ensure the PostgreSQL service is started::
+
+    juju ssh postgresql/0 sudo systemctl start postgresql
+
+3. Resume the Landscape service::
+
+    juju run-action --wait landscape-server/0 pause
+
+-------------------------------------------------------------------------------
+
+neutron-gateway
+~~~~~~~~~~~~~~~
+
+neutron agents
+^^^^^^^^^^^^^^
+
+A cloud outage will occur if a node hosting a non-HA ``neutron-gateway`` is
+power cycled due to the lack of neutron agents.
+
+Before stopping the service you can manually check for HA status of neutron
+agents on the node using the commands below. HA is confirmed by the presence of
+more than one agent per **router**, in the case of L3 agents, and more than one
+per **network**, in the case of DHCP agents.
+
+To return the list of **L3 agents** serving each of the routers connected to a
+node:
+
+.. code::
+
+    for i in `openstack network agent list | grep L3 | awk '/$NODE/ {print $2}'` ; \
+	do printf "\nAgent $i serves:" ; \
+	for f in `neutron router-list-on-l3-agent $i | awk '/network_id/ {print$2}'` ; \
+	do printf "\n Router $f served by these agents:\n" ; \
+	neutron l3-agent-list-hosting-router $f ; \
+	done ; done
+
+To return the list of **DHCP agents** serving each of the networks connected to
+a node:
+
+.. code::
+
+    for i in `openstack network agent list| grep -i dhcp |  awk '/$NODE/ {print $2}'` ; \
+    	do printf "\nAgent $i serves:" ; \
+	for f in `neutron net-list-on-dhcp-agent $i | awk '!/+/ {print$2}'` ; \
+	do printf "\nNetwork $f served by these agents:\n" ; \
+	neutron dhcp-agent-list-hosting-net $f ; \
+    	done ; done
+
+.. note::
+
+    Replace ``$NODE`` with the node hostname as known to OpenStack (i.e.
+    ``openstack host list``).
+
+shutdown
+^^^^^^^^
+
+To pause a Neutron gateway service::
+
+    juju run-action --wait neutron-gateway/0 pause
+
+startup
+^^^^^^^
+
+To resume a Neutron gateway service::
+
+    juju run-action --wait neutron-gateway/0 resume
+
+-------------------------------------------------------------------------------
+
+neutron-openvswitch
+~~~~~~~~~~~~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the Open vSwitch service::
+
+    juju run-action --wait neutron-openvswitch/0 pause
+
+startup
+^^^^^^^
+
+To resume the Open vSwitch service::
+
+    juju run-action --wait neutron-openvswitch/0 resume
+
+-------------------------------------------------------------------------------
+
+nova-cloud-controller
+~~~~~~~~~~~~~~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause Nova controller services (Nova scheduler, Nova api, Nova network, Nova
+objectstore)::
+
+    juju run-action --wait nova-cloud-controller/0 pause
+
+startup
+^^^^^^^
+
+To resume Nova controller services::
+
+    juju run-action --wait nova-cloud-controller/0 resume
+
+-------------------------------------------------------------------------------
+
+nova-compute
+~~~~~~~~~~~~
+
+.. _nova-compute-shutdown:
+
+shutdown
+^^^^^^^^
+
+True HA is not possible for ``nova-compute`` nor its instances. If a node
+hosting this service is power-cycled the corresponding hypervisor is removed
+from the pool of available hypervisors, and its instances will become
+inaccessible. Generally speaking, individual hypervisors are fallible
+components in a cloud. The standard response to this is to implement HA on the
+instance workloads. Provided shared storage is set up, you can also move
+instances to another compute node and boot them anew (state is lost) - see
+`Evacuate instances`_.
+
+To stop a Nova service:
+
+1. Some affected nova instances may require a special shutdown sequence (e.g.
+   an instance may host a workload that demands particular care when turning it
+   off). Invoke them now.
+
+2. Gracefully stop all remaining affected nova instances.
+
+3. Pause the Nova service::
+
+    juju run-action --wait nova-compute/0 pause
+
+.. tip::
+
+    If shared storage is implemented, instead of shutting down instances you
+    may consider moving ("evacuating") them to another compute node. See
+    `Evacuate instances`_.
+
+startup
+^^^^^^^
+
+To resume a Nova service::
+
+    juju run-action --wait nova-compute/0 resume
+
+Instances that fail to come up properly can be moved to another compute host
+(see `Evacuate instances`_).
+
+-------------------------------------------------------------------------------
+
+percona-cluster
+~~~~~~~~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the MySQL service for a ``percona-cluster`` unit::
+
+    juju run-action --wait percona-cluster/0 pause
+
+To gracefully shut down the cluster repeat the above for every unit.
+
+startup
+^^^^^^^
+
+A special startup procedure is necessary regardless of whether services were
+shut down gracefully or not (power outage or hard shutdown):
+
+1. Run action ``bootstrap-pxc`` on any percona-cluster unit.
+
+If the MySQL sequence numbers (obtained with command ``juju status
+percona-cluster``) vary across units then the action `must` be run on the unit
+with the highest sequence number::
+
+    juju run-action --wait percona-cluster/? bootstrap-pxc
+
+2. Run action ``notify-bootstrapped`` on a percona-cluster unit.
+
+   There are two possibilities:
+
+   - If the ``bootstrap-pxc`` action was run on a leader then run
+     ``notify-bootstrapped`` on a non-leader.
+   - If the ``bootstrap-pxc`` action was run on a non-leader then run
+     ``notify-bootstrapped`` on the leader.
+
+Run the appropriate command now::
+
+    juju run-action --wait percona-cluster/? notify-bootstrapped
+
+For details see the `percona-cluster charm`_.
+
+-------------------------------------------------------------------------------
+
+rabbitmq-server
+~~~~~~~~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause a RabbitMQ service::
+
+    juju run-action --wait rabbitmq-server/0 pause
+
+startup
+^^^^^^^
+
+To resume a RabbitMQ service::
+
+    juju run-action --wait rabbitmq-server/0 resume
+
+read queries
+^^^^^^^^^^^^
+
+Provided rabbitmq is running on a ``rabbitmq-server`` unit, you can perform a
+status check::
+
+    juju run-action --wait rabbitmq-server/1 cluster-status
+
+Example partial output is:
+
+.. code::
+
+    Cluster status of node 'rabbit@ip-172-31-13-243'
+     [{nodes,[{disc,['rabbit@ip-172-31-13-243']}]},
+      {running_nodes,['rabbit@ip-172-31-13-243']},
+      {cluster_name,<<"rabbit@ip-172-31-13-243.ec2.internal">>},
+      {partitions,[]},
+      {alarms,[{'rabbit@ip-172-31-13-243',[]}]}]
+
+It is expected that there are no objects listed on the partitions line (as
+above).
+
+To list unconsumed queues (those with pending messages)::
+
+    juju run-action --wait rabbitmq-server/1 list-unconsumed-queues
+
+See `Partitions`_ and `Queues`_ in the RabbitMQ documentation.
+
+partitions
+^^^^^^^^^^
+
+Any partitioned units will need to be attended to. Stop and start the
+rabbitmq-server service for each ``rabbitmq-server`` unit, checking for status
+along the way:
+
+.. code::
+
+    juju run-action --wait rabbitmq-server/0 pause
+    juju run-action --wait rabbitmq-server/1 cluster-status
+    juju run-action --wait rabbitmq-server/0 pause
+    juju run-action --wait rabbitmq-server/1 cluster-status
+
+If errors persist, the mnesia database will need to be removed from the
+affected unit so it can be resynced from the other units. Do this by removing
+the contents of the ``/var/lib/rabbitmq/mnesia`` directory between the stop and
+start commands.
+
+.. note::
+
+    The network partitioning handling mode configured by the
+    ``rabbitmq-server`` charm is ``autoheal``.
+
+-------------------------------------------------------------------------------
+
+vault
+~~~~~
+
+.. note::
+
+    The ``vault`` charm is lacking in actions. Some procedures will involve
+    direct intervention. See bugs `LP #1846282`_ and `LP #1846375`_.
+
+shutdown
+^^^^^^^^
+
+To stop a Vault service::
+
+    juju ssh vault/0 sudo systemctl stop vault
+
+startup
+^^^^^^^
+
+To start a Vault service::
+
+    juju ssh vault/0 sudo systemctl start vault
+
+read queries
+^^^^^^^^^^^^
+
+To see Vault service status::
+
+    juju ssh vault/0 /snap/bin/vault status
+
+Expected output is::
+
+    Cluster is sealed
+
+unsealing units
+^^^^^^^^^^^^^^^
+
+When Vault is clustered, each unit will manually (and locally) need to be
+unsealed with its respective ``VAULT_ADDR`` environment variable and with the
+minimum number of unseal keys (three here):
+
+.. code::
+
+    export VAULT_ADDR="https://<IP of vault unit>:8200"
+    vault operator unseal <key>
+    vault operator unseal <key>
+    vault operator unseal <key>
+
+See `Vault`_ in the Charms Deployment Guide for more details.
+
+Known issues
+++++++++++++
+
+- `LP #1804261`_ : ceph-osds will need to be restarted if they start before Vault is ready and unsealed
+- `LP #1818260`_ : forget cluster node failed during cluster-relation-changed hook
+- `LP #1818680`_ : booting should succeed even if vault is unavailable
+- `LP #1818973`_ : vault fails to start when MySQL backend down
+- `LP #1827690`_ : barbican-worker is down: Requested revision 1a0c2cdafb38 overlaps with other requested revisions 39cf2e645cba
+- `LP #1840706`_ : install hook fails with psycopg2 ImportError
+
+Consult each charm's bug tracker for full bug listings. See the `OpenStack
+Charms`_ project group.
+
+.. LINKS
+.. _percona-cluster charm: https://opendev.org/openstack/charm-percona-cluster/src/branch/master/README.md#cold-boot
+.. _Vault: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-vault.html
+.. _High availability: https://docs.openstack.org/arch-design/arch-requirements/arch-requirements-ha.html
+.. _Control plane architecture: https://docs.openstack.org/arch-design/design-control-plane.html
+.. _Evacuate instances: https://docs.openstack.org/nova/latest/admin/evacuate.html
+.. _hacluster: https://jaas.ai/hacluster
+.. _OpenStack Charms: https://launchpad.net/openstack-charms
+.. _SSH: https://jaas.ai/docs/machine-auth
+.. _CRUSH maps: https://docs.ceph.com/docs/master/rados/operations/crush-map
+.. _actions: https://jaas.ai/docs/working-with-actions
+.. _Partitions: https://www.rabbitmq.com/partitions.html
+.. _Queues: https://www.rabbitmq.com/queues.html
+
+.. BUGS
+.. _LP #1804261: https://bugs.launchpad.net/charm-ceph-osd/+bug/1804261
+.. _LP #1818260: https://bugs.launchpad.net/charm-rabbitmq-server/+bug/1818260
+.. _LP #1818680: https://bugs.launchpad.net/charm-ceph-osd/+bug/1818680
+.. _LP #1818973: https://bugs.launchpad.net/vault-charm/+bug/1818973
+.. _LP #1827690: https://bugs.launchpad.net/charm-barbican/+bug/1827690
+.. _LP #1840706: https://bugs.launchpad.net/vault-charm/+bug/1840706
+.. _LP #1846049: https://bugs.launchpad.net/charm-ceph-mon/+bug/1846049
+.. _LP #1846050: https://bugs.launchpad.net/charm-ceph-mon/+bug/1846050
+.. _LP #1846257: https://bugs.launchpad.net/charm-etcd/+bug/1846257
+.. _LP #1846279: https://bugs.launchpad.net/postgresql-charm/+bug/1846279
+.. _LP #1846282: https://bugs.launchpad.net/vault-charm/+bug/1846282
+.. _LP #1846375: https://bugs.launchpad.net/vault-charm/+bug/1846375
+.. _LP #1849222: https://bugs.launchpad.net/charm-ceph-mon/+bug/1849222
+.. _LP #1849224: https://bugs.launchpad.net/charm-ceph-radosgw/+bug/1849224
