@@ -17,13 +17,18 @@ includes in-depth information on this charm as well as how to use it for
 cluster failover and disaster recovery. It also includes more brief deployment
 steps as the ones shown here.
 
-.. warning::
-
-    RBD mirroring is only one specific element in datacentre redundancy. Refer
-    to `Ceph RADOS Gateway Multisite Replication`_ and other work to arrive at
-    a complete solution.
+RBD mirroring is only one specific element in datacentre redundancy. Refer
+to `Ceph RADOS Gateway Multisite Replication`_ and other work to arrive at
+a complete solution.
 
 See `Upstream Ceph documentation on RBD mirroring`_ for complete information.
+
+.. warning::
+
+    RBD mirroring makes use of the journalling feature of Ceph; this incurs
+    an overhead on all write activity on a RBD which will impact performance.
+    See Florian Haas' excellent performance analysis of `RBD mirror`_ from
+    Cephalocon Barcelona 2019.
 
 Deployment
 ++++++++++
@@ -208,3 +213,4 @@ You're done.
 .. _ceph-rbd-mirror charm project page: https://opendev.org/openstack/charm-ceph-rbd-mirror/src/branch/master/src/README.md
 .. _Ceph RADOS Gateway Multisite replication: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-rgw-multisite.html
 .. _Upstream Ceph documentation on RBD mirroring: https://docs.ceph.com/docs/mimic/rbd/rbd-mirroring/
+.. _RBD mirror: https://fghaas.github.io/cephalocon2019-rbdmirror/#/7/6
