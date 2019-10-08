@@ -18,3 +18,4 @@ Appendices
    app-ceph-rbd-mirror.rst
    app-masakari.rst
    app-erasure-coding.rst
+   app-policy-overrides.rst
