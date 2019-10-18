@@ -6,6 +6,12 @@ Overview
 
 This document outlines approaches to upgrading OpenStack using the charms.
 
+.. note::
+
+   Upgrading an OpenStack cloud is not without risk; upgrades should be tested
+   in pre-production testing environments prior to production deployment
+   upgrades.
+
 Definitions and Terms
 ---------------------
 
@@ -194,6 +200,8 @@ listed here.
 +-------+-----------------------+---------------+
 | 3     | neutron-gateway       | Control Plane |
 +-------+-----------------------+---------------+
+| 3     | placement             | Control Plane |
++-------+-----------------------+---------------+
 | 3     | nova-cloud-controller | Control Plane |
 +-------+-----------------------+---------------+
 | 3     | openstack-dashboard   | Control Plane |
@@ -316,9 +324,22 @@ is only one unit in the application then this is the only option.
 
 Check **juju status** and any monitoring solution for errors.
 
+Application-specific Upgrade notes
+----------------------------------
+
+Ceph
+~~~~
+
+Ensure that Ceph services are upgraded before services that consume Ceph
+resources, such as cinder, glance and nova-compute:
+
+.. code::
+
+    juju config ceph-mon source=cloud:bionic-train
+    juju config ceph-osd source=cloud:bionic-train
 
 Known Issues to be aware of during Upgrades
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 Before doing an *OpenStack* upgrade (rather than a charm upgrade), the release
 notes for the original and target versions of OpenStack should be read.  In
@@ -340,7 +361,7 @@ to resolve the situation.
 
 
 Nova RPC version mismatches
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Reference Bug `#1825999: [upgrade] versions N and N+1 are not compatible
 <https://bugs.launchpad.net/charm-nova-compute/+bug/1825999>`_
@@ -354,7 +375,7 @@ auto-negotiation.
 
 
 neutron-gateway charm: upgrading from Mikata to Newton
-------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Reference Bug `#1809190: switching from external-network-id and external-port
 to data-port and bridge-mappings does not remove incorrect nics from bridges
@@ -372,7 +393,7 @@ been encountered, and therefore may require manual intervention to resolve the
 issue.
 
 cinder/ceph topology change: upgrading from Newton to Ocata
------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning::
 
@@ -386,7 +407,7 @@ To remedy this situation the deployment should migrate to using the
 cinder-ceph charm, this can be done after the upgrade to Ocata.
 
 Step 0: Check existing configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++
 
 Confirm existing volumes are in rbd pool called 'cinder'
 
@@ -397,7 +418,7 @@ Confirm existing volumes are in rbd pool called 'cinder'
     volume-dd733b26-2c56-4355-a8fc-347a964d5d55
 
 Step 1: Deploy new topology
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++
 
 Deploy cinder-ceph charm and set the rbd-pool-name to match the
 pool that any existing volumes are in (see above):
@@ -411,7 +432,7 @@ pool that any existing volumes are in (see above):
     juju add-relation cinder-ceph nova-compute
 
 Step 2: Update volume configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++++++++++++++++++++++++++++++++++++
 
 The existing volumes now need to be updated to associate them
 with the newly defined cinder-ceph backend:
@@ -422,7 +443,7 @@ with the newly defined cinder-ceph backend:
         newhost='cinder@cinder-ceph#cinder.volume.drivers.rbd.RBDDriver'
 
 Placement charm and nova-cloud-controller: upgrading from Stein to Train
-------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As of Train, the placement API is managed by the new placement charm and is no
 longer managed by the nova-cloud-controller charm. The upgrade to Train
@@ -449,8 +470,8 @@ Here's an example of the steps just described:
     juju run-action nova-cloud-controller/leader resume
 
 Only after these steps have been completed can nova-cloud-controller be
-upgraded. Here we upgrade all units simultaneously but see `Action managed`_
-for a more controlled approach:
+upgraded. Here we upgrade all units simultaneously but see `HA with
+pause/resume`_ for a more controlled approach:
 
 .. code::
 
