@@ -19,7 +19,7 @@ OVN charms:
 
 .. warning::
 
-    The OVN charms are considered preview charms.
+    The OVN charms are considered preview charms, still in development.
 
 Deployment
 ++++++++++
@@ -37,9 +37,9 @@ OVN can then be deployed:
 
     juju config neutron-api manage-neutron-plugin-legacy-mode=false
 
-    juju deploy neutron-api-plugin-ovn
-    juju deploy ovn-central -n 3 --config source=cloud:bionic-train
-    juju deploy ovn-chassis
+    juju deploy cs:~openstack-charmers-next/neutron-api-plugin-ovn
+    juju deploy cs:~openstack-charmers-next/ovn-central -n 3 --config source=cloud:bionic-train
+    juju deploy cs:~openstack-charmers-next/ovn-chassis
 
     juju add-relation neutron-api-plugin-ovn:certificates vault:certificates
     juju add-relation neutron-api-plugin-ovn:neutron-plugin \
