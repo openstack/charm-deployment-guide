@@ -37,9 +37,9 @@ OVN can then be deployed:
 
     juju config neutron-api manage-neutron-plugin-legacy-mode=false
 
-    juju deploy cs:~openstack-charmers-next/neutron-api-plugin-ovn
-    juju deploy cs:~openstack-charmers-next/ovn-central -n 3 --config source=cloud:bionic-train
-    juju deploy cs:~openstack-charmers-next/ovn-chassis
+    juju deploy cs:~openstack-charmers/neutron-api-plugin-ovn
+    juju deploy cs:~openstack-charmers/ovn-central -n 3 --config source=cloud:bionic-train
+    juju deploy cs:~openstack-charmers/ovn-chassis
 
     juju add-relation neutron-api-plugin-ovn:certificates vault:certificates
     juju add-relation neutron-api-plugin-ovn:neutron-plugin \
@@ -55,7 +55,7 @@ charm, ``nova-compute`` in the example above.
 
 If you require a dedicated software gateway you may deploy the data plane
 components as a principle charm through the use of the
-`ovn-dedicated-chassis <https://jaas.ai/ovn-dedicated-chassis/>`_ charm.
+`ovn-dedicated-chassis <https://jaas.ai/u/openstack-charmers/ovn-dedicated-chassis/>`_ charm.
 
 .. note::
 
@@ -68,7 +68,7 @@ OVN integrates with OpenStack through an ML2 driver as provided by
 `networking-ovn <https://docs.openstack.org/networking-ovn/latest/>`_.  General
 Neutron configuration is still done through the `neutron-api <https://jaas.ai/neutron-api/>`_
 charm, and the subset of configuration specific to OVN is done through the
-`neutron-api-plugin-ovn <https://jaas.ai/neutron-api-plugin-ovn/>`_ charm.
+`neutron-api-plugin-ovn <https://jaas.ai/u/openstack-charmers/neutron-api-plugin-ovn/>`_ charm.
 
 Internal DNS resolution
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,7 +102,7 @@ then read instance name and DNS domain name from ports and populate the
     datapaths           : [b25ed99a-89f1-49cc-be51-d215aa6fb073]
     external_ids        : {dns_id="4c79807e-0755-4d17-b4bc-eb57b93bf78d"}
 
-    records             : {"c-1"="10.42.0.239", "c-1.openstack.example"="10.42.0.239"}
+    records             : {"c-1"="192.0.2.239", "c-1.openstack.example"="192.0.2.239"}
 
 On the chassis, OVN creates flow rules to redirect UDP port 53 packets (DNS)
 to the local ``ovn-controller`` process:
@@ -119,7 +119,7 @@ External connectivity
 ~~~~~~~~~~~~~~~~~~~~~
 
 Interface and network to bridge mapping is done through the
-`ovn-chassis <https://jaas.ai/ovn-chassis/>`_ charm.
+`ovn-chassis <https://jaas.ai/u/openstack-charmers/ovn-chassis/>`_ charm.
 
 Networks for use with external Layer3 connectivity should have mappings on
 chassis located in the vicinity of the datacenter border gateways. Having two
@@ -147,7 +147,7 @@ Example configuration:
     juju config ovn-chassis ovn-bridge-mappings=physnet1:br-provider
     juju config ovn-chassis \
         interface-bridge-mappings='00:00:5e:00:00:42:br-provider \
-                                   00:00:5e:00:00:51:br-providfer'
+                                   00:00:5e:00:00:51:br-provider'
     openstack network create --external --share --provider-network-type flat \
                              --provider-physical-network physnet1 ext-net
     openstack subnet create --network ext-net \
@@ -209,4 +209,4 @@ Data plane flow tracing
     juju run --unit ovn-chassis/1 'ovs-ofctl dump-flows br-int'
     juju run --unit ovn-chassis/1 'sudo ovs-appctl -t ovs-vswitchd \
         ofproto/trace br-provider \
-        in_port=enp3s0f0,icmp,nw_src=192.168.0.1,nw_dst=192.168.0.100'
+        in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100'
