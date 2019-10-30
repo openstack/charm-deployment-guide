@@ -19,7 +19,7 @@ Nova Cells v2 Topology
 
 Nova cells v2 is entirely distinct from Nova cells v1. V1 has been deprecated
 and special care should be taken when reading nova documentation to ensure that
-it is v2 specific. Also, this is a *Nova* cell, other services such as
+it is v2 specific.
 
 .. note::
 
