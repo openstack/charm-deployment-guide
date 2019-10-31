@@ -51,7 +51,7 @@ take a look at the `MAAS
 documentation <https://docs.ubuntu.com/maas/2.2/en/#minimum-requirements>`__.
 
 As with the hardware, our network topology is also going to be as simple as
-possible whilst remaining both scaleable and functional. It contains a single
+possible whilst remaining both scalable and functional. It contains a single
 zone for the four cloud nodes, with the machine hosting the MAAS region and rack
 controllers connected to both the external network and the single zone. It's
 recommended that MAAS is the sole provider of DHCP and DNS for the network

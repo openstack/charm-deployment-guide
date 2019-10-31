@@ -85,7 +85,7 @@ external CA. Below is an example:
         -notext -md sha256 -in csr_file -out /tmp/vault-charm-int.pem -batch \
         -passin pass:secretpassword
 
-*If the singing is rejected due to mismatched O or OU or C etc then rerun the
+*If the signing is rejected due to mismatched O or OU or C etc then rerun the
 get-csr actions and specify the mismatched items*
 
 Upload signed CSR and root CA cert to vault

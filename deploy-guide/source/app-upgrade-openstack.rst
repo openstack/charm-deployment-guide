@@ -374,7 +374,7 @@ that currently those charms do not support RPC version pinning or
 auto-negotiation.
 
 
-neutron-gateway charm: upgrading from Mikata to Newton
+neutron-gateway charm: upgrading from Mitaka to Newton
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Reference Bug `#1809190: switching from external-network-id and external-port

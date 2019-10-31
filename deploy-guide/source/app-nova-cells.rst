@@ -141,14 +141,14 @@ Relate the new cell to telemetry services.
 New Deployments
 +++++++++++++++
 
-For all cell deploymends ensure the following:
+For all cell deployments ensure the following:
 
 * Application naming scheme such that the cell an application belongs to is
   clear.
 * Naming the central message broker such that its purpose is clear
   eg rabbitmq-server-general
 
-If cells is being used primarly to help with a large scale out of compute
+If cells are being used primarily to help with a large scale out of compute
 resources then in addition:
 
 * Do not relate compute nodes to the *nova-cloud-controller*
@@ -216,7 +216,7 @@ to add a second cell:
 Targeting instances at a cell
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instances can be targetted at a specific cell by manually maintaining host
+Instances can be targeted at a specific cell by manually maintaining host
 aggregates and corresponding flavors which target those host aggregates. For
 example, assume *cell2* has one compute host *juju-250b86-prod-19*. Create a
 host aggregate for *cell2* and add the compute host into it.
