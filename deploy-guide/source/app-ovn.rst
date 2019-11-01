@@ -44,6 +44,7 @@ OVN can then be deployed:
     juju add-relation neutron-api-plugin-ovn:certificates vault:certificates
     juju add-relation neutron-api-plugin-ovn:neutron-plugin \
         neutron-api:neutron-plugin-api-subordinate
+    juju add-relation neutron-api-plugin-ovn:ovsdb-cms ovn-central:ovsdb-cms
     juju add-relation ovn-central:certificates vault:certificates
     juju add-relation ovn-chassis:ovsdb ovn-central:ovsdb
     juju add-relation ovn-chassis:certificates vault:certificates
