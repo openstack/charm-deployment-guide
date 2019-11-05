@@ -89,7 +89,6 @@ The configuration is held in the file called ``ceph-osd.yaml``:
 
     ceph-osd:
       osd-devices: /dev/sdb
-      osd-reformat: "yes"
 
 We're going to deploy Ceph-OSD to each of the four cloud nodes we've already
 tagged with ``compute``. The following command will import the settings above
@@ -98,6 +97,12 @@ and deploy Ceph-OSD to each of the four nodes:
 .. code:: bash
 
     juju deploy --constraints tags=compute --config ceph-osd.yaml -n 4 ceph-osd
+
+.. note::
+
+   If a message from a ceph-osd unit like "Non-pristine devices detected"
+   appears in the output of :command:`juju status` you will need to use actions
+   ``zap-disk`` and ``add-disk`` that come with the 'ceph-osd' charm.
 
 In the background, Juju will ask MAAS to commission the nodes, powering them on
 and installing Ubuntu. Juju then takes over and installs the necessary packages
