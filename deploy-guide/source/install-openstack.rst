@@ -27,6 +27,21 @@ Alternatively, jump to :doc:`Deploying OpenStack from a
 bundle <install-openstack-bundle>` to learn about deploying as a
 bundle.
 
+.. important::
+
+   Irrespective of install method, once the cloud is deployed, the following
+   management practices related to charm versions and machine series are
+   recommended:
+
+   #. The entire suite of charms used to manage the cloud should be upgraded to
+      the latest stable charm revision before any major change is made to the
+      cloud (e.g. migrating to new charms, upgrading cloud services, upgrading
+      machine series). See `Charm upgrades`_ for details.
+
+   #. The Juju machines that comprise the cloud should all be running the same
+      series (e.g. 'xenial' or 'bionic', but not a mix of the two). See `Series
+      upgrade`_ for details.
+
 Deploy the Juju controller
 --------------------------
 
@@ -102,7 +117,8 @@ and deploy Ceph-OSD to each of the four nodes:
 
    If a message from a ceph-osd unit like "Non-pristine devices detected"
    appears in the output of :command:`juju status` you will need to use actions
-   ``zap-disk`` and ``add-disk`` that come with the 'ceph-osd' charm.
+   ``zap-disk`` and ``add-disk`` that come with the 'ceph-osd' charm if you do
+   in fact want to purge the disk of all data and signatures for use by Ceph.
 
 In the background, Juju will ask MAAS to commission the nodes, powering them on
 and installing Ubuntu. Juju then takes over and installs the necessary packages
@@ -545,6 +561,10 @@ OpenStack <config-openstack>` for use within a production environment.
 .. raw:: html
 
    <!-- LINKS -->
+
+.. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
+.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
+.. _Series upgrade: app-series-upgrade
 
 .. raw:: html
 

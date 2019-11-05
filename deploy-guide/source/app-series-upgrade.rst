@@ -7,6 +7,11 @@ Introduction
 Juju and OpenStack charms provide the primitives to prepare for and
 respond to an upgrade from one Ubuntu LTS series to another.
 
+.. note::
+
+   The recommended best practice is that the Juju machines that comprise the
+   cloud should eventually all be running the same series (e.g. 'xenial' or
+   'bionic', but not a mix of the two).
 
 Warnings
 ++++++++
@@ -97,11 +102,12 @@ This document makes a number of assumptions about the architecture and
 preparation of the cloud undergoing series upgrade. Please review these
 and compare to the running cloud before performing the series upgrade.
 
-
 Preparations
 ~~~~~~~~~~~~
 
-Charms are upgraded to the latest release.
+The entire suite of charms used to manage the cloud should be upgraded to the
+latest stable charm revision before any major change is made to the cloud such
+as the current machine series upgrades. See `Charm upgrades`_ for guidance.
 
 OpenStack is upgraded to the highest version the current LTS supports.
 Mitaka for Trusty and Queens for Xenial.
@@ -479,3 +485,9 @@ Juju set-series to the new series for all future units of an application.
  .. code:: bash
 
     juju set-series keystone xenial
+
+.. raw:: html
+
+   <!-- LINKS -->
+
+.. _Charm upgrades: app-upgrade-openstack#charm-upgrades

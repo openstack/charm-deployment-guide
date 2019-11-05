@@ -11,6 +11,14 @@ should migrate existing services to using ceph-mon and ceph-osd.
     0, 1 and 2 with the ceph-osd charm deployed to other machines within the
     model.
 
+Upgrade charms
+~~~~~~~~~~~~~~
+
+The entire suite of charms used to manage the cloud should be upgraded to the
+latest stable charm revision before any major change is made to the cloud such
+as the current migration to these new charms. See `Charm upgrades`_ for
+guidance.
+
 Deploy ceph-mon
 ~~~~~~~~~~~~~~~
 
@@ -97,3 +105,9 @@ As each unit of the ceph application is destroyed, its stop hook will remove the
 MON process from the Ceph cluster monmap and disable Ceph MON and MGR processes
 running on the machine; any Ceph OSD processes remain untouched and are now
 owned by the ceph-osd units deployed alongside ceph.
+
+.. raw:: html
+
+   <!-- LINKS -->
+
+.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
