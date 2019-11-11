@@ -200,6 +200,14 @@ these:
     2        started  192.168.100.118  fr36gt   xenial  default  Deployed
     3        started  192.168.100.119  nnpab4   xenial  default  Deployed
 
+.. note::
+
+   The ``nova-compute`` charm is designed to support one image format type per
+   application at any one time. Changing format (see charm option
+   ``libvirt-image-backend``) while existing instances are using the prior
+   format will require manual image conversion for each instance. See bug `LP
+   #1826888`_.
+
 `Swift storage <https://jujucharms.com/swift-storage/>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -569,3 +577,6 @@ OpenStack <config-openstack>` for use within a production environment.
 .. raw:: html
 
    <!-- IMAGES -->
+
+.. BUGS
+.. _LP #1826888: https://bugs.launchpad.net/charm-deployment-guide/+bug/1826888
