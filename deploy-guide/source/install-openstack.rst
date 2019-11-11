@@ -207,11 +207,15 @@ The Swift-storage application is going to be deployed to the first machine
 (``machine 0``), and scaled across the other three with the following
 configuration file:
 
-.. code:: bash
+.. code:: yaml
 
     swift-storage:
       block-device: sdc
       overwrite: "true"
+
+This example configuration points to block device /dev/sdc. Adjust according to
+your available hardware. In a production environment, avoid using a loopback
+device.
 
 Here are the four deploy commands for the four machines:
 
