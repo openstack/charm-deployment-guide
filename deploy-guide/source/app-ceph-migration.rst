@@ -22,6 +22,21 @@ guidance.
 Deploy ceph-mon
 ~~~~~~~~~~~~~~~
 
+.. warning::
+
+   Every new ceph-mon unit introduced will result in a Ceph monitor receiving a
+   new IP address. However, due to an issue in Nova, this fact is not
+   propagated completely throughout the cloud under certain circumstances,
+   thereby affecting Ceph RBD volume reachability.
+
+   Any instances previously deployed using Cinder to interface with Ceph, or
+   using Nova's ``libvirt-image-backend=rbd`` setting will require a manual
+   database update to change to the new addresses. For Cinder, its stale data
+   will also need to be updated in the 'block_device_mapping' table.
+
+   Failure to do this can result in instances being unable to start as their
+   volumes cannot be reached. See bug `LP #1452641`_.
+
 First deploy the ceph-mon charm; if the existing ceph charm is deployed to machines
 0, 1 and 2, you can place the ceph-mon units in LXD containers on these machines:
 
@@ -111,3 +126,4 @@ owned by the ceph-osd units deployed alongside ceph.
    <!-- LINKS -->
 
 .. _Charm upgrades: app-upgrade-openstack#charm-upgrades
+.. _LP #1452641: https://bugs.launchpad.net/nova/+bug/1452641
