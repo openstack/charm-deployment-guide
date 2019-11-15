@@ -1,44 +1,44 @@
+===============================
 Install OpenStack from a bundle
 ===============================
 
-:doc:`Stepping through the deployment <install-openstack>` of each OpenStack
-application is the best way to understanding how OpenStack and Juju operate, and
-how each application relates to one another. But it's a labour intensive
-process.
+A Juju charm *bundle* is an encapsulation of a multitude of charm deployments,
+and includes all the associated relations and configurations that are required
+(see `Charm bundles`_ in the Juju documentation). It is possible to therefore
+install OpenStack from a bundle.
 
-A bundle allows you to accomplish the same deployment with a single command:
+.. tip::
 
-.. code:: bash
+   The `Install OpenStack`_ page shows how to install by deploying,
+   configuring, and relating applications on an individual basis using Juju. It
+   is the recommended install method for getting a high level view of how
+   OpenStack is put together. It also provides an opportunity to gain
+   experience with Juju, which will in turn prepare you for post-deployment
+   management of the cloud.
 
-    juju deploy openstack.bundle
+The bundle featured here provides a minimal OpenStack cloud and assumes that
+`MAAS`_ is used as a backing cloud to Juju. Due to unknown factors in the local
+environment (usually hardware-related) the bundle will most likely need to be
+modified prior to deployment. The bundle and its deployment are described in
+great detail in its Charm Store entry here: `openstack-base`_.
 
-A `bundle <https://jujucharms.com/docs/stable/charms-bundles>`__, as used above,
-encapsulates the entire deployment process, including all applications, their
-configuration parameters and any relations that need to be made. Generally, you
-can use a local file, as above, or deploy a curated bundle from the `charm
-store <https://jujucharms.com/store>`__.
+Once the bundle configuration has been confirmed OpenStack can be deployed:
 
-For our project, `download
-<https://api.jujucharms.com/charmstore/v5/openstack-base/archive>`__ the
-`OpenStack <https://jujucharms.com/openstack-base/>`__ and deploy OpenStack
-using the above command.
+.. code-block:: console
 
-.. note::
+   juju deploy /path/to/bundle/file
 
-    You will probably need to edit the bundle information to match the actual
-    hardware that you have.
+The time required for the install to complete will depend on the hardware
+capabilities of the underlying MAAS nodes. Once finished, you should go on to
+`Configure OpenStack`_ if not already done.
 
-The speed of the deployment depends on your hardware, but may take some time.
-Monitor the output of ``juju status`` to see when everything is ready.
+Finally, once cloud functionality has been verified see the `OpenStack
+Administrator Guides`_ for long-term guidance.
 
-Next steps
-----------
-
-See the :ref:`Install OpenStack <test_openstack>`
-documentation for details on testing your OpenStack deployment, or jump directly
-to :doc:`Configure OpenStack <config-openstack>` to start using OpenStack
-productively as quickly as possible.
-
-.. raw:: html
-
-   <!-- LINKS -->
+.. LINKS
+.. _Install OpenStack: install-openstack
+.. _Configure OpenStack: config-openstack
+.. _Charm bundles: https://jaas.ai/docs/charm-bundles
+.. _MAAS: https://maas.io
+.. _openstack-base: https://jaas.ai/openstack-base
+.. _OpenStack Administrator Guides: http://docs.openstack.org/admin
