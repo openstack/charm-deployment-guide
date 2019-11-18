@@ -20,3 +20,4 @@ Appendices
    app-erasure-coding.rst
    app-policy-overrides.rst
    app-ovn.rst
+   app-managing-power-events.rst
