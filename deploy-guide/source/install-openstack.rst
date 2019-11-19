@@ -525,12 +525,11 @@ everything in time. This is added with the following simple command:
 
     juju deploy ntp
 
-These last few ``add-relation`` commands finish all the connections we need to
-make:
+This last ``add-relation`` command finishes all the connections we need to
+make. It will add an ntp unit alongside each of the four ceph-osd units:
 
 .. code:: bash
 
-    juju add-relation neutron-gateway ntp
     juju add-relation ceph-osd ntp
 
 All that's now left to do is wait on the output from ``juju status`` to show
