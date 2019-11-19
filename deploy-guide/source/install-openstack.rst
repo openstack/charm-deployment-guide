@@ -386,9 +386,9 @@ Followed by these ``add-relation`` connections:
 
 .. code:: bash
 
-    juju add-relation nova-cloud-controller mysql
+    juju add-relation nova-cloud-controller:shared-db mysql:shared-db
     juju add-relation nova-cloud-controller keystone
-    juju add-relation nova-cloud-controller rabbitmq-server
+    juju add-relation nova-cloud-controller:amqp rabbitmq-server:amqp
     juju add-relation nova-cloud-controller neutron-gateway
     juju add-relation neutron-api nova-cloud-controller
     juju add-relation nova-compute nova-cloud-controller
@@ -406,7 +406,7 @@ And a single relation:
 
 .. code:: bash
 
-    juju add-relation openstack-dashboard keystone
+    juju add-relation openstack-dashboard:identity-service keystone:identity-service
 
 `Glance <https://jujucharms.com/glance/>`__
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
