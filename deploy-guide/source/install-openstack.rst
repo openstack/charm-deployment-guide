@@ -552,16 +552,21 @@ command:
 
     juju status --format=yaml openstack-dashboard | grep public-address | awk '{print $2}'
 
-The URL will be ``http://<IP ADDRESS>/horizon``. When you enter this into your
-browser you can login with ``admin`` and ``openstack``, unless you changed the
-password in the configuration file.
+The dashboard URL then becomes:
 
-If everything works, you will see something similar to the following:
+``http://<ip-address>/horizon``
 
-.. figure:: ./media/install-openstack_horizon.png
+On the resulting web page you will be able to log in with these default
+credentials:
+
+* Domain: **admin_domain**
+* User Name: **admin**
+* Password: **openstack**
+
+You should then see something similar to the following:
+
+.. figure:: ./media/install-openstack_horizon-2.png
    :alt: Horizon dashboard
-
-   Horizon dashboard
 
 Next steps
 ----------
