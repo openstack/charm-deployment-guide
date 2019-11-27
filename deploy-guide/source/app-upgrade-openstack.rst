@@ -587,6 +587,13 @@ upgraded. Here we upgrade all units simultaneously but see the
 
    juju config nova-cloud-controller openstack-origin=cloud:bionic-train
 
+Neutron LBaaS: upgrading from Stein to Train
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As of Train, support for Neutron LBaaS has been retired. The load-balancing
+services are now provided by `Octavia LBaaS`_. There is no automatic migration
+path, please review the `Octavia LBaaS`_ appendix for more information.
+
 .. LINKS
 
 .. _Series upgrade: app-series-upgrade
@@ -595,6 +602,7 @@ upgraded. Here we upgrade all units simultaneously but see the
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
 .. _Update services: https://docs.openstack.org/operations-guide/ops-upgrades.html#update-services
+.. _Octavia LBaaS: app-octavia
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
