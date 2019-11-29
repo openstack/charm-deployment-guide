@@ -40,7 +40,7 @@ deploy Barbican:
 
 .. code::
 
-    juju deploy barbican --config openstack-origin=bionic:rocky
+    juju deploy barbican --config openstack-origin=cloud:bionic-rocky
     juju deploy barbican-vault
     juju add-relation barbican mysql
     juju add-relation barbican rabbitmq-server
@@ -52,7 +52,7 @@ Octavia can then be deployed:
 
 .. code::
 
-    juju deploy octavia --config openstack-origin=bionic:rocky
+    juju deploy octavia --config openstack-origin=cloud:bionic-rocky
     juju add-relation octavia rabbitmq-server
     juju add-relation octavia mysql
     juju add-relation octavia keystone
