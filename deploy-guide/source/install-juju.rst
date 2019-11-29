@@ -109,7 +109,7 @@ controller for our cloud:
 
 The constraint in the above command will ask MAAS to use any nodes tagged with
 ``juju`` to host the controller for the Juju client. We tagged this node within
-MAAS in the :ref:`previous step <commision_nodes>`.
+MAAS in the :ref:`previous step <commission_nodes>`.
 
 The output to a successful bootstrap will look similar to the following:
 
