@@ -54,7 +54,7 @@ Install the vault snap and configure the VAULT_ADDR environment variable:
 .. code:: bash
 
     sudo snap install vault
-    export VAULT_ADDR="https://<IP of vault unit>:8200"
+    export VAULT_ADDR="http://<IP of vault unit>:8200"
 
 and then initialize the vault deployment:
 

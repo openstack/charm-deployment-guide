@@ -978,7 +978,7 @@ minimum number of unseal keys (three here):
 
 .. code::
 
-    export VAULT_ADDR="https://<IP of vault unit>:8200"
+    export VAULT_ADDR="http://<IP of vault unit>:8200"
     vault operator unseal <key>
     vault operator unseal <key>
     vault operator unseal <key>
