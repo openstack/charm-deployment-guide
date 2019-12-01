@@ -140,8 +140,6 @@ Configure node power type
 MAAS must have the ability to power cycle each of its nodes. See `BMC power
 types`_ in the MAAS documentation for how to configure your nodes' power type.
 
-.. _commission_nodes:
-
 Commission nodes
 ~~~~~~~~~~~~~~~~
 

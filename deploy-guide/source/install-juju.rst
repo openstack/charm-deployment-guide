@@ -1,149 +1,126 @@
+============
 Install Juju
 ============
 
-`Juju <https://jujucharms.com/about>`__ is an open source application modelling
-tool that allows you to deploy, configure, scale and operate your software on
-public and private clouds.
+Overview
+--------
 
-In the :doc:`previous step <install-maas>`, we installed, deployed and
-configured `MAAS <https://maas.io/>`__ to use as a foundation for Juju to deploy
-a fully fledged OpenStack cloud.
+In the :doc:`previous section <install-maas>`, we set up the base environment
+in the form of a `MAAS`_ cluster. We are now going to implement `Juju`_ as a
+management solution for that environment. The main goal will be the creation of
+a Juju *controller*, the administrative node for a Juju-managed cloud.
 
-We are now going to install and configure the following two core components of
-Juju to use our MAAS deployment:
+Install Juju
+------------
 
--  The *controller* is the management node for a cloud environment. We'll be
-   using the MAAS node we tagged with ``juju`` to host the Juju controller.
--  The *client* is used by the operator to talk to one or more controllers,
-   managing one or more different cloud environments. As long as it can access
-   the controller, almost any machine and operating system can run the Juju
-   client.
+To install Juju:
 
-Package installation
---------------------
+.. code-block:: console
 
-We're going to start by installing the Juju client on a machine running `Ubuntu
-16.04 <http://releases.ubuntu.com/16.04/>`__ LTS (Xenial) with network access to
-the MAAS deployment. For other installation options, see `Getting started with
-Juju <https://jujucharms.com/docs/stable/getting-started>`__.
+   sudo snap install juju --classic
 
-To install Juju, enter the following in the terminal:
+Add MAAS to Juju
+----------------
 
-.. code:: bash
+Add the MAAS cluster so Juju will be able to manage it as a cloud. We'll do
+this via a cloud definition file, such as ``maas-cloud.yaml``:
 
-    sudo add-apt-repository -u ppa:juju/stable
-    sudo apt install juju
+.. code-block:: ini
 
-Client configuration
---------------------
+   clouds:
+     mymaas:
+       type: maas
+       auth-types: [oauth1]
+       endpoint: http://10.0.0.2:5240/MAAS
 
-The Juju client needs two pieces of information before it can control our MAAS
-deployment.
+We've called the cloud 'mymaas' and its endpoint is based on the IP address of
+the MAAS system.
 
-1. A cloud definition for the MAAS deployment. This definition will include
-   where MAAS can be found and how Juju can authenticate itself with it.
-2. A separate credentials definition that's used when accessing MAAS. This links
-   the authentication details to the cloud definition.
+The cloud is added in this way:
 
-To create the cloud definition, type ``juju add-cloud mymaas`` to add a cloud
-called ``mymaas``. This will produce output similar to the following:
+.. code-block:: console
 
-.. code:: bash
+   juju add-cloud --client -f maas-cloud.yaml mymaas
 
-    Cloud Types
-      maas
-      manual
-      openstack
-      vsphere
+View the updated list of clouds known to the current Juju client with the
+:command:`juju clouds --client` command.
 
-    Select cloud type: 
+Add the MAAS credentials
+------------------------
 
-Enter ``maas`` as the cloud type and you will be asked for the API endpoint URL.
-This URL is the same as the URL used to access the MAAS web UI in the previous
-step: ``http://<your.maas.ip>:5240/MAAS/``.
+Add the MAAS credentials so Juju can interact with the newly added cloud.
+We'll again use a file to import our information, such as ``maas-creds.yaml``:
 
-With the endpoint added, Juju will inform you that ``mymass`` was successfully
-added. The next step is to add credentials. This is initiated by typing
-``juju add-credential mymaas``. Enter ``admin`` when asked for a credential
-name.
+.. code-block:: ini
 
-Juju will output the following:
+   credentials:
+     mymaas:
+       anyuser:
+         auth-type: oauth1
+         maas-oauth: LGJ8svffZZ5kSdeA8E:9kVM7jJpHGG6J9apk3:KE65tLnjpPuqVHZ6vb97T8VWfVB9tM3j
 
-.. code:: bash
+We've included the name of the cloud 'mymaas' and a new user 'anyuser'. The
+long key is the MAAS API key for the MAAS 'admin' user. This key was placed in
+file ``~/admin-api-key`` on the MAAS system during the :ref:`Install MAAS
+<install_maas>` step on the previous page. It can also be obtained from the
+'admin' user's profile in the web UI.
 
-    Enter credential name: admin
+The credentials are added in this way:
 
-    Using auth-type "oauth1".
+.. code-block:: console
 
-    Enter maas-oauth:
+   juju add-credential --client -f maas-creds.yaml mymaas
 
-The ``oauth1`` credential value is the MAAS API key for the ``admin`` user. To
-retrieve this, login to the MAAS web UI and click on the ``admin`` username near
-the top right. This will show the user preferences page. The top field will hold
-your MAAS keys:
+View the updated list of credentials known to the current Juju client with the
+:command:`juju credentials --client --show-secrets --format yaml` command.
 
-.. figure:: ./media/install-juju_maaskey.png
-   :alt: MAAS API key
+Create the Juju controller
+--------------------------
 
-   MAAS API key
+We can now create the controller for the 'mymaas' cloud, and have called it
+'maas-controller':
 
-Copy and paste this key into the terminal and press return. You will be informed
-that credentials have been added for cloud ``mymaas``.
+.. code-block:: console
 
-You can check the cloud definition has been added with the ``juju clouds``
-command, and you can list credentials with the ``juju credentials`` command.
+   juju bootstrap --constraints tags=juju mymaas maas-controller
 
-Testing the environment
------------------------
+The ``--constraints`` option allows us to effectively select a node in the MAAS
+cluster. Recall that we attached a tag of 'juju' to the lower-resourced MAAS
+node during the :ref:`Tag nodes <tag_nodes>` step on the previous page.
 
-The Juju client now has everything it needs to instruct MAAS to deploy a Juju
-controller.
+The MAAS web UI will show the node being deployed. The whole process will take
+about five minutes.
 
-But before we move on to deploying OpenStack, it's worth checking that
-everything is working first. To do this, we'll simply ask Juju to create a new
-controller for our cloud:
+View the updated list of controllers known to the current Juju client with the
+:command:`juju controllers` command.
 
-.. code:: bash
+Create the model
+----------------
 
-    juju bootstrap --constraints tags=juju mymaas maas-controller
+The OpenStack deployment will be placed in its own Juju model for
+organisational purposes. It will be called 'openstack'. Create the model, and
+switch to it, with this one command:
 
-The constraint in the above command will ask MAAS to use any nodes tagged with
-``juju`` to host the controller for the Juju client. We tagged this node within
-MAAS in the :ref:`previous step <commission_nodes>`.
+.. code-block:: console
 
-The output to a successful bootstrap will look similar to the following:
+   juju add-model openstack
 
-.. code:: bash
+The output of the :command:`juju status` command summarises the Juju aspect of
+the environment. It should now look very similar to this:
 
-    Creating Juju controller "maas-controller" on mymaas
-    Looking for packaged Juju agent version 2.2-alpha1 for amd64
-    Launching controller instance(s) on mymaas...
-     - 7cm8tm (arch=amd64 mem=2G cores=2)
-    Fetching Juju GUI 2.4.4
-    Waiting for address
-    Attempting to connect to 192.168.100.106:22
-    Bootstrap agent now started
-    Contacting Juju controller at 192.168.100.106 to verify accessibility...
-    Bootstrap complete, "maas-controller" controller now available.
-    Controller machines are in the "controller" model.
-    Initial model "default" added.
+.. code-block:: console
 
-If you're monitoring the nodes view of the MAAS web UI, you will notice that the
-node we tagged with ``juju`` starts deploying Ubuntu 16.04 LTS automatically,
-which will be used to host the Juju controller.
+   Model      Controller       Cloud/Region    Version  SLA          Timestamp
+   openstack  maas-controller  mymaas/default  2.7.0    unsupported  04:28:49Z
+
+   Model "admin/openstack" is empty
 
 Next steps
 ----------
 
-We've now installed the Juju client and given it enough details to control our
-MAAS deployment, which we've tested by bootstrapping a new Juju controller. The
-next step will be to use Juju to deploy and link the various components required
-by OpenStack.
+The next step is to use Juju to deploy OpenStack. This will involve deploying
+the OpenStack applications and adding relations between them.
 
-.. raw:: html
-
-   <!-- LINKS -->
-
-.. raw:: html
-
-   <!-- IMAGES -->
+.. LINKS
+.. _Juju: https://jaas.ai
+.. _MAAS: https://maas.io
