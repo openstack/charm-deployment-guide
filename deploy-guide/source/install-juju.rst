@@ -15,7 +15,7 @@ Install Juju
 
 To install Juju:
 
-.. code-block:: console
+.. code-block:: none
 
    sudo snap install juju --classic
 
@@ -31,14 +31,14 @@ this via a cloud definition file, such as ``maas-cloud.yaml``:
      mymaas:
        type: maas
        auth-types: [oauth1]
-       endpoint: http://10.0.0.2:5240/MAAS
+       endpoint: http://10.0.0.3:5240/MAAS
 
 We've called the cloud 'mymaas' and its endpoint is based on the IP address of
 the MAAS system.
 
 The cloud is added in this way:
 
-.. code-block:: console
+.. code-block:: none
 
    juju add-cloud --client -f maas-cloud.yaml mymaas
 
@@ -67,7 +67,7 @@ file ``~/admin-api-key`` on the MAAS system during the :ref:`Install MAAS
 
 The credentials are added in this way:
 
-.. code-block:: console
+.. code-block:: none
 
    juju add-credential --client -f maas-creds.yaml mymaas
 
@@ -80,7 +80,7 @@ Create the Juju controller
 We can now create the controller for the 'mymaas' cloud, and have called it
 'maas-controller':
 
-.. code-block:: console
+.. code-block:: none
 
    juju bootstrap --constraints tags=juju mymaas maas-controller
 
@@ -101,14 +101,14 @@ The OpenStack deployment will be placed in its own Juju model for
 organisational purposes. It will be called 'openstack'. Create the model, and
 switch to it, with this one command:
 
-.. code-block:: console
+.. code-block:: none
 
    juju add-model openstack
 
 The output of the :command:`juju status` command summarises the Juju aspect of
 the environment. It should now look very similar to this:
 
-.. code-block:: console
+.. code-block:: none
 
    Model      Controller       Cloud/Region    Version  SLA          Timestamp
    openstack  maas-controller  mymaas/default  2.7.0    unsupported  04:28:49Z

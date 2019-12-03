@@ -24,7 +24,7 @@ great detail in its Charm Store entry here: `openstack-base`_.
 
 Once the bundle configuration has been confirmed OpenStack can be deployed:
 
-.. code-block:: console
+.. code-block:: none
 
    juju deploy /path/to/bundle/file
 

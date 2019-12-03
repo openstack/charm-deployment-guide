@@ -40,8 +40,9 @@ type.
 MAAS is also considered to be the sole provider of DHCP and DNS for the network
 hosting the MAAS cluster.
 
-The MAAS system's single network interface resides on subnet **10.0.0.0/24**
-and the system itself has an assigned IP address of **10.0.0.2**.
+The MAAS system's single network interface resides on subnet
+**10.0.0.0/21** and the system itself has an assigned IP address of
+**10.0.0.3**.
 
 .. attention::
 
@@ -56,12 +57,12 @@ Here is a concise summary of how to install and initialise MAAS on the
 designated system but make sure to consult the official `MAAS installation
 instructions`_ for details:
 
-.. code-block:: console
+.. code-block:: none
 
    sudo apt-add-repository -y ppa:maas/2.6
    sudo apt install -y maas
    sudo maas init --admin-username admin --admin-password ubuntu \
-   	--admin-email admin@example.com --admin-ssh-import <username>
+      --admin-email admin@example.com --admin-ssh-import <username>
    sudo maas-region apikey --username=admin > ~/admin-api-key
 
 See :command:`maas init --help` for details.
@@ -94,7 +95,11 @@ MAAS administrator are:
 | Password: **ubuntu**
 |
 
-The web UI can now be accessed here: **http://10.0.0.2:5240/MAAS**
+In this example, the address of the MAAS system is 10.0.0.3.
+
+The web UI URL then becomes:
+
+**http://10.0.0.3:5240/MAAS**
 
 You will be whisked through an on-boarding process when you access the web UI
 for the first time. Recall that we require 18.04 LTS AMD64 images.
