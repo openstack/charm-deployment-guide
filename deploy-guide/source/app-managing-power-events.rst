@@ -942,21 +942,21 @@ vault
 .. note::
 
     The ``vault`` charm is lacking in actions. Some procedures will involve
-    direct intervention. See bugs `LP #1846282`_ and `LP #1846375`_.
+    direct intervention. See bug `LP #1846282`_.
 
 shutdown
 ^^^^^^^^
 
-To stop a Vault service::
+To pause a Vault service::
 
-    juju ssh vault/0 sudo systemctl stop vault
+    juju run-action --wait vault/0 pause
 
 startup
 ^^^^^^^
 
-To start a Vault service::
+To resume a Vault service::
 
-    juju ssh vault/0 sudo systemctl start vault
+    juju run-action --wait vault/0 resume
 
 read queries
 ^^^^^^^^^^^^
@@ -983,7 +983,7 @@ minimum number of unseal keys (three here):
     vault operator unseal <key>
     vault operator unseal <key>
 
-See `Vault`_ in the Charms Deployment Guide for more details.
+See the `Vault appendix`_ in the Charms Deployment Guide for more details.
 
 Known issues
 ++++++++++++
@@ -1000,7 +1000,7 @@ Charms`_ project group.
 
 .. LINKS
 .. _percona-cluster charm: https://opendev.org/openstack/charm-percona-cluster/src/branch/master/README.md#cold-boot
-.. _Vault: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-vault.html
+.. _Vault appendix: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-vault.html
 .. _High availability: https://docs.openstack.org/arch-design/arch-requirements/arch-requirements-ha.html
 .. _Control plane architecture: https://docs.openstack.org/arch-design/design-control-plane.html
 .. _Evacuate instances: https://docs.openstack.org/nova/latest/admin/evacuate.html
