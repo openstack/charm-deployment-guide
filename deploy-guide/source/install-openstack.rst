@@ -245,8 +245,10 @@ going to use this for two applications, ``neutron-gateway`` and ``neutron-api``:
 
     neutron-gateway:
       data-port: br-ex:eth1
+      bridge-mappings: physnet1:br-ex
     neutron-api:
       neutron-security-groups: True
+      flat-network-providers: physnet1
 
 The ``data-port`` refers to a network interface that Neutron Gateway will bind
 to. In the above example it is ``eth1`` and it should be an unused interface.

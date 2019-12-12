@@ -82,7 +82,8 @@ within the range of addresses we put aside in MAAS and Juju:
 
 .. code:: bash
 
-    openstack network create Pub_Net --share --external
+   openstack network create Pub_Net --external --share --default \
+      --provider-network-type flat --provider-physical-network physnet1
 
 The output from this, as with the output from many OpenStack commands, will show
 the various fields and values for the chosen configuration option. Typing
@@ -102,10 +103,11 @@ subnet using the various addresses from our MAAS and Juju configuration
 
 .. code:: bash
 
-    openstack subnet create Pub_Subnet --allocation-pool \
-    start=192.168.100.150,end=192.168.100.199 --subnet-range 192.168.100.0/24 \
-    --no-dhcp --gateway 192.168.100.1 --dns-nameserver 192.168.100.3 \
-    --dns-nameserver 8.8.8.8 --network Pub_Net
+    openstack subnet create Pub_Subnet \
+       --allocation-pool start=192.168.100.150,end=192.168.100.199 \
+       --subnet-range 192.168.100.0/24 \
+       --no-dhcp --gateway 192.168.100.1 \
+       --network Pub_Net
 
 The output from the previous command provides a comprehensive overview of the
 new subnet's configuration:
@@ -209,13 +211,13 @@ To add a project to the domain:
     openstack project create --domain MyDomain \
         --description 'First Project' MyProject
 
-To add a user and assign that user to the project:
+To add a user and assign that user to the project (you will be prompted to
+create a password):
 
 .. code:: bash
 
     openstack user create --domain MyDomain \
-        --project-domain MyDomain --project MyProject \
-        --password-prompt MyUser
+       --project MyProject --password-prompt MyUser
 
 The output to the previous command will be similar to the following:
 
@@ -233,11 +235,18 @@ The output to the previous command will be similar to the following:
     | password_expires_at | None                             |
     +---------------------+----------------------------------+
 
+Assign the 'Member' role to the new user:
+
+.. code-block:: bash
+
+   openstack role add --user e980be28b20b4a2190c41ae478942ab1 \
+      --project MyProject Member
+
 In the same way we used ``openrc`` to hold the OpenStack environment variables
 for the ``admin`` account, we can create a similar file to hold the details on
 the new project and user:
 
-Create the following ``myprojectrc`` file:
+Create the following ``myprojectrc`` file (supply the user's password):
 
 .. code:: yaml
 
@@ -246,6 +255,7 @@ Create the following ``myprojectrc`` file:
     export OS_USERNAME=MyUser
     export OS_PROJECT_DOMAIN_NAME=MyDomain
     export OS_PROJECT_NAME=MyProject
+    export OS_PASSWORD=*******
 
 Source this file's contents to effectively switch users:
 
@@ -273,10 +283,11 @@ Create a private subnet with the following parameters:
 
 .. code:: bash
 
-    openstack subnet create MySubnet --allocation-pool \
-    start=10.0.0.10,end=10.0.0.99 --subnet-range 10.0.0.0/24 \
-    --gateway 10.0.0.1 --dns-nameserver 192.168.100.3 \
-    --dns-nameserver 8.8.8.8 --network MyNetwork
+   openstack subnet create MySubnet \
+      --allocation-pool start=10.0.0.10,end=10.0.0.99 \
+      --subnet-range 10.0.0.0/24 \
+      --gateway 10.0.0.1 --dns-nameserver 192.168.100.3 \
+      --network MyNetwork
 
 You'll see verbose output similar to the following:
 
