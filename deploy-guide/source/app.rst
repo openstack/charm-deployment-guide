@@ -21,3 +21,4 @@ Appendices
    app-policy-overrides.rst
    app-ovn.rst
    app-managing-power-events.rst
+   app-manila-ganesha.rst
