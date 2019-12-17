@@ -1,499 +1,379 @@
+===================
 Configure OpenStack
 ===================
 
-Now we've used `Juju <./install-juju.html>`__ and `MAAS <./install-maas.html>`__
-to deploy `OpenStack <./install-openstack.html>`__, it's time to configure
-OpenStack for use within a typical production environment.
+Overview
+--------
 
-We'll cover first principles; setting up the environment variables, adding a
-project, virtual network access and Ubuntu cloud image deployment to create a
-strong OpenStack foundation that can easily be expanded upon.
+In the :doc:`previous section <install-openstack>`, we installed OpenStack. We
+are now going to configure OpenStack with the intent of making it consumable by
+regular users. Configuration will be performed by both the admin user and the
+non-admin user.
 
-Environment variables
----------------------
+Domains, projects, users, and roles are a vital part of OpenStack operations.
+For the non-admin case, we'll create a single domain with a single project and
+single user.
 
-When accessing OpenStack from the command line, specific environment variables
-need to be set. We've put these in a file called ``openrc`` which easily be
-*sourced* (made active) whenever needed.
+Create the admin user environment
+---------------------------------
 
-The file contains among other things the following:
+Somehow we need to gain administrative control of OpenStack, the key piece of
+which is the Keystone administrator password. This is achieved using our
+default Juju administrative powers. Typically a script is used to generate this
+OpenStack admin environment. Let this script be placed in a file called
+``openrc`` whose contents is:
 
-.. code:: yaml
+.. code-block:: bash
 
-    export OS_AUTH_URL=http://192.168.100.95:5000/v3
-    export OS_USER_DOMAIN_NAME=admin_domain
-    export OS_USERNAME=admin
-    export OS_PROJECT_DOMAIN_NAME=admin_domain
-    export OS_PROJECT_NAME=admin
+   OS_PARAMS=$(env | awk 'BEGIN {FS="="} /^OS_/ {print $1;}' | paste -sd ' ')
+   for param in $_OS_PARAMS; do
+       if [ "$param" = "OS_AUTH_PROTOCOL" ]; then continue; fi
+       if [ "$param" = "OS_CACERT" ]; then continue; fi
+       unset $param
+   done
+   unset _OS_PARAMS
 
-The ``OS_AUTH_URL`` is the address of the `OpenStack
-Keystone <./install-openstack.html#keystone>`__ node for authentication. This
-can be retrieved by Juju with the following command:
+   _keystone_ip=$(juju run $_juju_model_arg --unit keystone/leader 'unit-get private-address')
+   _password=$(juju run $_juju_model_arg --unit keystone/leader 'leader-get admin_passwd')
 
-.. code:: bash
+   export OS_AUTH_URL=${OS_AUTH_PROTOCOL:-http}://${_keystone_ip}:5000/v3
+   export OS_USERNAME=admin
+   export OS_PASSWORD=${_password}
+   export OS_USER_DOMAIN_NAME=admin_domain
+   export OS_PROJECT_DOMAIN_NAME=admin_domain
+   export OS_PROJECT_NAME=admin
+   export OS_REGION_NAME=RegionOne
+   export OS_IDENTITY_API_VERSION=3
+   # Swift needs this:
+   export OS_AUTH_VERSION=3
+   # Gnocchi needs this
+   export OS_AUTH_TYPE=password
 
-    juju status --format=yaml keystone/0 | grep public-address | awk '{print $2}'
+Note that the origin of this file is the `openstack-bundles`_ repository.
 
-The environment variables can be enabled/sourced with the following command:
+Source the file to become the admin user:
 
-.. code:: bash
+.. code-block:: none
 
-    source openrc
+   source openrc
+   echo $OS_USERNAME
 
-For our project, `download
-<https://api.jujucharms.com/charmstore/v5/openstack-base/archive>`__ the
-`OpenStack <https://jujucharms.com/openstack-base/>`__ and source the
-environment variables using the above command.
+The output for the last command should be **admin**.
 
+Perform actions as the admin user
+---------------------------------
 
-You can check the variables have been set correctly by seeing if your OpenStack
-endpoints are visible with the ``openstack endpoint list`` command. The output
-will look something like this:
+The actions in this section should be performed as user 'admin'.
 
-.. code:: bash
+Confirm the user environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    +----------------------------------+-----------+--------------+--------------+
-    | ID                               | Region    | Service Name | Service Type |
-    +----------------------------------+-----------+--------------+--------------+
-    | 060d704e582b4f9cb432e9ecbf3f679e | RegionOne | cinderv2     | volumev2     |
-    | 269fe0ad800741c8b229a0b305d3ee23 | RegionOne | neutron      | network      |
-    | 3ee5114e04bb45d99f512216f15f9454 | RegionOne | swift        | object-store |
-    | 68bc78eb83a94ac48e5b79893d0d8870 | RegionOne | nova         | compute      |
-    | 59c83d8484d54b358f3e4f75a21dda01 | RegionOne | s3           | s3           |
-    | bebd70c3f4e84d439aa05600b539095e | RegionOne | keystone     | identity     |
-    | 1eb95d4141c6416c8e0d9d7a2eed534f | RegionOne | glance       | image        |
-    | 8bd7f4472ced40b39a5b0ecce29df3a0 | RegionOne | cinder       | volume       |
-    +----------------------------------+-----------+--------------+--------------+
+One way that you can confirm that the admin environment is set correctly is by
+querying for cloud endpoints:
+
+.. code-block:: none
+
+   openstack endpoint list --interface admin
+
+The output will look similar to this:
+
+.. code-block:: console
+
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
+   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                    |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
+   | 0515d09c36dd4fd991a1b2aa448eb3cb | RegionOne | neutron      | network      | True    | admin     | http://10.0.0.7:9696                   |
+   | 0abda66d8c414faea7e7485ea6e8ff80 | RegionOne | glance       | image        | True    | admin     | http://10.0.0.20:9292                  |
+   | 46599b147a2e4ff79513d8a4c6a37a83 | RegionOne | cinderv2     | volumev2     | True    | admin     | http://10.0.0.24:8776/v2/$(tenant_id)s |
+   | c046918276db46a7b9e0106d5102927f | RegionOne | cinderv3     | volumev3     | True    | admin     | http://10.0.0.24:8776/v3/$(tenant_id)s |
+   | c2a70ec99ec6417988e57f093ff4888d | RegionOne | keystone     | identity     | True    | admin     | http://10.0.0.29:35357/v3              |
+   | c79512b6f9774bb59f23b5b687ac286d | RegionOne | placement    | placement    | True    | admin     | http://10.0.0.11:8778                  |
+   | e8fbd499be904832b8ffa55fcb9c6efb | RegionOne | nova         | compute      | True    | admin     | http://10.0.0.10:8774/v2.1             |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
 
 If the endpoints aren't visible, it's likely your environment variables aren't
-configured correctly.
+set correctly.
 
-As with both MAAS and Juju, most OpenStack operations can be accomplished using
-either the command line or a web UI. In the following examples, we'll use the
-command line for brevity. But keep in mind that the web UI is a always potential
-alternative and a good way of seeing immediate feedback from any changes you
-apply.
+Create an image and flavor
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Define an external network
---------------------------
+Import a boot image into Glance to create server instances with. Here we import
+a Bionic amd64 image and call it 'bionic x86_64':
 
-We'll start by defining a network called ``Pub_Net`` that will use a subnet
-within the range of addresses we put aside in MAAS and Juju:
+.. code-block:: none
 
-.. code:: bash
+   curl http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img | \
+      openstack image create --public --container-format bare --disk-format qcow2 \
+      --property architecture=x86_64 --property hw_disk_bus=virtio \
+      --property hw_vif_model=virtio "bionic x86_64"
+
+Create at least one flavor to define a hardware profile for new instances. Here
+we create one called 'm1.micro':
+
+.. code-block:: none
+
+   openstack flavor create --ram 512 --disk 4 m1.micro
+
+The above flavor is defined with minimum specifications for Ubuntu Server.
+Adjust according to your needs.
+
+.. _public_networking:
+
+Set up public networking
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create the external public network, here called 'Pub_Net'. We use the 'flat'
+network provider type and its provider 'physnet1' that were set up during the
+:ref:`Neutron networking <neutron_networking>` step on the previous page:
+
+.. code-block:: none
 
    openstack network create Pub_Net --external --share --default \
       --provider-network-type flat --provider-physical-network physnet1
 
-The output from this, as with the output from many OpenStack commands, will show
-the various fields and values for the chosen configuration option. Typing
-``openstack network list`` will show the new network ID alongside its name:
+Create the subnet, here called 'Pub_Subnet', for the above network. The values
+used are based on the local environment. For instance, recall that our MAAS
+subnet is '10.0.0.0/21':
 
-.. code:: bash
+.. code-block:: none
 
-    +--------------------------------------+---------+---------+
-    | ID                                   | Name    | Subnets |
-    +--------------------------------------+---------+---------+
-    | fc171d22-d1b0-467d-b6fa-109dfb77787b | Pub_Net |         |
-    +--------------------------------------+---------+---------+
+   openstack subnet create Pub_Subnet --allocation-pool start=10.0.8.1,end=10.0.8.199 \
+      --subnet-range 10.0.0.0/21 --no-dhcp --gateway 10.0.0.1 \
+      --network Pub_Net
 
-We now need a subnet for the network. The following command will create this
-subnet using the various addresses from our MAAS and Juju configuration
-(``192.168.100.3`` is the IP address of the MAAS server):
+.. important::
 
-.. code:: bash
+   The addresses in the public subnet allocation pool are managed within
+   OpenStack but they also reside on the subnet managed by MAAS. It is
+   important to tell MAAS to never use this address range. This is done via a
+   `Reserved IP range`_ in MAAS.
 
-    openstack subnet create Pub_Subnet \
-       --allocation-pool start=192.168.100.150,end=192.168.100.199 \
-       --subnet-range 192.168.100.0/24 \
-       --no-dhcp --gateway 192.168.100.1 \
-       --network Pub_Net
+Create the non-admin user environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The output from the previous command provides a comprehensive overview of the
-new subnet's configuration:
+Create a new domain, project, and user. Here we'll use 'Domain1', 'Project1',
+and 'User1' respectively. You will be prompted to provide the new user's
+password.
 
-.. code:: bash
+.. code-block:: none
 
-    +-------------------------+--------------------------------------+
-    | Field                   | Value                                |
-    +-------------------------+--------------------------------------+
-    | allocation_pools        | 192.168.100.150-192.168.100.199      |
-    | cidr                    | 192.168.100.0/24                     |
-    | created_at              | 2017-04-21T13:43:48                  |
-    | description             |                                      |
-    | dns_nameservers         | 192.168.100.3, 8.8.8.8               |
-    | enable_dhcp             | False                                |
-    | gateway_ip              | 192.168.100.1                        |
-    | host_routes             |                                      |
-    | id                      | 563ecd06-bbc3-4c98-b93e              |
-    | ip_version              | 4                                    |
-    | ipv6_address_mode       | None                                 |
-    | ipv6_ra_mode            | None                                 |
-    | name                    | Pub_Subnet                           |
-    | network_id              | fc171d22-d1b0-467d-b6fa-109dfb77787b |
-    | project_id              | 4068710688184af997c1907137d67c76     |
-    | revision_number         | None                                 |
-    | segment_id              | None                                 |
-    | service_types           | None                                 |
-    | subnetpool_id           | None                                 |
-    | updated_at              | 2017-04-21T13:43:48                  |
-    | use_default_subnet_pool | None                                 |
-    +-------------------------+--------------------------------------+
+   openstack domain create Domain1
+   openstack project create --domain Domain1 Project1
+   openstack user create --domain Domain1 --project Project1 --password-prompt User1
 
-.. Note::
+Sample results:
 
-        OpenStack has `deprecated
-        <https://docs.openstack.org/developer/python-neutronclient/devref/transition_to_osc.html>`__
-        the use of the ``neutron`` command for network configuration, migrating
-        most of its functionality into the Python OpenStack client. Version
-        2.4.0 or later of this client is needed for the ``subnet create``
-        command.
+.. code-block:: console
 
-Cloud images
-------------
+   User Password:********
+   Repeat User Password:********
+   +---------------------+----------------------------------+
+   | Field               | Value                            |
+   +---------------------+----------------------------------+
+   | default_project_id  | 2962d44b73db4e1d884498b8ce000a69 |
+   | domain_id           | 5080f063d9f84290a8233e16a0ff39a2 |
+   | enabled             | True                             |
+   | id                  | 1ea06b07c73149ca9c6753e07c30383a |
+   | name                | User1                            |
+   | options             | {}                               |
+   | password_expires_at | None                             |
+   +---------------------+----------------------------------+
 
-To add an Ubuntu image to Glance, we need to first download an image locally.
-Canonical's Ubuntu cloud images can be found here:
+Take note of the output. We'll need the user's ID in order to assign her the
+'Member' role:
 
-`https://cloud-images.ubuntu.com <https://cloud-images.ubuntu.com/>`__
+.. code-block:: none
 
-You could use ``wget`` to download the image of Ubuntu 18.04 LTS (Bionic):
+   openstack role add --user 1ea06b07c73149ca9c6753e07c30383a \
+      --project Project1 Member
 
-.. code:: bash
+Create an OpenStack user authentication file for user 'User1'. All we're
+missing is the Keystone URL, which we can get from the current user 'admin'
+environment:
 
-    wget https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
+.. code-block:: none
 
-The following command will add this image to Glance:
+   echo $OS_AUTH_URL
 
-.. code:: bash
+The output for the last command for this example is
+**http://10.0.0.23:5000/v3**.
 
-    openstack image create --public --min-disk 3 --container-format bare \
-    --disk-format qcow2 --property architecture=x86_64 \
-    --property hw_disk_bus=virtio --property hw_vif_model=virtio \
-    --file bionic-server-cloudimg-amd64.img \
-    "bionic x86_64"
-
-To make sure the image was successfully imported, type ``openstack image list``.
-This will output the following:
-
-.. code:: bash
-
-    +--------------------------------------+---------------+--------+
-    | ID                                   | Name          | Status |
-    +--------------------------------------+---------------+--------+
-    | d4244007-5864-4a2d-9cfd-f008ade72df4 | bionic x86_64 | active |
-    +--------------------------------------+---------------+--------+
-
-The 'Compute>Images' page of OpenStack's Horizon web UI lists many more details
-about imported images. In particular, note their size as this will limit the
-minimum root storage size of any OpenStack flavours used to deploy them.
-
-.. figure:: ./media/config-openstack_images.png
-   :alt: Horizon image details
-
-   Horizon image details
-
-Working with domains and projects
----------------------------------
-
-Domains, projects, users and roles are a vital part of OpenStack operations.
-We'll create a single domain with a single project and single user for our new
-deployment, starting with the domain:
-
-.. code:: bash
-
-    openstack domain create MyDomain
-
-To add a project to the domain:
-
-.. code:: bash
-
-    openstack project create --domain MyDomain \
-        --description 'First Project' MyProject
-
-To add a user and assign that user to the project (you will be prompted to
-create a password):
-
-.. code:: bash
-
-    openstack user create --domain MyDomain \
-       --project MyProject --password-prompt MyUser
-
-The output to the previous command will be similar to the following:
-
-.. code:: bash
-
-    +---------------------+----------------------------------+
-    | Field               | Value                            |
-    +---------------------+----------------------------------+
-    | default_project_id  | 914e59223944433dbf12417ac4cd4031 |
-    | domain_id           | 7993528e51344814be2fd53f1f8f82f9 |
-    | enabled             | True                             |
-    | id                  | e980be28b20b4a2190c41ae478942ab1 |
-    | name                | MyUser                           |
-    | options             | {}                               |
-    | password_expires_at | None                             |
-    +---------------------+----------------------------------+
-
-Assign the 'Member' role to the new user:
+The contents of the file, say ``Project1-rc``, will therefore look like this
+(assuming the user password is 'ubuntu'):
 
 .. code-block:: bash
 
-   openstack role add --user e980be28b20b4a2190c41ae478942ab1 \
-      --project MyProject Member
+   export OS_AUTH_URL=http://10.0.0.23:5000/v3
+   export OS_USER_DOMAIN_NAME=Domain1
+   export OS_USERNAME=User1
+   export OS_PROJECT_DOMAIN_NAME=Domain1
+   export OS_PROJECT_NAME=Project1
+   export OS_PASSWORD=ubuntu
 
-In the same way we used ``openrc`` to hold the OpenStack environment variables
-for the ``admin`` account, we can create a similar file to hold the details on
-the new project and user:
+Source the file to become the non-admin user:
 
-Create the following ``myprojectrc`` file (supply the user's password):
+.. code-block:: none
 
-.. code:: yaml
+   source Project1-rc
+   echo $OS_USERNAME
 
-    export OS_AUTH_URL=http://192.168.100.95:5000/v3
-    export OS_USER_DOMAIN_NAME=MyDomain
-    export OS_USERNAME=MyUser
-    export OS_PROJECT_DOMAIN_NAME=MyDomain
-    export OS_PROJECT_NAME=MyProject
-    export OS_PASSWORD=*******
+The output for the last command should be **User1**.
 
-Source this file's contents to effectively switch users:
+Perform actions as the non-admin user
+-------------------------------------
 
-.. code:: bash
+The actions in this section should be performed as user 'User1'.
 
-    source myprojectrc
+Set the user environment
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Every subsequent action will now be performed by ``MyUser`` user within the
-new ``MyProject`` project.
+Perform a cloud query to ensure the user environment is functioning correctly:
 
-Create a virtual network
-------------------------
+.. code-block:: none
 
-We need a fixed IP address to access any instances we deploy from OpenStack. In
-order to assign a fixed IP, we need a project-specific network with a private
-subnet, and a router to link this network to the ``Pub_Net`` we created earlier.
+   openstack image list
+   +--------------------------------------+---------------+--------+
+   | ID                                   | Name          | Status |
+   +--------------------------------------+---------------+--------+
+   | 429f79c7-9ed9-4873-b6da-41580acd2d5f | bionic x86_64 | active |
+   +--------------------------------------+---------------+--------+
 
-To create the new network, enter the following:
+The image that was previously imported by the admin user should be returned.
 
-.. code:: bash
+Set up private networking
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    openstack network create MyNetwork
+In order to get a fixed IP address to access any created instances we need a
+project-specific network with a private subnet. We'll also need a router to
+link this network to the public network created earlier.
 
-Create a private subnet with the following parameters:
+The non-admin user now creates a private internal network called 'Network1'
+and an accompanying subnet called 'Subnet1' (the DNS server is pointing to the
+MAAS server at 10.0.0.3):
 
-.. code:: bash
+.. code-block:: none
 
-   openstack subnet create MySubnet \
-      --allocation-pool start=10.0.0.10,end=10.0.0.99 \
-      --subnet-range 10.0.0.0/24 \
-      --gateway 10.0.0.1 --dns-nameserver 192.168.100.3 \
-      --network MyNetwork
+   openstack network create Network1 --internal
+   openstack subnet create Subnet1 \
+      --allocation-pool start=192.168.0.10,end=192.168.0.199 \
+      --subnet-range 192.168.0.0/24 \
+      --gateway 192.168.0.1 --dns-nameserver 10.0.0.3 \
+      --network Network1
 
-You'll see verbose output similar to the following:
+Now a router called 'Router1' is created, added to the subnet, and told to use
+the public network as its external gateway network:
 
-.. code:: bash
+.. code-block:: none
 
-    +-------------------------+--------------------------------------+
-    | Field                   | Value                                |
-    +-------------------------+--------------------------------------+
-    | allocation_pools        | 10.0.0.10-10.0.0.99                  |
-    | cidr                    | 10.0.0.0/24                          |
-    | created_at              | 2017-04-21T16:46:35                  |
-    | description             |                                      |
-    | dns_nameservers         | 192.168.100.3, 8.8.8.8               |
-    | enable_dhcp             | True                                 |
-    | gateway_ip              | 10.0.0.1                             |
-    | host_routes             |                                      |
-    | id                      | a91a604a-70d6-4688-915e-ed14c7db7ebd |
-    | ip_version              | 4                                    |
-    | ipv6_address_mode       | None                                 |
-    | ipv6_ra_mode            | None                                 |
-    | name                    | MySubnet                             |
-    | network_id              | 8b0baa43-cb25-4a70-bf41-d4136cbfe16e |
-    | project_id              | 1992e606b51b404c9151f8cb464aa420     |
-    | revision_number         | None                                 |
-    | segment_id              | None                                 |
-    | service_types           | None                                 |
-    | subnetpool_id           | None                                 |
-    | updated_at              | 2017-04-21T16:46:35                  |
-    | use_default_subnet_pool | None                                 |
-    +-------------------------+--------------------------------------+
+   openstack router create Router1
+   openstack router add subnet Router1 Subnet1
+   openstack router set Router1 --external-gateway Pub_Net
 
-The following commands will add the router, connecting this new network to the
-Pub\_Net:
+Configure SSH and security groups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: bash
+Instances are accessed via SSH. Import a public SSH key so that it can be
+referenced at instance creation time and then installed in the 'ubuntu' user
+account. An existing key can be used but here we first create a new keypair
+called 'User1-key':
 
-    openstack router create MyRouter
-    openstack router set MyRouter --external-gateway Pub_Net
-    openstack router add subnet MyRouter MySubnet
+.. code-block:: none
 
-Use ``openstack router show MyRouter`` to verify all parameters have
-been set correctly.
+   ssh-keygen -q -N '' -f ~/.ssh/User1-key
+   openstack keypair create --public-key ~/.ssh/User1-key.pub User1-key
 
-Finally, we can add a floating IP address to our project's new network:
+Security groups will need to be configured to at least allow the passing of SSH
+traffic. You can alter the default group rules or create a new group with its
+own rules. We do the latter by creating a group called 'Allow_SSH':
 
-.. code:: bash
+.. code-block:: none
 
-    openstack floating ip create Pub_Net
+   openstack security group create --description 'Allow SSH' Allow_SSH
+   openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
 
-Details on the address will be shown in the output:
+Create and access an instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: bash
+Determine the network ID of private network 'Network1' and then create an
+instance called 'bionic-1':
 
-    +---------------------+--------------------------------------+
-    | Field               | Value                                |
-    +---------------------+--------------------------------------+
-    | created_at          | None                                 |
-    | description         |                                      |
-    | fixed_ip_address    | None                                 |
-    | floating_ip_address | 192.168.100.152                      |
-    | floating_network_id | fc171d22-d1b0-467d-b6fa-109dfb77787b |
-    | id                  | f9b4193d-4385-4b25-83ed-89ed3358668e |
-    | name                | 192.168.100.152                      |
-    | port_id             | None                                 |
-    | project_id          | 1992e606b51b404c9151f8cb464aa420     |
-    | revision_number     | None                                 |
-    | router_id           | None                                 |
-    | status              | DOWN                                 |
-    | updated_at          | None                                 |
-    +---------------------+--------------------------------------+
+.. code-block:: none
 
-This address will be added to the pool of available floating IP addresses that
-can be assigned to any new instances we deploy.
+   NET_ID=$(openstack network list | grep Network1 | awk '{ print $2 }')
+   openstack server create --image 'bionic x86_64' --flavor m1.micro \
+      --key-name User1-key --security-group Allow_SSH --nic net-id=$NET_ID \
+      bionic-1
 
-SSH access
+Request a floating IP address from the public network 'Pub_Net' and assign it
+to a variable:
+
+.. code-block:: none
+
+   FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address Pub_Net)
+
+Now add that floating IP address to the newly-created instance 'bionic-1':
+
+.. code-block:: none
+
+   openstack server add floating ip bionic-1 $FLOATING_IP
+
+Ask for a listing of all instances within the context of the current project
+('Project1'):
+
+.. code-block:: none
+
+   openstack server list
+
+Sample output:
+
+.. code-block:: console
+
+   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
+   | ID                                   | Name     | Status | Networks                          | Image         | Flavor   |
+   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
+   | 9167b3e9-c653-43fc-858a-2d6f6da36daa | bionic-1 | ACTIVE | Network1=192.168.0.131, 10.0.8.10 | bionic x86_64 | m1.micro |
+   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
+
+The first address listed is in the private network and the second one is in the
+public network:
+
+You can monitor the booting of the instance with this command:
+
+.. code-block:: none
+
+   openstack console log show bionic-1
+
+The instance is ready when the output contains:
+
+.. code-block:: console
+
+   .
+   .
+   .
+   Ubuntu 18.04.3 LTS bionic-1 ttyS0
+
+   bionic-1 login:
+
+You can connect to the instance in this way:
+
+.. code-block:: none
+
+   ssh -i ~/.ssh/User1-key ubuntu@$FLOATING_IP
+
+Next steps
 ----------
 
-To create an OpenStack SSH keypair for accessing deployments with SSH, use the
-following command:
+You now have a functional OpenStack cloud managed by MAAS-backed Juju and have
+reached the end of the Charms Deployment Guide.
 
-.. code:: bash
+Just as we used MAAS as a backing cloud to Juju, an optional objective is to do
+the same with the new OpenStack cloud. That is, you would add the OpenStack
+cloud to Juju, add a set of credentials, create a Juju controller, and go on
+to deploy charms. The resulting Juju machines will be running as OpenStack
+instances! See `Using OpenStack with Juju`_ in the Juju documentation for
+guidance.
 
-    openstack keypair create NewKeypair > ~/.ssh/newkeypair.pem
-
-With SSH, it's imperative that the file has the correct permissions:
-
-.. code:: bash
-
-    chmod 600 ~/.ssh/newkeypair.pem
-
-Alternatively, you can import your pre-existing keypair with the following
-command:
-
-.. code:: bash
-
-    openstack keypair create --public-key ~/.ssh/id_rsa.pub MyKeypair
-
-You can view which keypairs have been added to OpenStack using the
-``openstack keypair list`` command, which generates output similar to the
-following:
-
-.. code:: bash
-
-    +-------------------+-------------------------------------------------+
-    | Name              | Fingerprint                                     |
-    +-------------------+-------------------------------------------------+
-    | MyKeypair         | 1d:35:52:08:55:d5:54:04:a3:e0:23:f0:20:c4:b0:eb |
-    | NewKeypair        | 1f:1a:74:a5:cb:87:e1:f3:2e:08:9e:40:dd:dd:7c:c4 |
-    +-------------------+-------------------------------------------------+
-
-To permit SSH traffic access to our deployments, we need to define a security
-group and a corresponding network rule:
-
-.. code:: bash
-
-    openstack security group create --description 'Allow SSH' Allow_SSH
-
-The following rule will open TCP port 22 and apply it to the above security
-group:
-
-.. code:: bash
-
-    openstack security group rule create --proto tcp --dst-port 22 Allow_SSH
-
-Create a cloud instance
------------------------
-
-Before launching our first cloud instance, we'll need the network ID for the
-``MyNetwork``. This can be retrieved from the first column of output from the
-``openstack network list`` command:
-
-.. code:: bash
-
-    +--------------------------------------+-------------+------------------------+
-    | ID                                   | Name        | Subnets                |
-    +--------------------------------------+-------------+------------------------+
-    | fc171d22-d1b0-467d-b6fa-109dfb77787b | Pub_Net     |563ecd06-bbc3-4c98-b93e |
-    | 8b0baa43-cb25-4a70-bf41-d4136cbfe16e | MyNetwork   |a91a604a-70d6-4688-915e |
-    +--------------------------------------+-------------+------------------------+
-
-Use the network ID to replace the example in the following ``server create``
-command to deploy a new instance:
-
-.. code:: bash
-
-    openstack server create Ubuntu --availability-zone nova \
-    --image 'bionic x86_64' --flavor m1.small \
-    --key-name NewKeypair --security-group \
-    Allow_SSH --nic net-id=8b0baa43-cb25-4a70-bf41-d4136cbfe16e
-
-You can monitor progress with the ``openstack server list`` command by waiting
-for the server to show a status of ``ACTIVE``:
-
-.. code:: bash
-
-    +--------------------+-----------+--------+--------- ------------+---------------+
-    | ID                 | Name      | Status | Networks             | Image Name    |
-    +--------------------+-----------+--------+----------------------+---------------+
-    | 4a61f2ad-5d89-43a6 | Ubuntu    | ACTIVE | MyNetwork=10.0.0.11  | bionic x86_64 |
-    +--------------------+-----------+--------+----------------------+---------------+
-
-All that's left to do is assign a floating IP to the new server and connect with
-SSH.
-
-Typing ``openstack floating ip list`` will show the floating IP address we
-liberated from ``Pub_Net`` earlier.
-
-.. code:: bash
-
-    +----------+---------------------+------------------+------+--------------------+---------+
-    | ID       | Floating IP Address | Fixed IP Address | Port | Floating Network   | Project |
-    +----------+---------------------+------------------+------+--------------------+---------+
-    | f9b4193d | 192.168.100.152     | None             | None | fc171d22-d1b0-467d | 1992e65 |
-    +----------+---------------------+------------------+------+--------------------+---------+
-
-The above output shows that the floating IP address is yet to be assigned. Use
-the following command to assign the IP address to our new instance:
-
-.. code:: bash
-
-    openstack server add floating ip Ubuntu 192.168.100.152
-
-You will now be able to connect to your new cloud server using SSH:
-
-.. code:: bash
-
-    ssh -i ~/.ssh/newkeypair.pem 192.168.100.152
-
-Next Steps
-----------
-
-Congratulations! You have now built and successfully deployed a new cloud
-instance running on OpenStack, taking full advantage of both Juju and MAAS.
-
-This is a strong foundation to build upon. You could use Juju `on top of
-OpenStack <https://jujucharms.com/docs/stable/help-openstack>`__, for example,
-giving your OpenStack deployment the same powerful application modelling
-capabilities we used to deploy OpenStack.
-
-Whatever you choose to do, MAAS and Juju will scale to manage your needs, while
-making your deployments easier to design, maintain and manage.
-
-.. raw:: html
-
-   <!-- LINKS -->
-
-.. raw:: html
-
-   <!-- IMAGES -->
+.. LINKS
+.. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles/blob/master/stable/shared/openrcv3_project
+.. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
+.. _Using OpenStack with Juju: https://jaas.ai/docs/openstack-cloud

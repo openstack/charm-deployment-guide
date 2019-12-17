@@ -179,6 +179,8 @@ Here are the four deploy commands for the four machines:
    juju add-unit --to 2 swift-storage
    juju add-unit --to 3 swift-storage
 
+.. _neutron_networking:
+
 Neutron networking
 ~~~~~~~~~~~~~~~~~~
 
@@ -208,9 +210,8 @@ Gateway.
 
 The ``flat-network-providers`` setting enables the Neutron flat network
 provider used in this example scenario and gives it the name of 'physnet1'. The
-flat network provider and its name will be referenced when we create the
-external public network on the :doc:`Configure OpenStack <config-openstack>`
-page.
+flat network provider and its name will be referenced when we :ref:`Set up
+public networking <public_networking>` on the next page.
 
 The ``bridge-mappings`` setting maps the data-port interface to the flat
 network provider.
