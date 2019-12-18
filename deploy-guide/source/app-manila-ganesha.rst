@@ -1,4 +1,4 @@
-Appendix P: Manila Ganesha: Ceph-backed Shared Filesystem Service
+Appendix Q: Manila Ganesha: Ceph-backed Shared Filesystem Service
 =================================================================
 
 Overview
