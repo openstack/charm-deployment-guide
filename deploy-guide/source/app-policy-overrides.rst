@@ -38,6 +38,7 @@ Here is the current list of override-aware charms:
 * `cinder`_
 * `designate`_
 * `glance`_
+* `heat`_
 * `keystone`_
 * `neutron-api`_
 * `nova-cloud-controller`_
@@ -130,6 +131,10 @@ way:
 
       juju config <charm-name> use-policyd-override=true
 
+To update (or fix) the overrides simply attach a new resource file. Changes
+are applied immediately; there is no need to disable ('false') and re-enable
+('true').
+
 Override status
 ---------------
 
@@ -139,21 +144,15 @@ The status of the overrides for an application is shown in the output for the
 they are unsuccessful ``PO: (broken)`` will be used.
 
 An unsuccessful override implies that **none** of the override policy
-statements have been applied. In this case, the operator should either
-re-attach the fixed resource file or disable the overrides entirely.
+statements have been applied. In this case, the operator should either attach
+a fixed resource file or disable the overrides entirely.
 
-.. note::
-
-   When updating (or fixing) an enabled override it first must be disabled
-   ("false") and then re-enabled ("true"). The new resource file can be
-   attached either before or after disabling.
-
-Information on broken overrides will appear in the Juju unit agent logs. For
-instance:
+Information on broken overrides will appear in the logs for the application in
+question. For instance, for nova-cloud-controller:
 
 .. code-block:: none
 
-   juju debug-log --replay --no-tail --include unit-nova-cloud-controller-0
+   juju debug-log --replay --no-tail --include nova-cloud-controller
 
 Examples
 --------
@@ -275,6 +274,7 @@ See the upstream documentation on `Show Server Details`_.
 .. _cinder: https://opendev.org/openstack/charm-cinder/src/branch/master/README.md#policy-overrides
 .. _designate: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
 .. _glance: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
+.. _heat: https://opendev.org/openstack/charm-heat/src/branch/master/README.md#policy-overrides
 .. _keystone: https://opendev.org/openstack/charm-keystone/src/branch/master/README.md#policy-overrides
 .. _neutron-api: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#policy-overrides
 .. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/src/branch/master/README.md#policy-overrides
