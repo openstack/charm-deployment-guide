@@ -1,145 +1,162 @@
+============================
 Appendix N: Policy Overrides
 ============================
 
 Overview
-++++++++
+--------
 
-This appendix explains the purpose of policy overrides and shows how to enable
-them.
+`OpenStack service policies`_ define access permissions for resources on a
+per-service basis. The policy defaults for a charmed OpenStack service are
+either coded in the service itself ("policy-in-code") and/or provided by the
+charm via a YAML file.
+
+The preferred approach for modifying a default policy is via charm options as
+this leads to consistent policy files. In a Juju-managed OpenStack deployment,
+it is not recommended to manually override a service's default policy (i.e.
+editing a `policy.json`_ file on a unit).
+
+However, over time the demand has grown for the ability of an operator to tweak
+a policy in a way that the charm is currently incapable of, and without
+incurring the penalty of waiting for such changes to be implemented in the
+charm.
+
+The policy overrides feature provides a mechanism for doing this with the
+limitation that it can alter only the permissions of the tenant users of the
+system. It does **not** modify the permissions of the service users themselves
+(e.g. keystone, glance, nova). The charms maintains its responsibility for this
+through the use of policy files within the charms themselves.
+
+Charms
+------
+
+Policy overrides are supported on a per-charm basis. This support will be
+mentioned in a charm's README along with any charm-specific override
+information.
+
+Here is the current list of override-aware charms:
+
+* `cinder`_
+* `designate`_
+* `glance`_
+* `keystone`_
+* `neutron-api`_
+* `nova-cloud-controller`_
+* `octavia`_
+* `openstack-dashboard`_
+
+Overrides for one service may affect the functionality of another service.
+Therefore, it may be necessary to provide overrides for multiple services
+in order to achieve a consistent set of policies across the cloud. Do not
+proceed unless all affected services are represented in the above list.
 
 .. important::
 
-    Overrides are available on a per-charm basis and will be noted in a charm's
-    README. Always consult the charm documentation prior to enabling this
-    feature.
+   Always consult the charm documentation prior to using this feature.
 
-Background
-++++++++++
+Implementation
+--------------
 
-The Policy Overrides feature provides a mechanism for operators to modify the
-policies within OpenStack services in order to manage the permissions of the
-tenants and users of the system. It is NOT intended that this facility is used
-to manage the permissions of the services themselves, and steps are taken to
-prevent this where possible.  The charms will continue to manage the policies
-of the service users directly (e.g. keystone, glance, nova) using the default
-policy files within the charms themselves.
+Any policy statement valid for a given OpenStack service is placed, one per
+line, in a file (an *override file*). This file (or files) is then compressed
+into a single file (the *resource file*) and used as an `Application
+resource`_. Finally, the override is enabled via a Boolean charm option.
 
-The preferred approach has always been to use charm options to enable a more
-controlled approach to modifying the policy of a service by providing templates
-that the options modify - i.e. a controlled approach that always results in
-consistent policy files.
+The enablement phase will cause validation checks to be performed. If
+successful, the effective contents of each override file is placed into a
+corresponding file under the ``/etc/<service-name>/policy.d/`` directory on the
+appropriate unit. The service will then use this information to override the
+currently active policy.
 
-However, over time, it has become apparent that there will always be an aspect
-of the policy of a service that an operator wants to tweak or change that the
-charm authors hadn't considered, and the cycle time to introduce the option
-exceeds the expectations of the delay that an operator is willing to tolerate.
+.. important::
 
-Therefore, it has been recognised that there are aspects of the configuration
-files that the charms control need to be more fluidly modifiable by operators.
-These tend to be orthogonal to the act of deployment and instead are to do with
-operating the cloud.
+   Validation checks do not cover the policy statements themselves. They only
+   ensure that the policy override mechanism is able to consume those
+   statements (e.g. failure will result if the statement is not valid YAML but
+   will succeed if a keyword was misspelled). See `Requirements`_ below.
 
-So, the objective is to provide operators with a mechanism to override the
-policy defaults without (hopefully) breaking the cloud. The policy defaults are
-either coded in the service via "policy-in-code" and/or via a default policy
-YAML file provided by the charm/service.
+A charm may optionally provide a template system where an override file can
+include template variables that the charm will substitute with data that the
+charm has access to via current charm options, the environment, or relation
+data.
 
-Facility offered
-++++++++++++++++
+The override implementation is *per charm*. Thus if several services require
+overrides a separate resource file will need to be applied to each respective
+charm.
 
-The general facility offered is the ability to:
+.. note::
 
-- Create YAML files that contain any rules that are allowed in policy files for
-  each service.
-- The YAML files are placed into a zip file.
-- The ZIP file will be attached/uploaded to the charm as a `Juju resource
-  <https://jaas.ai/docs/juju-resources>`_.
-- A config item named ``use-policyd-override`` is set to ``True``.
-
-This will cause the charm to unzip the attached file, do some validation
-checks, and then drop the file(s) in the ``/etc/<service-name>/policy.d/``
-directory.  The OpenStack service will then use these overrides to add to,
-change, or remove the default charm- or package-determined policies and thus
-provide the permissions that the operator requires.
-
-Some charms may wish to provide a template system with the policy overrides.
-In this case the override file may include template variables that the charm
-will substitute with data that the charm has from config, the enviroment, or
-through relation data.  This will be documented within the charms' README file.
-
-Policies across the OpenStack services
-++++++++++++++++++++++++++++++++++++++
-
-The policy override system described here is *per charm*.  Thus if several
-services require policy overrides then a policy override resource ZIP file
-needs to be created for each charm and applied to the service.
+   A problem arising from overrides is not considered a charm breakage.
+   Overrides are orthogonal to the operation of the charm.
 
 Requirements
-++++++++++++
+------------
 
-Policy overrides are charm dependent, so the individual charm README files
-should be consulted.  However, the following general issues may arise:
+Requirements for the resource file are presented below.
 
-- The ZIP file is not properly formatted.  Check that a pkunzip program can
-  open and test the enclosed files.
-- There are no files in the zip file that have an extension of ``.yaml``, or
-  ``.yml``.
-- There are duplicate named files after the ZIP file has been processed.
-  Directories in the zip file are "flattened" such that all of the files appear
-  as a simple list.  Each of these flattened filename is lower-cased.  At this
-  point any duplicates will cause a failure.  This processing is done so that
-  the policy.d directory for the OpenStack service is a simple list of
-  unambiguous files.
-- An identified YAML file in the zip file is not formatted correctly; as it
-  can't be loaded, it won't be written to the policy.d override folder.
-- The template substitution function errors.
-- A blacklisted key has been used in the policy override.  Individual charms
-  may choose to disallow the override of particular rules in the policy file.
-  In this case the policy file will be rejected.
-
-Any problems with the overrides will be indicated in the output for ``juju
-status``. See next section `Applying overrides`_.
-
-.. note:: The hook (install, upgrade, config-changed) will not fail if the
-          policy override is broken.  The policy overrides will not be
-          installed, and the status line will indicate a failure.  It is not a
-          charm breakage if the policy overrides are not installed as the
-          overrides should be orthogonal to the operation of the charm.  i.e.
-          they are to do with tenants and user permissions, and not the
-          operation of the underlying services.
+* It must be properly ZIP formatted. A ``pkunzip`` program must be able to open
+  and test the enclosed files.
+* Enclosed override files must be properly YAML formatted and have an extension
+  of ``.yaml``, or ``.yml``.
+* Enclosed override files must **not** contain rule targets/keys that have been
+  blacklisted by the charm. These will be documented in the charm's README.
+* Enclosed override files must have unique filenames. Any directories in the
+  file are "flattened" such that all override files appear as a simple list.
+  Each of these filenames also get lower-cased.
 
 Applying overrides
-++++++++++++++++++
+------------------
 
-Policy overrides for an OpenStack service are applied by attaching the ZIP file
-to the corresponding charm and then enabling them by passing an option to the
-charm. These are both done via Juju commands.
+Policy overrides for a single OpenStack service are applied in the following
+way:
 
-The file containing policy override files is attached to the charm in this way:
+#. Insert the policy statements into an override file (or files).
 
-    juju attach-resource <charm-name> policyd-override=<overrides.zip>
+#. Compress the override file(s) to get the resource file:
 
-The policy override is enabled in the charm using:
+   .. code-block:: none
 
-    juju config <charm-name> use-policyd-override=true
+      zip <resource-file.zip> <override-file.yaml> [<override-file.yaml> ...]
 
-Juju status
-+++++++++++
+#. Attach the resource file to the charm corresponding to the service. The
+   resource name used is ``policyd-override``:
 
-The status of the overrides for a Juju application is shown in the output for
-the ``juju status`` command. When overrides are successful the text ``PO:``
-(for Policy Overrides) will be prefixed to the application's status message.
-When they are unsuccessful ``PO: (broken)`` will be used.
+   .. code-block:: none
 
-Unsuccessful overrides imply that **none** of the default policies have been
-modified. In this case, the operator should either fix and re-attach them to
-the charm or disable the overrides entirely (i.e. set ``use-policyd-overrides``
-to 'false').
+      juju attach-resource <charm-name> policyd-override=<resource-file.zip>
 
-Information on broken overrides will appear in the logs.
+#. Enable the override via the ``use-policyd-override`` charm option:
+
+   .. code-block:: none
+
+      juju config <charm-name> use-policyd-override=true
+
+Override status
+---------------
+
+The status of the overrides for an application is shown in the output for the
+:command:`juju status` command. When overrides are successful the text ``PO:``
+(Policy Overrides) will be prefixed to the application's status message. When
+they are unsuccessful ``PO: (broken)`` will be used.
+
+An unsuccessful override implies that **none** of the override policy
+statements have been applied. In this case, the operator should either
+re-attach the fixed resource file or disable the overrides entirely.
+
+.. note::
+
+   When updating (or fixing) an enabled override it first must be disabled
+   ("false") and then re-enabled ("true"). The new resource file can be
+   attached either before or after disabling.
+
+Information on broken overrides will appear in the Juju unit agent logs. For
+instance:
+
+.. code-block:: none
+
+   juju debug-log --replay --no-tail --include unit-nova-cloud-controller-0
 
 Examples
-++++++++
+--------
 
 This area contains examples of policy override usage.
 
@@ -218,12 +235,10 @@ policy "target" that controls these particular fields is
 The final policy statement is placed in a file, say,
 ``nova-server-attributes.yaml``:
 
-.. code-block:: ini
+.. code-block:: yaml
 
-   {
-       #"os_compute_api:os-extended-server-attributes": "rule:admin_api"
-       "os_compute_api:os-extended-server-attributes": "rule:admin_or_owner"
-   }
+   #"os_compute_api:os-extended-server-attributes": "rule:admin_api"
+   "os_compute_api:os-extended-server-attributes": "rule:admin_or_owner"
 
 The default statement is left as a comment in order to provide some extra
 context.
@@ -231,7 +246,7 @@ context.
 Compress the file, attach it as a resource to the nova-cloud-controller
 application, and enable the override:
 
-.. code-block:: console
+.. code-block:: none
 
    zip nova-server-attributes.zip nova-server-attributes.yaml
    juju attach-resource nova-cloud-controller policyd-override=nova-server-attributes.zip
@@ -243,12 +258,25 @@ the instances that they own with the :command:`openstack server show` command.
 More extended attributes can be displayed through the use of option
 ``--os-compute-api-version``. For example:
 
-.. code-block:: console
+.. code-block:: none
 
    openstack --os-compute-api-version 2.3 server show 9167b3e9-c653-43fc-858a-2d6f6da36daa
 
 See the upstream documentation on `Show Server Details`_.
 
 .. LINKS
+.. _OpenStack service policies: https://docs.openstack.org/security-guide/identity/policies.html
+.. _policy.json: https://docs.openstack.org/oslo.policy/latest/admin/policy-json-file.html
 .. _Nova API: https://docs.openstack.org/nova/latest/configuration/policy.html
 .. _Show Server Details: https://docs.openstack.org/api-ref/compute/?expanded=show-server-details-detail#show-server-details
+.. _Application resource: https://jaas.ai/docs/juju-resources#heading--application-resources
+
+.. CHARMS
+.. _cinder: https://opendev.org/openstack/charm-cinder/src/branch/master/README.md#policy-overrides
+.. _designate: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
+.. _glance: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
+.. _keystone: https://opendev.org/openstack/charm-keystone/src/branch/master/README.md#policy-overrides
+.. _neutron-api: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#policy-overrides
+.. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/src/branch/master/README.md#policy-overrides
+.. _octavia: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#policy-overrides
+.. _openstack-dashboard: https://opendev.org/openstack/charm-openstack-dashboard/src/branch/master/README.md#policy-overrides
