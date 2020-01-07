@@ -1,31 +1,20 @@
+=================
 Install OpenStack
 =================
 
-Now that we've installed and configured :doc:`MAAS <install-maas>` and
-successfully deployed a :doc:`Juju <install-juju>` controller, it's time to
-do some real work; use Juju to deploy
-`OpenStack <https://www.openstack.org/>`__, the leading open cloud platform.
+In the :doc:`previous section <install-juju>`, we installed Juju and created a
+Juju controller and model. We are now going to use Juju to install OpenStack
+itself. There are two methods to choose from:
 
-We have two options when installing OpenStack.
+#. **By individual charm**. This method provides a solid understanding of how
+   Juju works and of how OpenStack is put together. Choose this option if you
+   have never installed OpenStack with Juju.
+#. **By charm bundle**. This method provides an automated means to install
+   OpenStack. Choose this option if you are familiar with how OpenStack is
+   built with Juju.
 
-1. Install and configure each OpenStack component separately. Adding Ceph,
-   Compute, Swift, RabbitMQ, Keystone and Neutron in this way allows you to see
-   exactly what Juju and MAAS are doing, and consequently, gives you a better
-   understanding of the underlying OpenStack deployment.
-2. Use a `bundle <https://jujucharms.com/docs/stable/charms-bundles>`__ to
-   deploy OpenStack with a single command. A bundle is an encapsulation of a
-   working deployment, including all configuration, resources and references. It
-   allows you to effortlessly recreate a deployment with a single command or
-   share that deployment with other Juju users.
-
-If this is your first foray into MAAS, Juju and OpenStack territory, we'd
-recommend starting with the first option. This will give you a stronger
-foundation for maintaining and expanding the default deployment. Our
-instructions for this option continue below.
-
-Alternatively, jump to :doc:`Deploying OpenStack from a
-bundle <install-openstack-bundle>` to learn about deploying as a
-bundle.
+The current page is devoted to method #1. See :doc:`Deploying OpenStack from a
+bundle <install-openstack-bundle>` for method #2.
 
 .. important::
 
@@ -42,551 +31,537 @@ bundle.
       series (e.g. 'xenial' or 'bionic', but not a mix of the two). See `Series
       upgrade`_ for details.
 
-Deploy the Juju controller
---------------------------
+Despite the length of this page, only three distinct Juju commands will be
+employed: :command:`juju deploy`, :command:`juju add-unit`, and :command:`juju
+add-relation`. You may want to review these pertinent sections of the Juju
+documentation before continuing:
 
-:doc:`Previously <install-juju>`, we tested our MAAS and Juju configuration
-by deploying a new Juju controller called ``maas-controller``. You can check
-this controller is still operational by typing ``juju status``. With the Juju
-controller running, the output will look similar to the following:
+* `Deploying applications`_
+* `Deploying to specific machines`_
+* `Managing relations`_
 
-.. code:: bash
+.. TODO
+   Cloud topology section goes here (modelled on openstack-base README)
 
-    Model    Controller           Cloud/Region  Version
-    default  maas-controller-two  mymaas        2.2.1
+Installation progress
+---------------------
 
-    App  Version  Status  Scale  Charm  Store  Rev  OS  Notes
+There are many moving parts involved in a charmed OpenStack install. During
+much of the process there will be components that have not yet been satisfied,
+which will cause error-like messages to be displayed in the output of the
+:command:`juju status` command. Do not be alarmed. Indeed, these are
+opportunities to learn about the interdependencies of the various pieces of
+software. Messages such as **Missing relation** and **blocked** will vanish
+once the appropriate applications and relations have been added and processed.
 
-    Unit  Workload  Agent  Machine  Public address  Ports  Message
+.. tip::
 
-    Machine  State  DNS  Inst id  Series  AZ
-
-If you need to remove and redeploy the controller, use the following two
-commands:
-
-.. code:: bash
-
-    juju kill-controller maas-controller
-    juju bootstrap --constraints tags=juju mymaas maas-controller
-
-During the bootstrap process, Juju will create a model called ``default``, as
-shown in the output from ``juju status`` above.
-`Models <https://jujucharms.com/docs/stable/models>`__ act as containers for
-applications, and Juju's default model is great for experimentation.
-
-We're going to create a new model called ``uos`` to hold our OpenStack
-deployment exclusively, making the entire deployment easier to manage and
-maintain.
-
-To create a model called ``uos`` (and switch to it), simply type the following:
-
-.. code:: bash
-
-    juju add-model uos
+   One convenient way to monitor the installation progress is to have command
+   :command:`watch -n 5 -c juju status --color` running in a separate terminal.
 
 Deploy OpenStack
 ----------------
 
-We're now going to step through adding each of the various OpenStack components
-to the new model. Each application will be installed from the `Charm
-store <https://jujucharms.com>`__. We'll be providing the configuration for many
-of the charms as a ``yaml`` file which we include as we deploy them.
+Assuming you have precisely followed the instructions on the :doc:`Install Juju
+<install-juju>` page, you should now have a Juju controller called
+'maas-controller' and an empty Juju model called 'openstack'. Change to that
+context now:
 
-`Ceph OSD <https://jujucharms.com/ceph-osd>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-We're starting with the Ceph object storage daemon and we want to configure
-Ceph to use the second drive of a cloud node, ``/dev/sdb``. Change this to
-match your own configuration if the device name on your system is different.
-The configuration is held in the file called ``ceph-osd.yaml``:
+   juju switch maas-controller:openstack
 
-.. code:: yaml
-
-    ceph-osd:
-      osd-devices: /dev/sdb
-
-We're going to deploy Ceph-OSD to each of the four cloud nodes we've already
-tagged with ``compute``. The following command will import the settings above
-and deploy Ceph-OSD to each of the four nodes:
-
-.. code:: bash
-
-    juju deploy --constraints tags=compute --config ceph-osd.yaml -n 4 ceph-osd
+In the following sections, the various OpenStack components will be added to
+the 'openstack' model. Each application will be installed from the online
+`Charm store`_ and each will typically have configuration options specified via
+its own YAML file.
 
 .. note::
 
-   If a message from a ceph-osd unit like "Non-pristine devices detected"
-   appears in the output of :command:`juju status` you will need to use actions
-   ``zap-disk`` and ``add-disk`` that come with the 'ceph-osd' charm if you do
-   in fact want to purge the disk of all data and signatures for use by Ceph.
+   You do not need to wait for a Juju command to complete before issuing
+   further ones. However, it can be very instructive to see the effect one
+   command has on the current state of the cloud.
 
-In the background, Juju will ask MAAS to commission the nodes, powering them on
-and installing Ubuntu. Juju then takes over and installs the necessary packages
-for the required application.
+Ceph OSD
+~~~~~~~~
 
-Remember, you can check on the status of a deployment using the ``juju status``
-command. To see the status of a single charm of application, append the charm
-name:
+The ceph-osd application is deployed to four nodes with the `ceph-osd`_ charm.
+The name of the block devices backing the OSDs is dependent upon the hardware
+on the nodes. Here, we'll be using the same second drive on each cloud node:
+``/dev/sdb``. File ``ceph-osd.yaml`` contains the configuration. If your
+devices are not identical across the nodes you will need separate files (or
+stipulate them on the command line):
 
-.. code:: bash
+.. code-block:: yaml
 
-    juju status ceph-osd
+   ceph-osd:
+     osd-devices: /dev/sdb
 
-In this early stage of deployment, the output will look similar to the
-following:
+To deploy the application we'll make use of the 'compute' tag we placed on each
+of these nodes on the :doc:`Install MAAS <install-maas>` page.
 
-.. code:: bash
+.. code-block:: none
 
-    Model  Controller       Cloud/Region  Version
-    uoa    maas-controller  mymaas        2.2-beta1
+   juju deploy --constraints tags=compute --config ceph-osd.yaml -n 4 ceph-osd
 
-    App       Version  Status   Scale  Charm     Store       Rev  OS      Notes
-    ceph-osd  10.2.6   blocked      4  ceph-osd  jujucharms  241  ubuntu
-
-    Unit         Workload  Agent  Machine  Public address   Ports  Message
-    ceph-osd/0   blocked   idle   0        192.168.100.113         Missing relation: monitor
-    ceph-osd/1*  blocked   idle   1        192.168.100.114         Missing relation: monitor
-    ceph-osd/2   blocked   idle   2        192.168.100.115         Missing relation: monitor
-    ceph-osd/3   blocked   idle   3        192.168.100.112         Missing relation: monitor
-
-    Machine  State    DNS              Inst id  Series  AZ       Message
-    0        started  192.168.100.113  fr36gt   xenial  default  Deployed
-    1        started  192.168.100.114  nnpab4   xenial  default  Deployed
-    2        started  192.168.100.115  a83gcy   xenial  default  Deployed
-    3        started  192.168.100.112  7gan3t   xenial  default  Deployed
-
-Don't worry about the 'Missing relation' messages. We'll add the required
-relations in a later step. You also don't have to wait for a deployment to
-finish before adding further applications to Juju. Errors will resolve
-themselves as applications are deployed and dependencies are met.
-
-`Nova Compute <https://jujucharms.com/nova-compute/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We're going use three machines to host the OpenStack Nova Compute application.
-The first will use the following configuration file, ``compute.yaml``, while
-we'll use the second and third to scale-out the same application to two other
-machines.
-
-.. code:: yaml
-
-    nova-compute:
-      enable-live-migration: True
-      enable-resize: True
-      migration-auth-type: ssh
-      virt-type: qemu
-
-Type the following to deploy ``nova-compute`` to machine number 1:
-
-.. code:: bash
-
-    juju deploy --to 1 --config compute.yaml nova-compute
-
-And use the following commands to scale-out Nova Compute to machines 2 and 3:
-
-.. code:: bash
-
-    juju add-unit --to 2 nova-compute
-    juju add-unit --to 3 nova-compute
-
-As before, it's worth checking ``juju status nova-compute`` output to make sure
-``nova-compute`` has been deployed to three machines. Look for lines similar to
-these:
-
-.. code:: bash
-
-    Machine  State    DNS              Inst id  Series  AZ       Message
-    1        started  192.168.100.117  7gan3t   xenial  default  Deployed
-    2        started  192.168.100.118  fr36gt   xenial  default  Deployed
-    3        started  192.168.100.119  nnpab4   xenial  default  Deployed
+If a message from a ceph-osd unit like "Non-pristine devices detected" appears
+in the output of :command:`juju status` you will need to use actions
+``zap-disk`` and ``add-disk`` that come with the 'ceph-osd' charm. The
+``zap-disk`` action is destructive in nature. Only use it if you want to purge
+the disk of all data and signatures for use by Ceph.
 
 .. note::
 
-   The ``nova-compute`` charm is designed to support one image format type per
-   application at any one time. Changing format (see charm option
+   Since ceph-osd was deployed on four nodes and there are only four nodes
+   available in this environment, the usage of the 'compute' tag is not
+   strictly necessary.
+
+Nova compute
+~~~~~~~~~~~~
+
+The nova-compute application is deployed to one node with the `nova-compute`_
+charm. We'll then scale-out the application to two other machines. File
+``compute.yaml`` contains the configuration:
+
+.. code-block:: yaml
+
+   nova-compute:
+     enable-live-migration: true
+     enable-resize: true
+     migration-auth-type: ssh
+
+The initial node must be targeted by machine since there are no more free Juju
+machines (MAAS nodes) available. This means we're placing multiple services on
+our nodes. We've chosen machine 1:
+
+.. code-block:: none
+
+   juju deploy --to 1 --config compute.yaml nova-compute
+
+Now scale-out to machines 2 and 3:
+
+.. code-block:: none
+
+   juju add-unit --to 2 nova-compute
+   juju add-unit --to 3 nova-compute
+
+.. note::
+
+   The 'nova-compute' charm is designed to support one image format type per
+   application at any given time. Changing format (see charm option
    ``libvirt-image-backend``) while existing instances are using the prior
    format will require manual image conversion for each instance. See bug `LP
    #1826888`_.
 
-`Swift storage <https://jujucharms.com/swift-storage/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Swift storage
+~~~~~~~~~~~~~
 
-The Swift-storage application is going to be deployed to the first machine
-(``machine 0``), and scaled across the other three with the following
-configuration file:
+The swift-storage application is deployed to one node (machine 0) with the
+`swift-storage`_ charm and then scaled-out to three other machines. File
+``swift-storage.yaml`` contains the configuration:
 
-.. code:: yaml
+.. code-block:: yaml
 
-    swift-storage:
-      block-device: sdc
-      overwrite: "true"
+   swift-storage:
+     block-device: sdc
+     overwrite: "true"
 
-This example configuration points to block device /dev/sdc. Adjust according to
+This configuration points to block device ``/dev/sdc``. Adjust according to
 your available hardware. In a production environment, avoid using a loopback
 device.
 
 Here are the four deploy commands for the four machines:
 
-.. code:: bash
+.. code-block:: none
 
-    juju deploy --to 0 --config swift-storage.yaml swift-storage
-    juju add-unit --to 1 swift-storage
-    juju add-unit --to 2 swift-storage
-    juju add-unit --to 3 swift-storage
+   juju deploy --to 0 --config swift-storage.yaml swift-storage
+   juju add-unit --to 1 swift-storage
+   juju add-unit --to 2 swift-storage
+   juju add-unit --to 3 swift-storage
 
-`Neutron networking <https://jujucharms.com/neutron-api/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Neutron networking
+~~~~~~~~~~~~~~~~~~
 
-Next comes Neutron for OpenStack networking. We have just a couple of
-configuration options than need to be placed within ``neutron.yaml`` and we're
-going to use this for two applications, ``neutron-gateway`` and ``neutron-api``:
+Neutron networking is implemented with three applications:
 
-.. code:: yaml
+* neutron-gateway
+* neutron-api
+* neutron-openvswitch
 
-    neutron-gateway:
-      data-port: br-ex:eth1
-      bridge-mappings: physnet1:br-ex
-    neutron-api:
-      neutron-security-groups: True
-      flat-network-providers: physnet1
+File ``neutron.yaml`` contains the configuration for two of them:
 
-The ``data-port`` refers to a network interface that Neutron Gateway will bind
-to. In the above example it is ``eth1`` and it should be an unused interface.
-In the MAAS web UI this interface must be given an *IP mode* of 'Unconfigured'
-(see `MAAS documentation <https://maas.io/docs/commission-nodes#heading--post-commission-configuration>`__
-for guidance). Set all four nodes in this way to ensure that any node is able
-to accommodate Neutron.
+.. code-block:: yaml
 
-Deploy neutron-gateway on machine 0 now:
+   neutron-gateway:
+     data-port: br-ex:eth1
+     bridge-mappings: physnet1:br-ex
+   neutron-api:
+     neutron-security-groups: true
+     flat-network-providers: physnet1
 
-.. code:: bash
+The ``data-port`` setting refers to a network interface that Neutron Gateway
+will bind to. In the above example it is 'eth1' and it should be an unused
+interface. In MAAS this interface must be given an *IP mode* of 'Unconfigured'
+(see `Post-commission configuration`_ in the MAAS documentation). Set all four
+nodes in this way to ensure that any node is able to accommodate Neutron
+Gateway.
 
-    juju deploy --to 0 --config neutron.yaml neutron-gateway
+The ``flat-network-providers`` setting enables the Neutron flat network
+provider used in this example scenario and gives it the name of 'physnet1'. The
+flat network provider and its name will be referenced when we create the
+external public network on the :doc:`Configure OpenStack <config-openstack>`
+page.
 
-We're going to colocate the Neutron API on machine 1 by using an
-`LXD <https://www.ubuntu.com/containers/lxd>`__ container. This is a great
-solution for both local deployment and for managing cloud instances.
+The ``bridge-mappings`` setting maps the data-port interface to the flat
+network provider.
 
-We'll also deploy Neutron OpenvSwitch:
+The neutron-gateway application will be deployed directly on machine 0:
 
-.. code:: bash
+.. code-block:: none
 
-    juju deploy --to lxd:1 --config neutron.yaml neutron-api
-    juju deploy neutron-openvswitch
+   juju deploy --to 0 --config neutron.yaml neutron-gateway
 
-We've got to a stage where we can start to connect applications together. Juju's
-ability to add these links, known as a relation in Juju, is one of its best
-features.
+The neutron-api application will be deployed as a container on machine 1:
 
-See `Managing
-relationships <https://jujucharms.com/docs/stable/charms-relations>`__ in the
-Juju documentation for more information on relations.
+.. code-block:: none
 
-Add the network relations with the following commands:
+   juju deploy --to lxd:1 --config neutron.yaml neutron-api
 
-.. code:: bash
+The neutron-openvswitch application will be deployed by means of a subordinate
+charm (it will be installed on a machine once its relation is added):
 
-    juju add-relation neutron-api neutron-gateway
-    juju add-relation neutron-api neutron-openvswitch
-    juju add-relation neutron-openvswitch nova-compute
+.. code-block:: none
 
-There are still 'Missing relations' messages in the status output, leading to
-the status of some applications to be ``blocked``. This is because there are
-many more relations to be added but they'll resolve themselves automatically as
-we add them.
+   juju deploy neutron-openvswitch
 
-`Percona cluster <https://jujucharms.com/percona-cluster/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Three relations need to be added:
 
-The Percona XtraDB cluster application comes next, and like Neutron API above,
-we're going to use LXD.
+.. code-block:: none
 
-The following ``mysql.yaml`` is the only configuration we need:
+   juju add-relation neutron-api:neutron-plugin-api neutron-gateway:neutron-plugin-api
+   juju add-relation neutron-api:neutron-plugin-api neutron-openvswitch:neutron-plugin-api
+   juju add-relation neutron-openvswitch:neutron-plugin nova-compute:neutron-plugin
 
-.. code:: yaml
+Percona cluster
+~~~~~~~~~~~~~~~
 
-    mysql:
-      max-connections: 20000
+The Percona XtraDB cluster is the OpenStack database of choice. The
+percona-cluster application is deployed as a single LXD container on machine 0
+with the `percona-cluster`_ charm. File ``mysql.yaml`` contains the
+configuration:
 
-To deploy Percona alongside MySQL:
+.. code-block:: yaml
 
-.. code:: bash
+   mysql:
+     max-connections: 20000
 
-    juju deploy --to lxd:0 --config mysql.yaml percona-cluster mysql
+To deploy Percona while giving it an application name of 'mysql':
 
-And there's just a single new relation to add:
+.. code-block:: none
 
-.. code:: bash
+   juju deploy --to lxd:0 --config mysql.yaml percona-cluster mysql
 
-    juju add-relation neutron-api mysql
+Only a single relation is needed:
 
-`Keystone <https://jujucharms.com/keystone/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-As Keystone handles OpenStack identity management and access, we're going to use
-the following contents of ``keystone.yaml`` to set an admin password for
-OpenStack:
+   juju add-relation neutron-api:shared-db mysql:shared-db
 
-.. code:: yaml
+Keystone
+~~~~~~~~
 
-    keystone:
-      admin-password: openstack
+The keystone application is deployed as a single LXD container on machine 3
+with the `keystone`_ charm. No additional configuration is required. To deploy:
 
-We'll use an LXD container on machine 3 to help balance the load a little. To
-deploy the application, use the following command:
+.. code-block:: none
 
-.. code:: bash
+   juju deploy --to lxd:3 --config keystone.yaml keystone
 
-    juju deploy --to lxd:3 --config keystone.yaml keystone
+Then add these two relations:
 
-Then add these relations:
+.. code-block:: none
 
-.. code:: bash
+   juju add-relation keystone:shared-db mysql:shared-db
+   juju add-relation keystone:identity-service neutron-api:identity-service
 
-    juju add-relation keystone mysql
-    juju add-relation neutron-api keystone
+RabbitMQ
+~~~~~~~~
 
-`RabbitMQ <https://jujucharms.com/rabbitmq-server/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The rabbitmq-server application is deployed as a single LXD container on
+machine 0 with the `rabbitmq-server`_ charm. No additional configuration is
+required. To deploy:
 
-We're using RabbitMQ as the messaging server. Deployment requires no further
-configuration than running the following command:
+.. code-block:: none
 
-.. code:: bash
+   juju deploy --to lxd:0 rabbitmq-server
 
-    juju deploy --to lxd:0 rabbitmq-server
+Four relations are needed:
 
-This brings along four new connections that need to be made:
+.. code-block:: none
 
-.. code:: bash
+   juju add-relation rabbitmq-server:amqp neutron-api:amqp
+   juju add-relation rabbitmq-server:amqp neutron-openvswitch:amqp
+   juju add-relation rabbitmq-server:amqp nova-compute:amqp
+   juju add-relation rabbitmq-server:amqp neutron-gateway:amqp
 
-    juju add-relation neutron-api rabbitmq-server
-    juju add-relation neutron-openvswitch rabbitmq-server
-    juju add-relation nova-compute:amqp rabbitmq-server
-    juju add-relation neutron-gateway:amqp rabbitmq-server:amqp
+Nova cloud controller
+~~~~~~~~~~~~~~~~~~~~~
 
-`Nova Cloud Controller <https://jujucharms.com/nova-cloud-controller/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The nova-cloud-controller application, which includes nova-scheduler, nova-api,
+and nova-conductor services, is deployed as a single LXD container on machine 2
+with the `nova-cloud-controller`_ charm. File ``controller.yaml`` contains the
+configuration:
 
-This is the controller service for OpenStack, and includes the nova-scheduler,
-nova-api and nova-conductor services.
+.. code-block:: yaml
 
-The following simple ``controller.yaml`` configuration file will be used:
+   nova-cloud-controller:
+     network-manager: Neutron
 
-.. code:: yaml
+To deploy:
 
-    nova-cloud-controller:
-      network-manager: "Neutron"
+.. code-block:: none
 
-To add the controller to your deployment, enter the following:
+   juju deploy --to lxd:2 --config controller.yaml nova-cloud-controller
 
-.. code:: bash
+Relations need to be added for six applications:
 
-    juju deploy --to lxd:2 --config controller.yaml nova-cloud-controller
+.. code-block:: none
 
-Followed by these ``add-relation`` connections:
+   juju add-relation nova-cloud-controller:shared-db mysql:shared-db
+   juju add-relation nova-cloud-controller:identity-service keystone:identity-service
+   juju add-relation nova-cloud-controller:amqp rabbitmq-server:amqp
+   juju add-relation nova-cloud-controller:quantum-network-service neutron-gateway:quantum-network-service
+   juju add-relation nova-cloud-controller:neutron-api neutron-api:neutron-api
+   juju add-relation nova-cloud-controller:cloud-compute nova-compute:cloud-compute
 
-.. code:: bash
+OpenStack dashboard
+~~~~~~~~~~~~~~~~~~~
 
-    juju add-relation nova-cloud-controller:shared-db mysql:shared-db
-    juju add-relation nova-cloud-controller keystone
-    juju add-relation nova-cloud-controller:amqp rabbitmq-server:amqp
-    juju add-relation nova-cloud-controller neutron-gateway
-    juju add-relation neutron-api nova-cloud-controller
-    juju add-relation nova-compute nova-cloud-controller
+The openstack-dashboard application (Horizon) is deployed as a single LXD
+container on machine 3 with the `openstack-dashboard`_ charm. No additional
+configuration is needed. To deploy:
 
-`OpenStack Dashboard <https://jujucharms.com/openstack-dashboard/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-We'll deploy the dashboard to another LXD container with a single command:
+   juju deploy --to lxd:3 openstack-dashboard
 
-.. code:: bash
+A single relation is required:
 
-    juju deploy --to lxd:3 openstack-dashboard
+.. code-block:: none
 
-And a single relation:
+   juju add-relation openstack-dashboard:identity-service keystone:identity-service
 
-.. code:: bash
+Glance
+~~~~~~
 
-    juju add-relation openstack-dashboard:identity-service keystone:identity-service
+The glance application is deployed as a single container on machine 2 with the
+`glance`_ charm. No additional configuration is required. To deploy:
 
-`Glance <https://jujucharms.com/glance/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-For the Glance image service, deploy as follows:
+   juju deploy --to lxd:2 glance
 
-.. code:: bash
+Five relations are needed:
 
-    juju deploy --to lxd:2 glance
+.. code-block:: none
 
-Relations:
+   juju add-relation glance:image-service nova-cloud-controller:image-service
+   juju add-relation glance:image-service nova-compute:image-service
+   juju add-relation glance:shared-db mysql:shared-db
+   juju add-relation glance:identity-service keystone:identity-service
+   juju add-relation glance:amqp rabbitmq-server:amqp
 
-.. code:: bash
+Ceph monitor
+~~~~~~~~~~~~
 
-    juju add-relation nova-cloud-controller glance
-    juju add-relation nova-compute glance
-    juju add-relation glance mysql
-    juju add-relation glance keystone
-    juju add-relation glance rabbitmq-server
+The ceph-mon application is deployed as a container on machines 1, 2, and 3
+with the `ceph-mon`_ charm. No additional configuration is required. To deploy:
 
-`Ceph monitor <https://jujucharms.com/ceph-mon/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-For Ceph monitors (which monitor the topology of the Ceph deployment and
-manage the CRUSH map which is used by clients to read and write data) no
-additional configuration over the defaults provided is required, so
-deploy three units with this:
+   juju deploy --to lxd:1 ceph-mon
+   juju add-unit --to lxd:2 ceph-mon
+   juju add-unit --to lxd:3 ceph-mon
 
-.. code:: bash
+Three relations are needed:
 
-    juju deploy --to lxd:1 ceph-mon
-    juju add-unit --to lxd:2 ceph-mon
-    juju add-unit --to lxd:3 ceph-mon
+.. code-block:: none
 
-With these additional relations:
+   juju add-relation ceph-mon:osd ceph-osd:mon
+   juju add-relation ceph-mon:client nova-compute:ceph
+   juju add-relation ceph-mon:client glance:ceph
 
-.. code:: bash
+The last relation makes Ceph to be the backend for Glance.
 
-    juju add-relation ceph-osd ceph-mon
-    juju add-relation nova-compute ceph-mon
-    juju add-relation glance ceph-mon
+Cinder
+~~~~~~
 
-`Cinder <https://jujucharms.com/cinder/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The cinder application is deployed to a container on machine 1 with the
+`cinder`_ charm. File ``cinder.yaml`` contains the configuration:
 
-For Cinder block storage, use the following ``cinder.yaml`` file:
+.. code-block:: yaml
 
-.. code:: yaml
+   cinder:
+     glance-api-version: 2
+     block-device: None
 
-    cinder:
-      glance-api-version: 2
-      block-device: None
+To deploy:
 
-And deploy with this:
+.. code-block:: none
 
-.. code:: bash
+   juju deploy --to lxd:1 --config cinder.yaml cinder
 
-    juju deploy --to lxd:1 --config cinder.yaml cinder
+Relations need to be added for five applications:
 
-Relations:
+.. code-block:: none
 
-.. code:: bash
+   juju add-relation cinder:cinder-volume-service nova-cloud-controller:cinder-volume-service
+   juju add-relation cinder:shared-db mysql:shared-db
+   juju add-relation cinder:identity-service keystone:identity-service
+   juju add-relation cinder:amqp rabbitmq-server:amqp
+   juju add-relation cinder:image-service glance:image-service
 
-    juju add-relation nova-cloud-controller cinder
-    juju add-relation cinder mysql
-    juju add-relation cinder keystone
-    juju add-relation cinder rabbitmq-server
-    juju add-relation cinder:image-service glance:image-service
-    juju add-relation cinder ceph-mon
+In addition, like Glance, Cinder will use Ceph as its backend. This will be
+implemented via the `cinder-ceph`_ subordinate charm:
 
-`Swift proxy <https://jujucharms.com/swift-proxy/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: none
 
-Swift also needs a unique identifier, best generated with the ``uuid`` command.
+   juju deploy cinder-ceph
 
-The ``uuid`` command on Ubuntu is in the ``uuid`` package (``sudo apt-get
-install uuid``) and it is best to produce a version 4 uuid, which is based on
-random numbers, rather than a version 1 which is based on the MAC address of a
-network card and a timer.
+A relation is needed for both Cinder and Ceph:
 
-Generate the uuid by running:
+.. code-block:: none
 
-.. code:: bash
+   juju add-relation cinder-ceph:storage-backend cinder:storage-backend
+   juju add-relation cinder-ceph:ceph ceph-mon:client
 
-        uuid -v 4
+Swift proxy
+~~~~~~~~~~~
 
-The output UUID is used for the ``swift-hash`` value in the
-``swift-proxy.yaml`` configuration file:
+The swift-proxy application is deployed to a container on machine 0 with the
+`swift-proxy`_ charm. File ``swift-proxy.yaml`` contains the configuration:
 
-.. code:: yaml
+.. code-block:: yaml
 
-    swift-proxy:
-      zone-assignment: auto
-      swift-hash: "a1ee9afe-194c-11e7-bf0f-53d662bc4339"
+   swift-proxy:
+     zone-assignment: auto
+     swift-hash: "<uuid>"
 
-Use the following command to deploy:
+Swift proxy needs to be supplied with a unique identifier (UUID). Generate one
+with the :command:`uuid -v 4` command (you may need to first install the
+``uuid`` deb package) and insert it into the file.
 
-.. code:: bash
+To deploy:
 
-    juju deploy --to lxd:0 --config swift-proxy.yaml swift-proxy
+.. code-block:: none
 
-These are its two relations:
+   juju deploy --to lxd:0 --config swift-proxy.yaml swift-proxy
 
-.. code:: bash
+Two relations are needed:
 
-    juju add-relation swift-proxy swift-storage
-    juju add-relation swift-proxy keystone
+.. code-block:: none
 
-`NTP <https://jujucharms.com/ntp/>`__
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   juju add-relation swift-proxy:swift-storage swift-storage:swift-storage
+   juju add-relation swift-proxy:identity-service keystone:identity-service
 
-The final component we need to deploy is a Network Time Protocol client, to keep
-everything in time. This is added with the following simple command:
+NTP
+~~~
 
-.. code:: bash
+The final component needed is an NTP client to keep everything synchronised.
+This is done with the `ntp`_ subordinate charm:
 
-    juju deploy ntp
+.. code-block:: none
 
-This last ``add-relation`` command finishes all the connections we need to
-make. It will add an ntp unit alongside each of the four ceph-osd units:
+   juju deploy ntp
 
-.. code:: bash
+This single relation will add an ntp unit alongside each of the four ceph-osd
+units:
 
-    juju add-relation ceph-osd ntp
+.. code-block:: none
 
-All that's now left to do is wait on the output from ``juju status`` to show
-when everything is ready (everything turns green, if your terminal support
-colour).
+   juju add-relation ceph-osd:juju-info ntp:juju-info
 
 .. _test_openstack:
 
-Test OpenStack
---------------
+Final results and dashboard access
+----------------------------------
 
-After everything has deployed and the output of ``juju status`` settles, you can
-check to make sure OpenStack is working by logging into the Horizon dashboard.
+Once all the applications have been deployed and the relations between them
+have been added we need to wait for the output of :command:`juju status` to
+settle. The final results should be devoid of any error-like messages. If your
+terminal supports colours then you should see only green (not amber nor red) .
+Example (monochrome) output for a successful cloud deployment is given
+:ref:`here <install_openstack_juju_status>`.
 
-The quickest way to get the IP address for the dashboard is with the following
-command:
+One milestone in the deployment of OpenStack is the first login to the Horizon
+dashboard. You will need its IP address and the admin password.
 
-.. code:: bash
+Obtain the address in this way:
 
-    juju status --format=yaml openstack-dashboard | grep public-address | awk '{print $2}'
+.. code-block:: none
+
+   juju status --format=yaml openstack-dashboard | grep public-address | awk '{print $2}'
+
+The password is queried from Keystone:
+
+.. code-block:: none
+
+   juju run --unit keystone/0 leader-get admin_passwd
+
+In this example, the address is '10.0.0.14' and the password is
+'kohy6shoh3diWav5'.
 
 The dashboard URL then becomes:
 
-``http://<ip-address>/horizon``
+**http://10.0.0.14/horizon**
 
-On the resulting web page you will be able to log in with these default
-credentials:
+And the credentials are:
 
-* Domain: **admin_domain**
-* User Name: **admin**
-* Password: **openstack**
+| Domain: **admin_domain**
+| User Name: **admin**
+| Password: **kohy6shoh3diWav5**
+|
 
-You should then see something similar to the following:
+Once logged in you should see something like this:
 
-.. figure:: ./media/install-openstack_horizon-2.png
+.. figure:: ./media/install-openstack_horizon.png
    :alt: Horizon dashboard
 
 Next steps
 ----------
 
-Congratulations, you've successfully deployed a working OpenStack environment
-using both Juju and MAAS. The next step is to :doc:`configure
-OpenStack <config-openstack>` for use within a production environment.
+You have successfully deployed OpenStack using both Juju and MAAS. The next
+step is to render the cloud functional for users. This will involve setting up
+networks, images, and a user environment.
 
-.. raw:: html
-
-   <!-- LINKS -->
-
+.. LINKS
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
 .. _Charm upgrades: app-upgrade-openstack#charm-upgrades
 .. _Series upgrade: app-series-upgrade
+.. _Charm store: https://jaas.ai/store
+.. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
+.. _Deploying applications: https://jaas.ai/docs/deploying-applications
+.. _Deploying to specific machines: https://jaas.ai/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
+.. _Managing relations: https://jaas.ai/docs/relations
 
-.. raw:: html
-
-   <!-- IMAGES -->
+.. CHARMS
+.. _ceph-mon: https://jaas.ai/ceph-mon
+.. _ceph-osd: https://jaas.ai/ceph-osd
+.. _cinder: https://jaas.ai/cinder
+.. _cinder-ceph: https://jaas.ai/cinder-ceph
+.. _glance: https://jaas.ai/glance
+.. _keystone: https://jaas.ai/keystone
+.. _neutron-gateway: https://jaas.ai/neutron-gateway
+.. _neutron-api: https://jaas.ai/neutron-api
+.. _neutron-openvswitch: https://jaas.ai/neutron-openvswitch
+.. _nova-cloud-controller: https://jaas.ai/nova-cloud-controller
+.. _nova-compute: https://jaas.ai/nova-compute
+.. _ntp: https://jaas.ai/ntp
+.. _openstack-dashboard: https://jaas.ai/openstack-dashboard
+.. _percona-cluster: https://jaas.ai/percona-cluster
+.. _rabbitmq-server: https://jaas.ai/rabbitmq-server
+.. _swift-proxy: https://jaas.ai/swift-proxy
+.. _swift-storage: https://jaas.ai/swift-storage
 
 .. BUGS
 .. _LP #1826888: https://bugs.launchpad.net/charm-deployment-guide/+bug/1826888
