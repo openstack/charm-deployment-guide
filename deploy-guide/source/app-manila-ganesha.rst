@@ -79,6 +79,8 @@ bundle overlay, such as `manila-ganesha-overlay.yaml`:
          internal: internal
          shared-db: internal
          amqp: internal
+         # This could also be another existing space
+         tenant-storage: tenant-storage
        to:
        - 'lxd:1'
        - 'lxd:2'
@@ -110,15 +112,54 @@ bundle overlay, such as `manila-ganesha-overlay.yaml`:
 To use the overlay with an existing model remember to use the
 `--map-machines` switch to juju. To deploy OpenStack with Manila-Ganesha:
 
-.. code::
+.. code-block:: none
 
-    juju deploy base.yaml --overlay manila-ganesha-overlay.yaml --map-machines=existing
+   juju deploy base.yaml --overlay manila-ganesha-overlay.yaml --map-machines=existing
 
 Configuration
 -------------
 
 To create and access CephFS shares over NFS, you'll need to `create the share`_
 and then you'll need to `grant access`_ to the share.
+
+Spaces
+------
+
+This charm can optionally dedicate a provider's physical network to serving
+Ganesha NFS shares. It does so through its support for Juju spaces.
+
+The charm uses a space called `tenant-storage` and it should be accessible
+(routed is ok) to all tenants that expect to access the Manila shares. The
+easiest way to ensure this access is to create a provider network in OpenStack
+that is mapped to the same network layer as this space is. For example, the
+storage space is mapped to VLAN 120, then an OpenStack administrator should
+create a provider network that maps to the same VLAN. For example:
+
+
+.. code-block:: none
+
+   openstack network create \
+       --provider-network-type vlan \
+       --provider-segment 120 \
+       --share \
+       --provider-physical-network physnet1 \
+       tenant-storage
+
+   openstack subnet create tenant \
+       --network=tenant-storage \
+       --subnet-range 10.1.10.0/22 \
+       --gateway 10.1.10.1 \
+       --allocation-pool start=10.1.10.50,end=10.1.13.254
+
+When creating the space in MAAS that corresponds to this network, be sure that
+DHCP is disabled in this space. If MAAS performs any additional allocations in
+this space, ensure that the range configured for the subnet in Neutron does not
+overlap with the MAAS subnets.
+
+If dedicating a network space is not desired, it is also possible to use
+Ganesha over a routed network. Manila's IP access restrictions will still be
+used to secure access to Ganesha even if the network is not a Neutron managed
+network.
 
 .. LINKS
 .. _create the share: https://docs.openstack.org/manila/latest/admin/cephfs_driver.html#create-cephfs-nfs-share
