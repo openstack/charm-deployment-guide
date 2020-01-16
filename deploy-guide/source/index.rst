@@ -22,6 +22,7 @@ Software versions used in this guide are as follows:
   cloud nodes
 * **MAAS 2.6.2**
 * **Juju 2.7.0**
+* **OpenStack Train**
 
 .. note::
 
@@ -41,6 +42,9 @@ Help improve this guide
 
 To help improve this guide you may `file an issue`_ or `submit a
 contribution`_.
+
+Table of contents
+-----------------
 
 .. toctree::
    :maxdepth: 2

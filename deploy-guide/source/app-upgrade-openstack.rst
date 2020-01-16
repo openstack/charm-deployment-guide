@@ -288,6 +288,8 @@ individually.
    associated unit. Common charms where this applies are ``ntp``,
    ``memcached``, ``percona-cluster``, and ``rabbitmq-server``.
 
+.. _perform_the_upgrade:
+
 Perform the upgrade
 ~~~~~~~~~~~~~~~~~~~
 

@@ -9,6 +9,7 @@ itself. There are two methods to choose from:
 #. **By individual charm**. This method provides a solid understanding of how
    Juju works and of how OpenStack is put together. Choose this option if you
    have never installed OpenStack with Juju.
+
 #. **By charm bundle**. This method provides an automated means to install
    OpenStack. Choose this option if you are familiar with how OpenStack is
    built with Juju.
@@ -42,6 +43,27 @@ documentation before continuing:
 
 .. TODO
    Cloud topology section goes here (modelled on openstack-base README)
+
+OpenStack release
+-----------------
+
+As the guide's :doc:`Overview <index>` section states, OpenStack Train will be
+deployed atop Ubuntu 18.04 LTS (Bionic) cloud nodes. In order to achieve this a
+"cloud archive pocket" of 'cloud:bionic-train' will be used during the install
+of each OpenStack application. Note that some applications are not part of the
+OpenStack project per se and therefore do not apply (exceptionally, Ceph
+applications do use this method). Not using a more recent OpenStack release in
+this way will result in a Queens deployment (i.e. Queens is in the Ubuntu
+package archive for Bionic).
+
+See :ref:`Perform the upgrade <perform_the_upgrade>` in the :doc:`OpenStack
+Upgrades <app-upgrade-openstack>` appendix for more details on the cloud
+archive pocket and how it is used when upgrading OpenStack.
+
+.. important::
+
+   The chosen OpenStack release may impact the installation and configuration
+   instructions. **This guide assumes that OpenStack Train is being deployed.**
 
 Installation progress
 ---------------------
@@ -96,6 +118,7 @@ stipulate them on the command line):
 
    ceph-osd:
      osd-devices: /dev/sdb
+     source: cloud:bionic-train
 
 To deploy the application we'll make use of the 'compute' tag we placed on each
 of these nodes on the :doc:`Install MAAS <install-maas>` page.
@@ -129,6 +152,7 @@ charm. We'll then scale-out the application to two other machines. File
      enable-live-migration: true
      enable-resize: true
      migration-auth-type: ssh
+     openstack-origin=cloud:bionic-train
 
 The initial node must be targeted by machine since there are no more free Juju
 machines (MAAS nodes) available. This means we're placing multiple services on
@@ -165,6 +189,7 @@ The swift-storage application is deployed to one node (machine 0) with the
    swift-storage:
      block-device: sdc
      overwrite: "true"
+     openstack-origin=cloud:bionic-train
 
 This configuration points to block device ``/dev/sdc``. Adjust according to
 your available hardware. In a production environment, avoid using a loopback
@@ -190,16 +215,20 @@ Neutron networking is implemented with three applications:
 * neutron-api
 * neutron-openvswitch
 
-File ``neutron.yaml`` contains the configuration for two of them:
+File ``neutron.yaml`` contains the configuration for them:
 
 .. code-block:: yaml
 
    neutron-gateway:
      data-port: br-ex:eth1
      bridge-mappings: physnet1:br-ex
+     openstack-origin=cloud:bionic-train
    neutron-api:
      neutron-security-groups: true
      flat-network-providers: physnet1
+     openstack-origin=cloud:bionic-train
+   neutron-openvswitch:
+     openstack-origin=cloud:bionic-train
 
 The ``data-port`` setting refers to a network interface that Neutron Gateway
 will bind to. In the above example it is 'eth1' and it should be an unused
@@ -233,7 +262,7 @@ charm (it will be installed on a machine once its relation is added):
 
 .. code-block:: none
 
-   juju deploy neutron-openvswitch
+   juju deploy neutron-openvswitch --config neutron.yaml
 
 Three relations need to be added:
 
@@ -271,8 +300,15 @@ Only a single relation is needed:
 Keystone
 ~~~~~~~~
 
-The keystone application is deployed as a single LXD container on machine 3
-with the `keystone`_ charm. No additional configuration is required. To deploy:
+The keystone application is deployed as a single LXD container on machine 3.
+File ``keystone.yaml`` contains the configuration:
+
+.. code-block:: yaml
+
+   keystone:
+     openstack-origin=cloud:bionic-train
+
+To deploy:
 
 .. code-block:: none
 
@@ -317,6 +353,7 @@ configuration:
 
    nova-cloud-controller:
      network-manager: Neutron
+     openstack-origin=cloud:bionic-train
 
 To deploy:
 
@@ -335,16 +372,49 @@ Relations need to be added for six applications:
    juju add-relation nova-cloud-controller:neutron-api neutron-api:neutron-api
    juju add-relation nova-cloud-controller:cloud-compute nova-compute:cloud-compute
 
+Placement
+~~~~~~~~~
+
+The placement application is deployed as a single LXD container on machine 2
+with the `placement`_ charm. File ``placement.yaml`` contains the
+configuration:
+
+.. code-block:: yaml
+
+   placement:
+     openstack-origin=cloud:bionic-train
+
+To deploy:
+
+.. code-block:: none
+
+   juju deploy --to lxd:2 --config placement.yaml placement
+
+Relations need to be added for three applications:
+
+.. code-block:: none
+
+   juju add-relation placement:shared-db mysql:shared-db
+   juju add-relation placement:identity-service keystone:identity-service
+   juju add-relation placement:placement nova-cloud-controller:placement
+
 OpenStack dashboard
 ~~~~~~~~~~~~~~~~~~~
 
 The openstack-dashboard application (Horizon) is deployed as a single LXD
-container on machine 3 with the `openstack-dashboard`_ charm. No additional
-configuration is needed. To deploy:
+container on machine 3 with the `openstack-dashboard`_ charm. File
+``dashboard.yaml`` contains the configuration:
+
+.. code-block:: yaml
+
+   openstack-dashboard:
+     openstack-origin=cloud:bionic-train
+
+To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 openstack-dashboard
+   juju deploy --to lxd:3 --config dashboard.yaml openstack-dashboard
 
 A single relation is required:
 
@@ -356,11 +426,18 @@ Glance
 ~~~~~~
 
 The glance application is deployed as a single container on machine 2 with the
-`glance`_ charm. No additional configuration is required. To deploy:
+`glance`_ charm. File ``glance.yaml`` contains the configuration:
+
+.. code-block:: yaml
+
+   openstack-dashboard:
+     openstack-origin=cloud:bionic-train
+
+To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:2 glance
+   juju deploy --to lxd:2 --config glance.yaml glance
 
 Five relations are needed:
 
@@ -376,11 +453,18 @@ Ceph monitor
 ~~~~~~~~~~~~
 
 The ceph-mon application is deployed as a container on machines 1, 2, and 3
-with the `ceph-mon`_ charm. No additional configuration is required. To deploy:
+with the `ceph-mon`_ charm. File ``ceph-mon.yaml`` contains the configuration:
+
+.. code-block:: yaml
+
+   ceph-mon:
+     source: cloud:bionic-train
+
+To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 ceph-mon
+   juju deploy --to lxd:1 --config ceph-mon.yaml ceph-mon
    juju add-unit --to lxd:2 ceph-mon
    juju add-unit --to lxd:3 ceph-mon
 
@@ -392,7 +476,7 @@ Three relations are needed:
    juju add-relation ceph-mon:client nova-compute:ceph
    juju add-relation ceph-mon:client glance:ceph
 
-The last relation makes Ceph to be the backend for Glance.
+The last relation makes Ceph the backend for Glance.
 
 Cinder
 ~~~~~~
@@ -405,6 +489,7 @@ The cinder application is deployed to a container on machine 1 with the
    cinder:
      glance-api-version: 2
      block-device: None
+     openstack-origin=cloud:bionic-train
 
 To deploy:
 
@@ -560,6 +645,7 @@ networks, images, and a user environment.
 .. _ntp: https://jaas.ai/ntp
 .. _openstack-dashboard: https://jaas.ai/openstack-dashboard
 .. _percona-cluster: https://jaas.ai/percona-cluster
+.. _placement: https://jaas.ai/placement
 .. _rabbitmq-server: https://jaas.ai/rabbitmq-server
 .. _swift-proxy: https://jaas.ai/swift-proxy
 .. _swift-storage: https://jaas.ai/swift-storage
