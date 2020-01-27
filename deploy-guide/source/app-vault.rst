@@ -188,3 +188,54 @@ active vault unit over a secure cluster connection between units.
     unsealed using the unseal keys generated during initialization
     in order to unlock the master key. This is performed externally
     to the charm using the Vault API.
+
+Maintenance
+~~~~~~~~~~~
+
+The vault charm supports actions `pause` and `resume` to respectively
+stop and start the Vault process on units. It is important to remember
+that when the Vault process is started via the `resume` action its
+state will be ``sealed``. This means that steps will be required to
+unseal the process.
+
+.. warning::
+
+    Please ensure that you have unseal keys before attempting to
+    execute any of those commands.
+
+To pause the ``vault/0`` unit:
+
+.. code:: bash
+
+    juju run-action vault/0 pause --wait
+
+The ``juju status`` command will return: ``blocked, Vault service not running``
+
+To resume the ``vault/0`` unit:
+
+.. code:: bash
+
+    juju run-action vault/0 resume --wait
+
+The ``juju status`` command will return: ``blocked, Unit is sealed``
+
+You are now expected to pass the unseal keys.
+
+First determine the IP address the Vault process is listening on:
+
+.. code:: bash
+
+    juju status --format=yaml vault | grep public-address | awk '{print $2}'
+    10.5.0.7
+
+Then connect to the vault unit and issue these commands (using the IP address
+and the appropriate unseal keys):
+
+.. code:: bash
+
+    export VAULT_ADDR="https://10.5.0.7:8200"
+    vault operator unseal XqeOza3SY6f4L6xfuk6f8JumrEF7cak9mUXCCPRXzs4B
+    vault operator unseal djvVAAste0F5iSe43nmBs2ZX5r+wUqHe4UfUrcprWkyM
+    vault operator unseal iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
+
+The ``juju status`` command will return: ``active, Unit is ready...``
