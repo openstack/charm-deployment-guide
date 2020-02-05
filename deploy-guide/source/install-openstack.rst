@@ -152,7 +152,7 @@ charm. We'll then scale-out the application to two other machines. File
      enable-live-migration: true
      enable-resize: true
      migration-auth-type: ssh
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 The initial node must be targeted by machine since there are no more free Juju
 machines (MAAS nodes) available. This means we're placing multiple services on
@@ -189,7 +189,7 @@ The swift-storage application is deployed to one node (machine 0) with the
    swift-storage:
      block-device: sdc
      overwrite: "true"
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 This configuration points to block device ``/dev/sdc``. Adjust according to
 your available hardware. In a production environment, avoid using a loopback
@@ -222,13 +222,13 @@ File ``neutron.yaml`` contains the configuration for them:
    neutron-gateway:
      data-port: br-ex:eth1
      bridge-mappings: physnet1:br-ex
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
    neutron-api:
      neutron-security-groups: true
      flat-network-providers: physnet1
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
    neutron-openvswitch:
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 The ``data-port`` setting refers to a network interface that Neutron Gateway
 will bind to. In the above example it is 'eth1' and it should be an unused
@@ -306,7 +306,7 @@ File ``keystone.yaml`` contains the configuration:
 .. code-block:: yaml
 
    keystone:
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 
@@ -353,7 +353,7 @@ configuration:
 
    nova-cloud-controller:
      network-manager: Neutron
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 
@@ -382,7 +382,7 @@ configuration:
 .. code-block:: yaml
 
    placement:
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 
@@ -408,7 +408,7 @@ container on machine 3 with the `openstack-dashboard`_ charm. File
 .. code-block:: yaml
 
    openstack-dashboard:
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 
@@ -431,7 +431,7 @@ The glance application is deployed as a single container on machine 2 with the
 .. code-block:: yaml
 
    openstack-dashboard:
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 
@@ -489,7 +489,7 @@ The cinder application is deployed to a container on machine 1 with the
    cinder:
      glance-api-version: 2
      block-device: None
-     openstack-origin=cloud:bionic-train
+     openstack-origin: cloud:bionic-train
 
 To deploy:
 

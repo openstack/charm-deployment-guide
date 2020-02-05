@@ -14,6 +14,17 @@ Domains, projects, users, and roles are a vital part of OpenStack operations.
 For the non-admin case, we'll create a single domain with a single project and
 single user.
 
+Install the OpenStack clients
+-----------------------------
+
+You'll need the OpenStack clients in order to manage your cloud from the
+command line. Install them now:
+
+.. code-block:: none
+
+   sudo snap install openstackclients --classic
+
+
 Create the admin user environment
 ---------------------------------
 
