@@ -147,8 +147,8 @@ Example configuration:
     juju config neutron-api flat-network-providers=physnet1
     juju config ovn-chassis ovn-bridge-mappings=physnet1:br-provider
     juju config ovn-chassis \
-        interface-bridge-mappings='00:00:5e:00:00:42:br-provider \
-                                   00:00:5e:00:00:51:br-provider'
+        bridge-interface-mappings='br-provider:00:00:5e:00:00:42 \
+                                   br-provider:00:00:5e:00:00:51'
     openstack network create --external --share --provider-network-type flat \
                              --provider-physical-network physnet1 ext-net
     openstack subnet create --network ext-net \
