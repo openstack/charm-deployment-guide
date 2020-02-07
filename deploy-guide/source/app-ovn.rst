@@ -211,3 +211,69 @@ Data plane flow tracing
     juju run --unit ovn-chassis/1 'sudo ovs-appctl -t ovs-vswitchd \
         ofproto/trace br-provider \
         in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100'
+
+State of OVN Charm development
+++++++++++++++++++++++++++++++
+
+One of the main drivers for this enablement work is the prospect of being able
+to hardware-offload everything.  This is possible due to how OVN programs
+everything in Open vSwitch with OpenFlow rules.  This in turn provides a
+uniform way of programming the hardware forwarding tables of supported NICs.
+
+Another driver for it is upstream Neutron changes and during the Ussuri cycle
+the upstream Neutron project will switch to promote ML2+OVN as its default
+reference implementation, replacing the traditional ML2+OVS and ML2+OVS+DVR
+implementations. See the `Toward Convergence of ML2+OVS+DVR and OVN`_ Neutron
+specification for more information.
+
+Hardware-offloading is a prerequisite for effective handling of workloads with
+high bandwidth consumption.
+
+OVN also provides a more flexible way of configuring external Layer3 networking
+as OVN does not require every node (``Chassis`` in OVN terminology) in a
+deployment to have direct external connectivity.  This plays nicely with
+Layer3-only datacenter fabrics (RFC 7938).
+
+East/West traffic is distributed by default. North/South traffic is highly
+available by default.  Liveness detection is done using the Bidirectional
+Forwarding Detection (BFD) protocol.
+
+Known feature gaps at this point in time:
+
+* Validation of LBaaS has been done, but did unfortunately not make it into the
+  20.02 OpenStack Charms release. Experimental support for using OVN as
+  transport for communication between Octavia units and its Amphorae as well
+  as support for the native OVN provider driver for Octavia is available in the
+  development version of Octavia (cs:~openstack-charmers-next/octavia).
+
+* No validation has been done with DPDK, SR-IOV or hardware-offloading in the
+  charms.
+
+* Only limited validation has been done with other Neutron extensions, and it
+  may be possible to configure unsupported combinations of features with
+  undefined results.
+
+* There is an unresolved issue with security groups rules that reference
+  remote security groups.  Please remove any such rules while testing.
+
+Example of how you could reset your default security group rules:
+
+.. code:: bash
+
+    PROJECT_ID=$(openstack project list -f value -c ID \
+                   --domain admin_domain)
+    SECGRP_ID=$(openstack security group list --project $PROJECT_ID \
+        | awk '/default/{print$2}')
+    openstack security group rule delete \
+        $(openstack security group rule list $SECGRP_ID| awk '/IPv./{print$2}')
+    openstack security group rule create --egress --protocol any \
+        --ethertype IPv4 $SECGRP_ID
+    openstack security group rule create --egress --protocol any \
+        --ethertype IPv6 $SECGRP_ID
+    openstack security group rule create --ingress --protocol any \
+        --ethertype IPv4 $SECGRP_ID --remote-ip YOUR_IPV4_LAB_NETWORK_CIDR
+    openstack security group rule create --ingress --protocol any \
+        --ethertype IPv6 $SECGRP_ID --remote-ip YOUR_IPV6_LAB_NETWORK_CIDR
+
+.. LINKS
+.. _Toward Convergence of ML2+OVS+DVR and OVN: http://specs.openstack.org/openstack/neutron-specs/specs/ussuri/ml2ovs-ovn-convergence.html
