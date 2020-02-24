@@ -24,3 +24,4 @@ Appendices
    app-manila-ganesha.rst
    app-swift.rst
    app-hardware-offload.rst
+   app-ha.rst
