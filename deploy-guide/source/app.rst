@@ -22,4 +22,4 @@ Appendices
    app-ovn.rst
    app-managing-power-events.rst
    app-manila-ganesha.rst
-   app-swift-gc.rst
+   app-swift.rst
