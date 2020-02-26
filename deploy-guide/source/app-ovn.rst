@@ -244,7 +244,7 @@ Known feature gaps at this point in time:
   20.02 OpenStack Charms release. Experimental support for using OVN as
   transport for communication between Octavia units and its Amphorae as well
   as support for the native OVN provider driver for Octavia is available in the
-  development version of Octavia (cs:~openstack-charmers-next/octavia).
+  development version of Octavia (``cs:~openstack-charmers-next/octavia``).
 
 * No validation has been done with DPDK, SR-IOV or hardware-offloading in the
   charms.
@@ -252,28 +252,6 @@ Known feature gaps at this point in time:
 * Only limited validation has been done with other Neutron extensions, and it
   may be possible to configure unsupported combinations of features with
   undefined results.
-
-* There is an unresolved issue with security groups rules that reference
-  remote security groups.  Please remove any such rules while testing.
-
-Example of how you could reset your default security group rules:
-
-.. code:: bash
-
-    PROJECT_ID=$(openstack project list -f value -c ID \
-                   --domain admin_domain)
-    SECGRP_ID=$(openstack security group list --project $PROJECT_ID \
-        | awk '/default/{print$2}')
-    openstack security group rule delete \
-        $(openstack security group rule list $SECGRP_ID| awk '/IPv./{print$2}')
-    openstack security group rule create --egress --protocol any \
-        --ethertype IPv4 $SECGRP_ID
-    openstack security group rule create --egress --protocol any \
-        --ethertype IPv6 $SECGRP_ID
-    openstack security group rule create --ingress --protocol any \
-        --ethertype IPv4 $SECGRP_ID --remote-ip YOUR_IPV4_LAB_NETWORK_CIDR
-    openstack security group rule create --ingress --protocol any \
-        --ethertype IPv6 $SECGRP_ID --remote-ip YOUR_IPV6_LAB_NETWORK_CIDR
 
 .. LINKS
 .. _Toward Convergence of ML2+OVS+DVR and OVN: http://specs.openstack.org/openstack/neutron-specs/specs/ussuri/ml2ovs-ovn-convergence.html
