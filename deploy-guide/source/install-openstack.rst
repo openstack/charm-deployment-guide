@@ -215,7 +215,7 @@ Neutron networking is implemented with three applications:
 * neutron-api
 * neutron-openvswitch
 
-File ``neutron.yaml`` contains the configuration for them:
+File ``neutron.yaml`` contains the configuration for two of them:
 
 .. code-block:: yaml
 
@@ -227,8 +227,12 @@ File ``neutron.yaml`` contains the configuration for them:
      neutron-security-groups: true
      flat-network-providers: physnet1
      openstack-origin: cloud:bionic-train
-   neutron-openvswitch:
-     openstack-origin: cloud:bionic-train
+
+.. note::
+
+   The neutron-openvswitch charm does not support option ``openstack-origin``
+   due to it being a subordinate charm to the nova-compute charm, which does
+   support it.
 
 The ``data-port`` setting refers to a network interface that Neutron Gateway
 will bind to. In the above example it is 'eth1' and it should be an unused
