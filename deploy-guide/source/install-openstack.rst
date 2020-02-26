@@ -430,7 +430,7 @@ The glance application is deployed as a single container on machine 2 with the
 
 .. code-block:: yaml
 
-   openstack-dashboard:
+   glance:
      openstack-origin: cloud:bionic-train
 
 To deploy:
