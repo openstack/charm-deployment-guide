@@ -42,7 +42,7 @@ OpenStack cloud. This is done by means of a bundle overlay, such as
    - - ceph-mon:mds
      - ceph-fs:ceph-mds
    - - ceph-mon:client
-     - manila-ganesha:ceph-client
+     - manila-ganesha:ceph
    - - manila-ganesha:shared-db
      - percona-cluster:shared-db
    - - manila-ganesha:amqp
