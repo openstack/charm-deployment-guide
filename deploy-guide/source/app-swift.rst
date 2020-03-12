@@ -161,7 +161,7 @@ On the proxy node,
 
 * option ``enable-multi-region`` is set to 'true'
 * option ``region`` is defined
-* option ``swift-hash`` is defined (unique value for each region)
+* option ``swift-hash`` is defined (same value for all regions)
 
 On the storage nodes,
 
@@ -186,7 +186,7 @@ Let file ``swift.yaml`` contain the configuration:
        zone-assignment: manual
        replicas: 2
        enable-multi-region: true
-       swift-hash: "efcf2102-b9e9-4d71-afe6-111111000000"
+       swift-hash: "efcf2102-b9e9-4d71-afe6-000000111111"
    swift-storage-region1:
        storage-region: 1
        zone: 1
@@ -421,7 +421,7 @@ This is the contents of bundle ``swift-sf.yaml``:
          zone-assignment: manual
          replicas: 2
          enable-multi-region: true
-         swift-hash: "efcf2102-b9e9-4d71-afe6-111111000000"
+         swift-hash: "efcf2102-b9e9-4d71-afe6-000000111111"
          read-affinity: "r1=100, r2=200"
          write-affinity: "r1, r2"
          write-affinity-node-count: '1'
