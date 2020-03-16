@@ -48,7 +48,7 @@ OpenStack cloud. This is done by means of a bundle overlay, such as
    - - manila-ganesha:amqp
      - rabbitmq-server:amqp
    - - manila-ganesha:identity-service
-     - keystone:identity-service
+     - keystone:identity-credentials
    - - manila:remote-manila-plugin
      - manila-ganesha:manila-plugin
    - - manila:amqp
