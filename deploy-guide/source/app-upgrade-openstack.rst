@@ -596,6 +596,37 @@ As of Train, support for Neutron LBaaS has been retired. The load-balancing
 services are now provided by `Octavia LBaaS`_. There is no automatic migration
 path, please review the `Octavia LBaaS`_ appendix for more information.
 
+openstack-dashboard charm: upgrading to revision 294
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When Horizon is configured with TLS (openstack-dashboard charm option
+``ssl-cert``) revisions 294 and 295 of the charm have been reported to break
+the dashboard (see bug `LP #1853173`_). The solution is to upgrade to a working
+revision. A temporary workaround is to disable TLS without upgrading.
+
+.. note::
+
+   Most users will not be impacted by this issue as the recommended approach is
+   to always upgrade to the latest revision.
+
+To upgrade to revision 293:
+
+.. code:: none
+
+   juju upgrade-charm openstack-dashboard --revision 293
+
+To upgrade to revision 296:
+
+.. code:: none
+
+   juju upgrade-charm openstack-dashboard --revision 296
+
+To disable TLS:
+
+.. code:: none
+
+   juju config enforce-ssl=false openstack-dashboard
+
 .. LINKS
 
 .. _Series upgrade: app-series-upgrade
@@ -609,3 +640,4 @@ path, please review the `Octavia LBaaS`_ appendix for more information.
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
 .. _LP #1809190: https://bugs.launchpad.net/charm-neutron-gateway/+bug/1809190
+.. _LP #1853173: https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1853173
