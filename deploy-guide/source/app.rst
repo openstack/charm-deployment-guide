@@ -23,3 +23,4 @@ Appendices
    app-managing-power-events.rst
    app-manila-ganesha.rst
    app-swift.rst
+   app-hardware-offload.rst
