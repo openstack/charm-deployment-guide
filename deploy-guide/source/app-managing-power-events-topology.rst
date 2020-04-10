@@ -24,7 +24,7 @@ machines **3**, **11**, and **12**, each of which are not hyperconverged.
 
 .. note::
 
-    Juju applications can be given custom names at deployement time (see
+    Juju applications can be given custom names at deploy time (see
     `Application groups`_ in the Juju documentation). This document will call
     out these `named applications` wherever they occur.
 
