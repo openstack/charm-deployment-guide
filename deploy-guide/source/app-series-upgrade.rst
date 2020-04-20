@@ -1,668 +1,338 @@
-Appendix F: Series Upgrade
-==============================
-
-Introduction
-++++++++++++
-
-Juju and OpenStack charms provide the primitives to prepare for and
-respond to an upgrade from one Ubuntu LTS series to another.
-
-.. note::
-
-   The recommended best practice is that the Juju machines that comprise the
-   cloud should eventually all be running the same series (e.g. 'xenial' or
-   'bionic', but not a mix of the two).
-
-Warnings
-++++++++
-
-Upgrading a single machine from one LTS to another is a complex task.
-Doing so on a running OpenStack cloud is an order of magnitude more
-complex.
-
-Please read through this document thoroughly before attempting a series
-upgrade. Please pay particular attention to the Assumptions section and
-the order of operations.
-
-The series upgrade should be executed by an administrator or team of
-administrators who are intimately familiar with the cloud undergoing
-upgrade, OpenStack in general, working with Juju and OpenStack charms.
-
-The tasks of preparing stateful OpenStack services for series upgrade is
-not automated and is the responsibility of the administrator. For
-example: evacuating a compute node, switching HA routers to a network
-node, any storage rebalancing that may be required.
-
-The actual task of executing the do-release-upgrade on an individual
-machine is not automated. It will be performed by the administrator. Any
-bespoke preparation for or cleanup after the do-release-upgrade is the
-responsibility of the administrator.
-
-The series upgrade process requires API downtime. Although the goal is
-minimal downtime, it is necessary to pause services to avoid race
-condition errors. Therefore, the API undergoing upgrade will require
-downtime.
-
-Stateful services which OpenStack depends on such as percona-cluster and
-rabbitmq will affect all APIs during series upgrade and therefore
-require downtime.
-
-Third party charms may not have implemented series upgrade yet. Please
-pay particular attention to SDN and storage charms which may affect
-cloud operation.
-
-If the architecture and layout of charms does not match the assumptions
-section of this document, great care needs to be taken to avoid problems
-with application leadership across machines. In other words, if most
-services are not in LXD containers, it is possible to have the leader of
-percona-cluster on one host and the leader of rabbit on another causing
-complication's in the procure for series upgrade.
-
-Test, test, test! The series upgrade process should be tested on a
-non-production cloud that closely resembles the eventual production
-environment. Not only does this validate the software involved but it
-prepares the administrator for the complex task ahead.
-
-
-Juju
-++++
-
-Please read all Juju documentation on the series upgrade feature.
-
-https://docs.jujucharms.com/devel/en/getting-started
-
-.. note::
-    The Juju upgrade-series command operates on the machine level. This
-    document will be focused on applications as many require pausing their
-    peers and some subordinates. But it is important to remember the whole
-    machine is upgraded.
-
-    Applications deployed in a LXD container are considered a machine apart
-    from the physical host machine the container is hosted on.
-
-    Upgrading the host machine will not upgrade the LXD contained machines.
-    However, when the required post-upgrade reboot of the host machine
-    occurs all the services contained in LXD containers will be unavailable
-    during the reboot.
-
-    For example a physical host with nova-compute, neutron-openvswitch and
-    ceph-osd colocated as well as hosting a keystone unit in a LXD. When
-    the juju upgrade-series prepare command is executed on the machine,
-    nova-compute, neutron-openvswitch and ceph-osd will execute their
-    pre-series-upgrade hooks but keystone will not. Nor will the LXD
-    operating system be affected by the do-release-upgrade on the host. At
-    reboot however, the keystone unit will be unavailable during the
-    duration of the reboot. Please plan accordingly.
-
-
-Assumptions
-+++++++++++
-
-This document makes a number of assumptions about the architecture and
-preparation of the cloud undergoing series upgrade. Please review these
-and compare to the running cloud before performing the series upgrade.
-
-Preparations
-~~~~~~~~~~~~
-
-The entire suite of charms used to manage the cloud should be upgraded to the
-latest stable charm revision before any major change is made to the cloud such
-as the current machine series upgrades. See `Charm upgrades`_ for guidance.
-
-OpenStack is upgraded to the highest version the current LTS supports.
-Mitaka for Trusty and Queens for Xenial.
-
-The current Ubuntu operating system is up to date prior to do-release-upgrade.
-
-Stateful services have been backed up. Percona-cluster and mongodb
-should be backed up prior to upgrading.
-
-General cloud health. Confirm the cloud is fully operational before
-beginning a series upgrade.
-
-OpenStack charms health. No charms are in hook error. Confirm the health
-of the juju environment before beginning series upgrade.
-
-Per machine preparations. Individual compute nodes are evacuated prior
-to series upgrade. HA routers are moved to network nodes not undergoing
-series upgrade.
-
-`Automatic Updates aka. Unattended Upgrades <https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en>`_
-is enabled by default on Ubuntu Server and must be disabled on all machines
-prior to initiating the upgrade procedure.  This is imperative to stay in
-control of when and where updates are applied throughout the upgrade procedure.
-
-
-Hyper-Converged Architecture
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Compute, storage and their subordinates may be colocated.
-
-API Services are deployed in LXD containers.
-
-Percona-cluster is deployed in a LXD container.
-
-Rabbitmq is deployed in a LXD container.
-
-Third party charms either do not exist or have been thoroughly tested
-for series upgrade.
-
-No other non-subordinate charms are colocated on the same machine.
-
+===========================
+Appendix F1: Series upgrade
+===========================
 
 Overview
-++++++++
+--------
+
+The purpose of this document is to provide foundational knowledge for preparing
+an administrator to perform a series upgrade across a Charmed OpenStack cloud.
+This translates to upgrading the operating system of every cloud node to an
+entirely new version.
 
 .. note::
-    This overview is not a substitute for understanding the
-    entirety of this document. It is the general case but the individual
-    details matter. Read "where appropriate" at the end of each step.
 
-Evacuate or otherwise prepare the machine
+   A series upgrade, a charm upgrade, and an OpenStack upgrade are all
+   conceptually different and involve separate operations.
 
-Pause hacluster for non-leader units not undergoing upgrade
+Once this document has been studied the administrator will be ready to graduate
+to the :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>` guide
+that describes the process in more detail.
 
-Pause non-leader peer units not undergoing upgrade
+Concerning the cloud being operated upon, the following is assumed:
 
-Juju upgrade-series prepare the leader's machine
+* It is being upgraded from one LTS series to another (e.g. xenial to
+  bionic, bionic to focal, etc.)
+* Its nodes are backed by MAAS.
+* Its services are highly available
+* It is being upgraded with minimal downtime
 
-Execute do-release-upgrade and any post-upgrade operating system tasks
+.. warning::
 
-Reboot
+   Upgrading a single production machine from one LTS to another is a serious
+   task. Doing so for every cloud node can be that much harder. Attempting to
+   do this with minimal cloud downtime is an order of magnitude more complex.
 
-Set openstack-origin or source for new operating system ("distro")
+   Such an undertaking should be executed by persons who are intimately
+   familiar with Juju and the currently deployed charms (and their related
+   applications). It should first be tested on a non-production cloud that
+   closely resembles the production environment.
 
-Juju upgrade-series complete the machine
+The Juju :command:`upgrade-series` command
+------------------------------------------
 
-Repeat the steps from prepare to complete for the non-leader machines
+The Juju :command:`upgrade-series` command is the cornerstone of the entire
+procedure. This command manages an operating system upgrade of a targeted
+machine and operates on every application unit hosted on that machine. The
+command works in conjunction with either the :command:`prepare` or the
+:command:`complete` sub-command.
 
-Perform any cluster completed upgrade tasks after all units of
-application have been upgraded.
+The basic process is to inform the units on a machine that a series upgrade
+is about to commence, to perform the upgrade, and then inform the units that
+the upgrade has finished. In most cases with the OpenStack charms, units will
+first be paused and be left with a workload status of "blocked" and a message
+of "Ready for do-release-upgrade and reboot."
 
-Juju set-series to the new series for all future units of an application.
+For example, to inform units on machine '0' that an upgrade (to series
+'bionic') is about to occur:
 
-Exceptions
-~~~~~~~~~~
+.. code-block:: none
 
-This overview describes the general case that includes the API charms,
-percona culster and rabbitmq.
+   juju upgrade-series 0 prepare bionic
 
-The notable exceptions are nova-compute, ceph-mon and ceph-osd which
-do not require pausing of any units and unit leadership is irrelevant.
+The :command:`prepare` sub-command causes **all** the charms (including
+subordinates) on the machine to run their ``pre-series-upgrade`` hook.
 
+The administrator must then perform the traditional steps involved in upgrading
+the OS on the targeted machine (in this example, machine '0'). For example,
+update/upgrade packages with :command:`apt update && apt full-upgrade`; invoke
+the :command:`do-release-upgrade` command; and reboot the machine once
+complete.
 
-Example as code
-~~~~~~~~~~~~~~~
+The :command:`complete` sub-command causes **all** the charms (including
+subordinates) on the machine to run their ``post-series-upgrade`` hook. In most
+cases with the OpenStack charms, configuration files will be re-written, units
+will be resumed automatically (if paused), and be left with a workload status
+of "active" and a message of "Unit is ready":
 
-Attempting an automated series upgrade on a running production cloud is
-not recommended. The following example-as-code encapsulates the
-processes described in this document, and are provided solely to
-illustrate the methods used to develop and test the series upgrade
-primitives. The example code should not be consumed in an automation
-outside of its intended use case (charm dev/test gate automation).
+.. code-block:: none
 
-https://github.com/openstack-charmers/zaza/blob/master/zaza/charm_tests/series_upgrade/tests.py
+   juju upgrade-series 0 complete
 
-https://github.com/openstack-charmers/zaza/blob/master/zaza/utilities/generic.py#L173
-
-
-Procedures
-++++++++++
-
-The following procures are broken up into categories of charms that
-follow the same procedure.
+At this point the series upgrade on the machine and its charms is now done. In
+the :command:`juju status` output the machine's entry under the Series column
+will have changed from 'xenial' to 'bionic'.
 
 .. note::
-    Example commands used in this documentation assume a Trusty to Xenial
-    series upgrade, the same approach is used for Xenial to Bionic
-    series upgrades. Unit and machine numbers are examples only they will
-    differ from site to site. For example the machine number 0 is reused
-    purely for example purposes.
 
+   Charms are not obliged to support the two series upgrade hooks but they do
+   make for a more intelligent and a less error-prone series upgrade.
 
-Physical Host Nodes
+Containers (and their charms) hosted on the target machine remain unaffected by
+this command. However, during the required post-upgrade reboot of the host all
+containerised services will naturally be unavailable.
+
+See the Juju documentation to learn more about the `series upgrade`_ feature.
+
+.. _pre-upgrade_requirements:
+
+Pre-upgrade requirements
+------------------------
+
+This is a list of requirements that apply to any cloud. They must be met before
+making any changes.
+
+* All the cloud nodes should be using the same series, be in good working
+  order, and be updated with the latest stable software packages (APT
+  upgrades).
+
+* The cloud should be running the latest OpenStack release supported by the
+  current series (e.g. Mitaka for trusty, Queens for xenial, etc.). See `Ubuntu
+  OpenStack release cycle`_ and `OpenStack upgrades`_.
+
+* The cloud should be fully operational and error-free.
+
+* All currently deployed charms should be upgraded to the latest stable charm
+  revision. See `Charm upgrades`_.
+
+* The Juju model comprising the cloud should be error-free (e.g. there should
+  be no charm hook errors).
+
+* `Automatic package updates`_ should be disabled on the nodes to avoid
+  potential conflicts with the manual (or scripted) APT steps.
+
+.. _series_specific_procedures:
+
+Specific series upgrade procedures
+----------------------------------
+
+Charms belonging to the OpenStack Charms project are designed to accommodate
+the next LTS target series wherever possible. However, a new series may
+occasionally introduce unavoidable challenges for a deployed charm. For
+instance, it could be that a charm is replaced by an entirely new charm on the
+new series. This can happen due to development policy concerning the charms
+themselves (e.g. the ceph charm is replaced by the ceph-mon and ceph-osd
+charms) or due to reasons independent of the charms (e.g. the workload software
+is no longer supported on the new operating system). Any core OpenStack charms
+affected in this way will be documented below.
+
+* :ref:`percona-cluster charm: series upgrade to Focal <percona_series_upgrade_to_focal>`
+
+.. _workload_specific_preparations:
+
+Workload specific preparations
+------------------------------
+
+These are preparations that are specific to the current cloud deployment.
+Completing them in advance is an integral part of the upgrade.
+
+Charm upgradability
 ~~~~~~~~~~~~~~~~~~~
 
-Procedure for the physical host nodes which may include nova-compute,
-neutron-openvswitch and ceph-osd as well as neutron-gateway. Though
-ceph-mon is most often deployed in LXD containers it follows this
-procedure.
+Verify the documented series upgrade processes for all currently deployed
+charms. Some charms, especially third-party charms, may either not have
+implemented series upgrade yet or simply may not work with the target series.
+Pay particular attention to SDN (software defined networking) and storage
+charms as these play a crucial role in cloud operations.
 
- .. note::
-    Nova-compute and ceph-osd are  used in the commands below for
-    example purposes. In this example, physical host where
-    nova-compute/0 and ceph-osd/0 are deployed is machine 0.
+Workload maintenance
+~~~~~~~~~~~~~~~~~~~~
 
-Evacuate or otherwise prepare the machine
- For compute nodes move all running VMs off the physical host.
- For network nodes force HA routers off of the current node.
- Any storage related tasks that may be required.
- Any site specific tasks that may be required.
+Any workload-specific pre and post series upgrade maintenance tasks should be
+readied in advance. For example, if a node's workload requires a database then
+a pre-upgrade backup plan should be drawn up. Similarly, if a workload requires
+settings to be adjusted post-upgrade then those changes should be prepared
+ahead of time. Pay particular attention to stateful services due to their
+importance in cloud operations. Examples include evacuating a compute node,
+switching an HA router to another node, and storage rebalancing.
 
+Pre-upgrade tasks are performed before issuing the :command:`prepare`
+subcommand, and post-upgrade tasks are done immediately prior to issuing the
+:command:`complete` subcommand.
 
-Juju upgrade-series prepare the machine
- .. code:: bash
+Workflow: sequential vs. concurrent
+-----------------------------------
 
-    juju upgrade-series 0 prepare xenial
+In terms of the workflow there are two approaches:
 
- .. note::
-    The upgrade-series prepare command causes all the charms on the given
-    machine to run their pre-series-upgrade hook. For most cases with the
-    OpenStack charms this pauses the unit. At the completion of the
-    pre-series-upgrade hook the workload status should be "blocked" with
-    the message "Ready for do-release-upgrade and reboot."
+* Sequential - upgrading one machine at a time
+* Concurrent - upgrading a group of machines simultaneously
 
-Execute do-release-upgrade and any post-upgrade operating system tasks
- The do-release-upgrade process is performed by the administrator. Any
- post do-release-upgrade tasks are also the responsibility of the
- administrator.
+Normally, it is best to upgrade sequentially as this ensures data reliability
+and availability (we've assumed an HA cloud). This approach also minimises
+adverse effects to the deployment if something goes wrong.
 
-Reboot
- Post do-release-upgrade reboot executed by the administrator.
+However, for even moderately sized clouds, an intervention based purely on a
+sequential approach can take a very long time to complete. This is where the
+concurrent method becomes attractive.
 
-Set openstack-origin or source for new operating system ("distro")
- This step is required and should occur before the first node is
- completed.
+In general, a concurrent approach is a viable option for API applications but
+is not an option for stateful applications. During the course of the cloud-wide
+series upgrade a hybrid strategy is a reasonable choice.
 
- .. code:: bash
+To be clear, the above pertains to upgrading the series on machines associated
+with a single application. It is also possible however to employ similar
+thinking to multiple applications.
 
-    juju config nova-compute openstack-origin=distro
-    juju config ceph-osd source=distro
+Application leadership
+----------------------
 
-
-Juju upgrade-series complete the machine
- .. code:: bash
-
-    juju upgrade-series 0 complete
-
- .. note::
-
-    The upgrade-series complete command causes all the charms on the given
-    machine to run their post-series-upgrade hook. For most cases with the
-    OpenStack charms this re-writes configuration files and resumes the unit.
-    At the completion of the post-series-upgrade hook the workload status
-    should be "active" with the message "Unit is ready."
-
-Juju set-series to the new series for all future units of an application.
- To guarantee that any future unit-add commands create new
- instantiations of the application on the correct series it is necessary
- to set the series on the application.
-
- .. code:: bash
-
-    juju set-series nova-compute xenial
-    juju set-series neutron-openvswitch xenial
-    juju set-series ceph-osd xenial
-
-
-Repeat the procedure for all physical host nodes.
- It is not necessary to repeat the set openstack-origin step.
-
-
-
-Stateful Services
-~~~~~~~~~~~~~~~~~
-
-Procedure for the stateful services deployed on LXD containers.
-These include percona-cluster and rabbitmq.
-
-.. warning::
-
-    For Bionic to Focal series upgrades see percona-cluster migration to
-    mysql-innodb-cluster and mysql-router under Series Specific Procedures.
-
+`Application leadership`_ plays an important role in determining the order in
+which machines (and their applications) will have their series upgraded. The
+guiding principle is that an application's unit leader is acted upon by a
+series upgrade before its non-leaders are (the leader is typically used to
+coordinate aspects with other services over relations).
 
 .. note::
-    While percona-cluster is often deployed with hacluster for HA,
-    rabbitmq is not. Ignore the hacluster steps for rabbitmq.
-    Likewise no backup is required of rabbitmq. Percona-cluster is used
-    below for example purposes. In this example, the LXD container the
-    leader node of percona-cluster/0 is deployed on is machine 0.
 
+   Juju will not transfer the leadership of an application (and any
+   subordinate) to another unit while the application is undergoing a series
+   upgrade. This allows a charm to make assumptions that will lead to a more
+   reliable outcome.
 
-Prepare the machine
- Perform backups of percona-cluster and scp the backup to a secure
- location.
+Assuming that a cloud is intended to eventually undergo a series upgrade, this
+guideline will generally influence the cloud's topology. Containerisation is an
+effective response to this.
 
- .. code:: bash
+.. important::
 
-    juju run-action percona-cluster/0 backup
-    juju scp -- -r percona-cluster/0:/opt/backups/mysql /path/to/local/backup/dir
+   Applications should be co-located on the same machine only if leadership
+   plays a negligible role. Applications deployed with the compute and storage
+   charms fall into this category.
 
+.. _generic_series_upgrade:
 
-Pause hacluster for non-leader units not undergoing upgrade
- .. code:: bash
+Generic series upgrade
+----------------------
 
-    juju run-action percona-cluster-hacluster/1 pause
-    juju run-action percona-cluster-hacluster/2 pause
+This section contains a generic overview of a series upgrade for three
+machines, each hosting a unit of the `ubuntu`_ application. The initial and
+target series are xenial and bionic, respectively.
 
+This scenario is represented by the following :command:`juju status` command
+output:
 
-Pause non-leader peer units not undergoing upgrade
- .. code:: bash
+.. code-block:: console
 
-    juju run-action percona-cluster/1 pause
-    juju run-action percona-cluster/2 pause
+   Model    Controller       Cloud/Region    Version  SLA          Timestamp
+   upgrade  maas-controller  mymaas/default  2.7.6    unsupported  18:33:49Z
 
+   App      Version  Status  Scale  Charm   Store       Rev  OS      Notes
+   ubuntu1  16.04    active      3  ubuntu  jujucharms   15  ubuntu
 
-Juju upgrade-series prepare the leader's machine
- .. code:: bash
+   Unit        Workload  Agent  Machine  Public address  Ports  Message
+   ubuntu1/0*  active    idle   0        10.0.0.241             ready
+   ubuntu1/1   active    idle   1        10.0.0.242             ready
+   ubuntu1/2   active    idle   2        10.0.0.243             ready
 
-    juju upgrade-series 0 prepare xenial
+   Machine  State    DNS         Inst id  Series  AZ     Message
+   0        started  10.0.0.241  node2    xenial  zone3  Deployed
+   1        started  10.0.0.242  node3    xenial  zone4  Deployed
+   2        started  10.0.0.243  node1    xenial  zone5  Deployed
 
- .. note::
-    The upgrade-series prepare command causes all the charms on the given
-    machine to run their pre-series-upgrade hook. For most cases with the
-    OpenStack charms this pauses the unit. At the completion of the
-    pre-series-upgrade hook the workload status should be "blocked" with
-    the message "Ready for do-release-upgrade and reboot."
+First ensure that any new applications will (by default) use the new series, in
+this case bionic. This is done by configuring at the model level:
 
-Execute do-release-upgrade and any post-upgrade operating system tasks
- The do-release-upgrade process is performed by the administrator. Any
- post do-release-upgrade tasks are also the responsibility of the
- administrator.
+.. code-block:: none
 
-Reboot
- Post do-release-upgrade reboot executed by the administrator.
+   juju model-config default-series=bionic
 
-Set openstack-origin or source for new operating system ("distro")
- This step is required and should occur before the first node is
- completed but after the other units are paused.
+Now do the same at the application level. This will affect any new units of the
+existing application, in this case 'ubuntu1':
 
- .. code:: bash
+.. code-block:: none
 
-    juju config percona-cluster source=distro
+   juju set-series ubuntu1 bionic
 
+Perform the actual series upgrade. We begin with the machine that houses the
+application unit leader, machine 0 (see the asterisk in the Unit column). Note
+that :command:`juju run` is preferred over :command:`juju ssh` but the latter
+should be used for sessions requiring user interaction:
 
-Juju upgrade-series complete the machine
- .. code:: bash
+.. code-block:: none
+   :linenos:
 
-    juju upgrade-series 0 complete
+   # Perform any workload maintenance pre-upgrade steps here
+   juju upgrade-series 0 prepare bionic
+   juju run --machine=0 -- sudo apt update
+   juju ssh 0 sudo apt full-upgrade
+   juju ssh 0 sudo do-release-upgrade
+   # Perform any workload maintenance post-upgrade steps here
+   # Reboot the machine (if not already done)
+   juju upgrade-series 0 complete
 
- .. note::
+In this generic example there are no `workload maintenance`_ steps to perform.
+If there were post-upgrade steps then the prompt to reboot the machine at the
+end of :command:`do-release-upgrade` should be answered in the negative and the
+reboot will be initiated manually on line 7 (i.e. :command:`sudo reboot`).
 
-    The upgrade-series complete command causes all the charms on the given
-    machine to run their post-series-upgrade hook. For most cases with the
-    OpenStack charms this re-writes configuration files and resumes the unit.
-    At the completion of the post-series-upgrade hook the workload status
-    should be "active" with the message "Unit is ready."
+It is possible to invoke the :command:`complete` sub-command before the
+upgraded machine is ready to process it. Juju will block until the unit is
+ready after being restarted.
 
-Repeat the procedure for non-leader nodes
- It is not necessary to repeat the set openstack-origin step.
+In lines 4 and 5 the upgrade proceeds in the usual interactive fashion. If a
+non-interactive mode is preferred, those two lines can be replaced with:
 
-Perform any cluster completed upgrade tasks after all units of application have been upgraded.
- Run the complete-cluster-series-upgrade action on the leader node. This
- action informs each node of the cluster the upgrade process is complete
- cluster wide. This also updates mysql configuration with all peers in
- the cluster.
+.. code-block:: none
 
- .. code:: bash
+   juju run --machine=0 --timeout=30m -- sudo DEBIAN_FRONTEND=noninteractive apt-get --assume-yes \
+      -o "Dpkg::Options::=--force-confdef" \
+      -o "Dpkg::Options::=--force-confold" dist-upgrade
+   juju run --machine=0 --timeout=30m -- sudo DEBIAN_FRONTEND=noninteractive \
+      do-release-upgrade -f DistUpgradeViewNonInteractive
 
-    juju run-action percona-cluster/0 complete-cluster-series-upgrade
+The :command:`apt-get` command is preferred while in non-interactive mode (or
+with scripting).
 
-Juju set-series to the new series for all future units of an application.
- To guarantee that any future unit-add commands create new
- instantiations of the application on the correct series it is necessary
- to set the series on the application.
+.. caution::
 
- .. code:: bash
+   Performing a series upgrade non-interactively can be risky so the decision
+   to do so should be made only after careful deliberation.
 
-    juju set-series percona-cluster xenial
-
-
-API Services
-~~~~~~~~~~~~
-
-Procedure for the API services in LXD containers. These include but are
-not limited to keystone, glance, cinder, neutron-api and
-nova-cloud-controller. Any subordinates deployed with these applications
-will be upgraded at the same time.
+Machines 1 and 2 should now be upgraded in the same way (in no particular
+order).
 
 .. note::
-    Keystone is used in the commands below for example purposes. In this
-    example, the LXD container the leader node of keystone/0 is deployed
-    on is machine 0.
 
+   It has been reported that a trusty:xenial series upgrade may require an
+   additional step to ensure a purely non-interactive mode. A file under
+   ``/etc/apt/apt.conf.d`` with a single line as its contents needs to be added
+   to the target machine pre-upgrade and be removed post-upgrade. It can be
+   created (here on machine 0) in this way:
 
-Pause hacluster for non-leader units not undergoing upgrade
- .. code:: bash
+   juju run --machine=0 -- "echo 'DPkg::options { "--force-confdef"; "--force-confnew"; }' | sudo tee /etc/apt/apt.conf.d/local"
 
-    juju run-action keystone-hacluster/1 pause
-    juju run-action keystone-hacluster/2 pause
+Next steps
+----------
 
+When you are ready to perform a series upgrade across your cloud proceed to
+appendix :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>`.
 
-Pause non-leader peer units not undergoing upgrade
- .. code:: bash
-
-    juju run-action keystone/1 pause
-    juju run-action keystone/2 pause
-
-
-Juju upgrade-series prepare the leader's machine
- .. code:: bash
-
-    juju upgrade-series 0 prepare xenial
-
- .. note::
-    The upgrade-series prepare command causes all the charms on the given
-    machine to run their pre-series-upgrade hook. For most cases with the
-    OpenStack charms this pauses the unit. At the completion of the
-    pre-series-upgrade hook the workload status should be "blocked" with
-    the message "Ready for do-release-upgrade and reboot."
-
-Execute do-release-upgrade and any post-upgrade operating system tasks
- The do-release-upgrade process is performed by the administrator. Any
- post do-release-upgrade tasks are also the responsibility of the
- administrator.
-
-Reboot
- Post do-release-upgrade reboot executed by the administrator.
-
-Set openstack-origin or source for new operating system ("distro")
- This step is required and should occur before the first node is
- completed but after the other units are paused.
-
- .. code:: bash
-
-    juju config keystone source=distro
-
-
-Juju upgrade-series complete the machine
- .. code:: bash
-
-    juju upgrade-series 0 complete
-
- .. note::
-
-    The upgrade-series complete command causes all the charms on the given
-    machine to run their post-series-upgrade hook. For most cases with the
-    OpenStack charms this re-writes configuration files and resumes the unit.
-    At the completion of the post-series-upgrade hook the workload status
-    should be "active" with the message "Unit is ready."
-
-Repeat the procedure for non-leader nodes
- It is not necessary to repeat the set openstack-origin step.
-
-Juju set-series to the new series for all future units of an application.
- To guarantee that any future unit-add commands create new
- instantiations of the application on the correct series it
- is necessary to set the series on the application.
-
- .. code:: bash
-
-    juju set-series keystone xenial
-
-.. raw:: html
-
-   <!-- LINKS -->
-
+.. LINKS
 .. _Charm upgrades: app-upgrade-openstack#charm-upgrades
-
-
-Series Specific Procedures
-++++++++++++++++++++++++++
-
-Bionic to Focal
-~~~~~~~~~~~~~~~
-
-percona-cluster migration to mysql-innodb-cluster and mysql-router
-__________________________________________________________________
-
-
-In Ubuntu 20.04 LTS (Focal) the percona-xtradb-cluster-server package will no
-longer be available. It has been replaced by mysql-server-8.0 and mysql-router
-in Ubuntu main. Therefore, there is no way to series upgrade percona-cluster to
-Focal. Instead the databases hosted by percona-cluster will need to be migrated
-to mysql-innodb-cluster and mysql-router will need to be deployed as a
-subordinate on the applications that use MySQL as a data store.
-
-.. warning::
-
-   Since the DB affects most OpenStack services it is important to have a
-   sufficient downtime window. The following procedure is written in an attempt
-   to migrate one service at a time (i.e. keystone, glance, cinder, etc).
-   However, it may be more practical to migrate all databases at the same time
-   during an extended downtime window, as there may be unexpected
-   interdependencies between services.
-
-.. note::
-
-   It is possible for percona-cluster to remain on Ubuntu 18.04 LTS while
-   the rest of the cloud migrates to Ubuntu 20.04 LTS. In fact, this state
-   will be one step of the migration process.
-
-
-Procedure
-
-* Leave all the percona-cluster machines on Bionic and upgrade the series of
-  the remaining machines in the cloud per this document.
-
-* Deploy a mysql-innodb-cluster on Focal.
-
- .. code-block:: none
-
-    juju deploy -n 3 mysql-innodb-cluster --series focal
-
-* Deploy (but do not yet relate) an instance of mysql-router for every
-  application that requires a data store (i.e. every application that was
-  related to percona-cluster).
-
- .. code-block:: none
-
-    juju deploy mysql-router cinder-mysql-router
-    juju deploy mysql-router glance-mysql-router
-    juju deploy mysql-router keystone-mysql-router
-    ...
-
-* Add relations between the mysql-router instances and the
-  mysql-innodb-cluster.
-
- .. code-block:: none
-
-    juju add-relation cinder-mysql-router:db-router mysql-innodb-cluster:db-router
-    juju add-relation glance-mysql-router:db-router mysql-innodb-cluster:db-router
-    juju add-relation keystone-mysql-router:db-router mysql-innodb-cluster:db-router
-    ...
-
-On a per-application basis:
-
-* Remove the relation between the application charm and the percona-cluster
-  charm. You can view existing relations with the :command:`juju status
-  percona-cluster --relations` command.
-
- .. code-block:: none
-
-    juju remove-relation keystone:shared-db percona-cluster:shared-db
-
-* Dump the existing database(s) from percona-cluster.
-
- .. note::
-
-    In the following, the percona-cluster/0 and mysql-innodb-cluster/0 units
-    are used as examples. For percona, any unit of the application may be used,
-    though all the steps should use the same unit. For mysql-innodb-cluster,
-    the RW unit should be used. The RW unit of the mysql-innodb-cluster can be
-    determined from the :command:`juju status mysql-innodb-cluster` command.
-
- * Allow Percona to dump databases. See `Percona strict mode`_ to understand
-   the implications of this setting.
-
- .. code-block:: none
-
-    juju run-action --wait percona-cluster/0 set-pxc-strict-mode mode=MASTER
-
- * Dump the specific application's database(s).
-
-  .. note::
-
-     Depending on downtime restrictions it is possible to dump all databases at
-     one time: run the ``mysqldump`` action without setting the ``databases``
-     parameter.  Similarly, it is possible to import all the databases into
-     mysql-innodb-clulster from that single dump file.
-
-  .. note::
-
-     The database name may or may not match the application name. For example,
-     while keystone has a DB named keystone, openstack-dashboard has a database
-     named horizon. Some applications have multiple databases. Notably,
-     nova-cloud-controller which has at least: nova,nova_api,nova_cell0 and a
-     nova_cellN for each additional cell. See upstream documentation for the
-     respective application to determine the database name.
-
- .. code-block:: none
-
-    # Single DB
-    juju run-action --wait percona-cluster/0 mysqldump databases=keystone
-
-    # Multiple DBs
-    juju run-action --wait percona-cluster/0 mysqldump databases=nova,nova_api,nova_cell0
-
- * Return Percona enforcing strict mode. See `Percona strict mode`_ to
-   understand the implications of this setting.
-
- .. code-block:: none
-
-    juju run-action --wait percona-cluster/0 set-pxc-strict-mode mode=ENFORCING
-
-* Transfer the mysqldump file from the percona-cluster unit to the
-  mysql-innodb-cluster RW unit. The RW unit of the mysql-innodb-cluster can be
-  determined from juju status: `juju status mysql-innodb-cluster`. Bellow we
-  use mysql-innodb-cluster/0 as an example.
-
- .. code-block:: none
-
-    juju scp percona-cluster/0:/var/backups/mysql/mysqldump-keystone-<DATE>.gz .
-    juju scp mysqldump-keystone-<DATE>.gz mysql-innodb-cluster/0:/home/ubuntu
-
-* Import the database(s) into mysql-innodb-cluster.
-
- .. code-block:: none
-
-    juju run-action --wait mysql-innodb-cluster/0 restore-mysqldump dump-file=/home/ubuntu/mysqldump-keystone-<DATE>.gz
-
-* Relate an instance of mysql-router for every application that requires a data
-  store (i.e. every application that needed percona-cluster):
-
- .. code-block:: none
-
-    juju add-relation keystone:shared-db keystone-mysql-router:shared-db
-
-* Repeat for remaining applications.
-
-An overview of this process can be seen in the OpenStack charmer's team CI `Zaza migration code`_.
-
-Post-migration
-
-As noted above it is possible to run the cloud with percona-cluster remaining
-on Bionic indefinitely. Once all databases have been migrated to
-mysql-innodb-cluster, all the databases have been backed up, and the cloud has
-been verified to be in good working order the percona-cluster application (and
-its probable hacluster subordinates) may be removed.
-
- .. code-block:: none
-
-    juju remove-application percona-cluster-hacluster
-    juju remove-application percona-cluster
-
-
-.. _Zaza migration code: https://github.com/openstack-charmers/zaza-openstack-tests/blob/master/zaza/openstack/charm_tests/mysql/tests.py#L556
-.. _Percona strict mode: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/features/pxc-strict-mode.html
+.. _OpenStack upgrades: app-series-upgrade-openstack
+.. _series upgrade: https://juju.is/docs/upgrading-series
+.. _automatic package updates: https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en
+.. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
+.. _Application leadership: https://juju.is/docs/implementing-leadership
+.. _ubuntu: https://jaas.ai/ubuntu
