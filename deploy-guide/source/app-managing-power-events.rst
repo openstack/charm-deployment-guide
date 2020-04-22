@@ -366,8 +366,7 @@ cluster
 
    Expected output is null (no output).
 
-5. Remove all of a unit's OSDs from the cluster. Do this on **each**
-   ``ceph-osd`` unit::
+5. Mark all of a unit's OSDs as 'out'. Do this on **each** ``ceph-osd`` unit::
 
     juju run-action --wait ceph-osd/1 osd-out
 
@@ -414,12 +413,12 @@ component
 
 3. **ceph-osd** - To bring down all the OSDs on a single unit:
 
-   a. Remove all the OSDs on the ``ceph-osd`` unit::
+   a. Mark all the OSDs on the ``ceph-osd`` unit as 'out'::
 
        juju run-action --wait ceph-osd/2 osd-out
 
-   b. Do not remove OSDs on another unit until the cluster has recovered from
-      the loss of the current one (run a status check).
+   b. Do not mark OSDs on another unit as 'out' until the cluster has recovered
+      from the loss of the current one (run a status check).
 
 startup
 ^^^^^^^
@@ -439,8 +438,8 @@ started in this order:
 
 **Important**: If during cluster shutdown,
 
-a. a unit's OSDs were removed from the cluster then you must re-insert them. Do
-   this for **each** ``ceph-osd`` unit::
+a. a unit's OSDs were marked as 'out' then you must re-insert them. Do this for
+   **each** ``ceph-osd`` unit::
 
     juju run-action --wait ceph-osd/0 osd-in
 
