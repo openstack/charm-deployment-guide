@@ -1,5 +1,5 @@
 ==============================
-Appendix B: OpenStack Upgrades
+Appendix B: OpenStack upgrades
 ==============================
 
 Overview
@@ -517,13 +517,13 @@ Step 0: Check existing configuration
 
 Confirm existing volumes are in an RBD pool called 'cinder':
 
-.. code:: bash
+.. code-block:: none
 
    juju run --unit cinder/0 "rbd --name client.cinder -p cinder ls"
 
 Sample output:
 
-.. code::
+.. code-block:: none
 
    volume-b45066d3-931d-406e-a43e-ad4eca12cf34
    volume-dd733b26-2c56-4355-a8fc-347a964d5d55
@@ -534,7 +534,7 @@ Step 1: Deploy new topology
 Deploy the ``cinder-ceph`` charm and set the 'rbd-pool-name' to match the pool
 that any existing volumes are in (see above):
 
-.. code:: bash
+.. code-block:: none
 
    juju deploy --config rbd-pool-name=cinder cs:~openstack-charmers-next/cinder-ceph
    juju add-relation cinder cinder-ceph
@@ -548,7 +548,7 @@ Step 2: Update volume configuration
 The existing volumes now need to be updated to associate them with the newly
 defined cinder-ceph backend:
 
-.. code:: bash
+.. code-block:: none
 
    juju run-action cinder/0 rename-volume-host currenthost='cinder' \
        newhost='cinder@cinder-ceph#cinder.volume.drivers.rbd.RBDDriver'
@@ -571,7 +571,7 @@ registered, nova-cloud-controller can be resumed.
 Here's an example of the steps just described where `nova-cloud-controller/0`
 is the leader:
 
-.. code:: bash
+.. code-block:: none
 
    juju deploy --series bionic --config openstack-origin=cloud:bionic-train cs:placement
    juju run-action nova-cloud-controller/0 pause
@@ -585,7 +585,7 @@ Only after these steps have been completed can nova-cloud-controller be
 upgraded. Here we upgrade all units simultaneously but see the
 `Paused-single-unit`_ service upgrade method for a more controlled approach:
 
-.. code:: bash
+.. code-block:: none
 
    juju config nova-cloud-controller openstack-origin=cloud:bionic-train
 

@@ -53,7 +53,7 @@ prepare for and manage power events in your cloud.
 HA applications
 ~~~~~~~~~~~~~~~
 
-Theoretically, an application with high availability is impervious to a power
+Theoretically, an application with high availability is resilient to a power
 event, meaning that one would have no impact on both client requests to the
 application and the application itself. However, depending on the situation,
 some such applications may still require attention when starting back up. The
@@ -62,7 +62,8 @@ some such applications may still require attention when starting back up. The
 Cloud applications are typically made highly available through the use of the
 `hacluster`_ subordinate charm. Some applications, though, achieve HA at the
 software layer (outside of Juju), and can be called *natively HA*. One such
-application is ``rabbitmq-server``.
+application is ``rabbitmq-server``. See :doc:`OpenStack high availability
+<app-ha>` for more information.
 
 Cloud topology
 ~~~~~~~~~~~~~~
