@@ -26,12 +26,8 @@ Cloud topology guidelines
 
 Deploying applications under HA will involve multiple application units being
 distributed amongst the available cloud nodes, thereby dramatically influencing
-the cloud topology.
-
-The output of the :command:`juju status` command is a natural way for Juju
-operators to view their cloud's topology. See :ref:`Cloud topology for HA
-applications <cloud_topology_ha>` for an example of a topology that abides by
-the these guidelines.
+the cloud topology. The output of the :command:`juju status` command is a
+natural way for Juju operators to view their cloud's topology.
 
 MAAS zones and failure domains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
