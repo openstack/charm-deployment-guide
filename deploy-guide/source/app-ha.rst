@@ -1,7 +1,7 @@
 .. _ha:
 
 =======================================
-Appendix S: OpenStack high availability
+Appendix T: OpenStack high availability
 =======================================
 
 Overview

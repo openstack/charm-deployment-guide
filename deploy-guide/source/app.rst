@@ -25,3 +25,4 @@ Appendices
    app-swift.rst
    app-hardware-offload.rst
    app-ha.rst
+   app-trilio-vault.rst
