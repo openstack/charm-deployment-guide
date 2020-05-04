@@ -97,6 +97,8 @@ overlay bundle:
        - rabbitmq-server:amqp
      - - trilio-wlm:identity-service
        - keystone:identity-service
+     - - trilio-data-mover:ceph
+       - ceph-mon:client
 
 NFS
 ---
