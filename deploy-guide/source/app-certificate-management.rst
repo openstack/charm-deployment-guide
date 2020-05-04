@@ -100,6 +100,21 @@ Upload signed CSR and root CA cert to vault
         root-ca="$(cat /tmp/root-ca.pem | base64)" \
         allowed-domains='openstack.local'
 
+.. note::
+
+    The certificates provided via the 'pem' parameter must be a PEM bundle
+    containing the signed certificate, any intermediate CA certs external
+    to Vault and the root CA cert.  Without this information Vault cannot
+    verify the trust chain and will reject the provided certificate - see
+    `RFC5280`_ for more details about certificate paths and trust.
+
+    If external intermediate CAs are in use the root-ca PEM must also
+    be a PEM bundle including certs for all intermediate CAs and the root
+    CA.
+
+    For more details about the format of certificate PEM bundles see
+    `RFC7468`_.
+
 Vault issues certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -144,3 +159,7 @@ must be run on the lead unit.
 .. code:: bash
 
    juju run-action vault/0 reissue-certificates
+
+.. LINKS
+.. _RFC5280: https://tools.ietf.org/html/rfc5280#section-3.2
+.. _RFC7468: https://tools.ietf.org/html/rfc7468#section-5
