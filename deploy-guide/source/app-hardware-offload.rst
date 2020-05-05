@@ -5,35 +5,37 @@ Appendix S: NIC hardware offload
 Overview
 --------
 
-As of the 20.05 release, the OpenStack charms support configuration of Open vSwitch
-hardware offloading with Mellanox ConnectX-5 NICs. Hardware offloading can be used
-to accelerate VLAN and VXLAN networking using the capabilities of the underlying
-network card to achieve much higher performance than with virtio based VM ports.
+As of the 20.05 release, the OpenStack charms support configuration of Open
+vSwitch hardware offloading with Mellanox ConnectX-5 NICs. Hardware offloading
+can be used to accelerate VLAN and VXLAN networking using the capabilities of
+the underlying network card to achieve much higher performance than with virtio
+based VM ports.
 
-See the Neutron documentation on `OVS hardware offload`_ for background information.
+See the Neutron documentation on `OVS hardware offload`_ for background
+information.
 
 .. warning::
 
-   Hardware offloading cannot be used with either SR-IOV or DPDK networking support
-   as provided by the OpenStack charms.
+   Hardware offloading cannot be used with either SR-IOV or DPDK networking
+   support as provided by the OpenStack charms.
 
 Prerequisites
 -------------
 
- - Ubuntu 18.04 LTS or later
- - Linux kernel >= 5.3
- - Open vSwitch >= 2.11
- - OpenStack Stein or later
- - Mellanox ConnectX-5 NICs using recent firmware (>= 16.26.4012)
+* Ubuntu 18.04 LTS or later
+* Linux kernel >= 5.3
+* Open vSwitch >= 2.11
+* OpenStack Stein or later
+* Mellanox ConnectX-5 NICs using recent firmware (>= 16.26.4012)
 
 .. note::
 
    Hardware offload does not currently support offloading of Neutron Security
-   Group rules - experimental support is expected in Open vSwitch 2.13 when used
-   with Linux >= 5.4 and as yet unreleased NIC firmware. It is recommended that
-   port security is disabled on Neutron networks being used for hardware
-   offloading use cases due to the performance overhead of enforcing
-   security group rules in userspace.
+   Group rules - experimental support is expected in Open vSwitch 2.13 when
+   used with Linux >= 5.4 and as yet unreleased NIC firmware. It is recommended
+   that port security is disabled on Neutron networks being used for hardware
+   offloading use cases due to the performance overhead of enforcing security
+   group rules in userspace.
 
 Deployment
 ----------
@@ -62,54 +64,55 @@ configured through MAAS.
 
 .. note::
 
-   Use of VF-LAG halfs the offloaded port capacity of the card and as
-   such VF representor port configuration should only be made on the first
-   network port on the card.
+   Use of VF-LAG halfs the offloaded port capacity of the card and as such VF
+   representor port configuration should only be made on the first network port
+   on the card.
 
 Charm configuration
 ~~~~~~~~~~~~~~~~~~~
 
-Hardware offload support is enabled using the ``enable-hardware-offload`` option
-provided by the neutron-api and neutron-openvswitch charms.
+Hardware offload support is enabled using the ``enable-hardware-offload``
+option provided by the neutron-api and neutron-openvswitch charms.
 
-Enabling hardware offloading requires configuration of VF representator ports on
-the NICs supporting the hardware offload - these are used to route network packets
-without flow rules to the OVS userspace daemon for handling and subsequent
-programming into the hardware offloaded flows.  This is supported via use of
-the ``sriov-numvfs`` option provided by the neutron-openvswitch charm.
+Enabling hardware offloading requires configuration of VF representator ports
+on the NICs supporting the hardware offload - these are used to route network
+packets without flow rules to the OVS userspace daemon for handling and
+subsequent programming into the hardware offloaded flows. This is supported
+via use of the ``sriov-numvfs`` option provided by the neutron-openvswitch
+charm.
 
-Finally the ``openvswitch`` firewall driver must be used with hardware offloading.
-Eventually it will be possible to offload security group rules using this driver
-(see note above).
+Finally the ``openvswitch`` firewall driver must be used with hardware
+offloading. Eventually it will be possible to offload security group rules
+using this driver (see note above).
 
 The following overlay may be used with the OpenStack base deployment bundle:
 
 .. code-block:: yaml
 
-    series: bionic
-    applications:
-      neutron-openvswitch:
-        charm: cs:neutron-openvswitch
-        options:
-          enable-hardware-offload: true
-          sriov-numvfs: "enp3s0f0:64 enp3s0f1:0"
-          firewall-driver: openvswitch
-      neutron-api:
-        charm: cs:neutron-api
-        options:
-          enable-hardware-offload: true
+   series: bionic
+   applications:
+     neutron-openvswitch:
+       charm: cs:neutron-openvswitch
+       options:
+         enable-hardware-offload: true
+         sriov-numvfs: "enp3s0f0:64 enp3s0f1:0"
+         firewall-driver: openvswitch
+     neutron-api:
+       charm: cs:neutron-api
+       options:
+         enable-hardware-offload: true
 
 In this overlay ``enp3s0f0`` and ``enp3s0f1`` are two ports on the same
-Mellanox ConnectX-5 card and are configured as a Linux bond ``bond1``
-to enable VF-LAG for resilience and performance.  ``bond1`` is also configured
-with the network interface used for VXLAN overlay traffic to allow full
-offloading of networks of this type.
+Mellanox ConnectX-5 card and are configured as a Linux bond ``bond1`` to enable
+VF-LAG for resilience and performance. ``bond1`` is also configured with the
+network interface used for VXLAN overlay traffic to allow full offloading of
+networks of this type.
 
 Creating hardware offloaded ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Hardware offloaded ports must be created via Neutron and then passed to Nova
-for use by VM's:
+for use by VMs:
 
 .. code-block:: none
 
