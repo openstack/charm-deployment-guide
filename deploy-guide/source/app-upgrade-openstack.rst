@@ -301,7 +301,7 @@ archive pocket". It takes on the following syntax:
 
 ``cloud:<ubuntu series>-<openstack-release>``
 
-For example:
+For example, for the 'bionic-train' pocket:
 
 ``cloud:bionic-train``
 
@@ -334,11 +334,16 @@ The syntax is:
    juju config <openstack-charm> openstack-origin=cloud:<cloud-archive-pocket>
 
 Charms whose services are not technically part of the OpenStack project will
-use a different charm option. The Ceph charms are a classic example:
+use the ``source`` charm option instead. The Ceph charms are a classic example:
 
 .. code:: bash
 
-   juju config <ceph-charm> source=cloud:<cloud-archive-pocket>
+   juju config ceph-mon source=cloud:bionic-train
+
+.. note::
+
+   The ceph-osd and ceph-mon charms are able to maintain service availability
+   during their upgrade.
 
 So to upgrade Cinder across all units (currently running Bionic) from Stein to
 Train:
