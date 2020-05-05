@@ -279,6 +279,21 @@ Three relations need to be added:
    juju add-relation neutron-api:neutron-plugin-api neutron-openvswitch:neutron-plugin-api
    juju add-relation neutron-openvswitch:neutron-plugin nova-compute:neutron-plugin
 
+.. caution::
+
+   Co-locating units of neutron-openvswitch and neutron-gateway will cause APT
+   package incompatibility between the two charms on the underlying host. The
+   result is that packages for these services will be removed:
+   neutron-metadata-agent, neutron-dhcp-agent, and neutron-l3-agent.
+
+   The alternative is to run the neutron-gateway unit on a LXD container or on
+   a different host entirely. Another option is to run neutron-openvswitch in
+   DVR mode.
+
+   Recall that neutron-openvswitch is a subordinate charm; its host is
+   determined via a relation between it and a principle charm (e.g.
+   nova-compute).
+
 Percona cluster
 ~~~~~~~~~~~~~~~
 
