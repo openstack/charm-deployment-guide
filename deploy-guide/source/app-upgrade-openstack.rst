@@ -14,9 +14,9 @@ This document outlines how to upgrade a Juju-deployed OpenStack cloud.
 
 Please read the following before continuing:
 
-- the OpenStack charms `Release Notes`_ for the corresponding current and
+* the OpenStack charms `Release Notes`_ for the corresponding current and
   target versions of OpenStack
-- the `Known OpenStack upgrade issues`_ section in this document
+* the `Known OpenStack upgrade issues`_ section in this document
 
 Definitions
 -----------
@@ -233,7 +233,7 @@ individually.
 +=======+=======================+===============+
 | 1     | keystone              | Core Identity |
 +-------+-----------------------+---------------+
-| 2     | ceph-mon              | Storage       |
+| 1     | ceph-mon              | Storage       |
 +-------+-----------------------+---------------+
 | 2     | ceph-osd              | Storage       |
 +-------+-----------------------+---------------+
@@ -277,7 +277,7 @@ individually.
 +-------+-----------------------+---------------+
 | 3     | openstack-dashboard   | Control Plane |
 +-------+-----------------------+---------------+
-| 3     | nova-compute          | Compute       |
+| 4     | nova-compute          | Compute       |
 +-------+-----------------------+---------------+
 
 .. important::
