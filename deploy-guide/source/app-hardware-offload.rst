@@ -101,12 +101,19 @@ The following overlay may be used with the OpenStack base deployment bundle:
        charm: cs:neutron-api
        options:
          enable-hardware-offload: true
+     nova-compute:
+       options:
+         pci-passthrough-whitelist: '{"address": "*:03:*", "physical_network": null}'
 
 In this overlay ``enp3s0f0`` and ``enp3s0f1`` are two ports on the same
 Mellanox ConnectX-5 card and are configured as a Linux bond ``bond1`` to enable
 VF-LAG for resilience and performance. ``bond1`` is also configured with the
 network interface used for VXLAN overlay traffic to allow full offloading of
 networks of this type.
+
+The nova-compute charm is configured to use the VF functions provided by the
+network cards using the ``pci-passthrough-whitelist`` option. The above example
+demonstrates configuration for VXLAN overlay networking.
 
 Creating hardware offloaded ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
