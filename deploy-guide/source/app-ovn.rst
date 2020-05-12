@@ -1,8 +1,9 @@
+======================================
 Appendix O: Open Virtual Network (OVN)
 ======================================
 
 Overview
-++++++++
+--------
 
 As of the 19.10 OpenStack Charms release, with OpenStack Train or later,
 support for integration with Open Virtual Network (OVN) is available. As of
@@ -25,7 +26,7 @@ OVN charms:
 * ovn-dedicated-chassis
 
 Deployment
-++++++++++
+----------
 
 OVN makes use of Public Key Infrastructure (PKI) to authenticate and authorize
 control plane communication. The charm requires a Certificate Authority to be
@@ -66,13 +67,13 @@ components as a principle charm through the use of the
    For a concrete example take a look at the `OpenStack Base bundle`_.
 
 High availability
-+++++++++++++++++
+-----------------
 
 OVN is HA by design; take a look at the `OVN section of the OpenStack high
 availability`_ appendix.
 
 Configuration
-+++++++++++++
+-------------
 
 OVN integrates with OpenStack through the OVN ML2 driver. On OpenStack Ussuri
 and onwards the OVN ML2 driver is maintained as an in-tree driver in Neutron.
@@ -151,7 +152,7 @@ offloaded port. This must be done in two stages, first we create a port with
 ``vnic-type`` 'direct' and ``binding-profile`` with 'switchdev' capabilities.
 Then we create an instance connected to the newly created port:
 
-.. code-block:: bash
+.. code-block:: none
 
    openstack port create --network my-network --vnic-type direct \
        --binding-profile '{"capabilities": ["switchdev"]}' direct_port1
@@ -165,9 +166,11 @@ The `traffic control monitor`_ command can be used to observe updates to
 filters which is one of the mechanisms used to program the NIC switch hardware.
 Look for the 'in_hw' and 'not_in_hw' labels.
 
-.. code-block:: bash
+.. code-block:: none
 
    sudo tc monitor
+
+.. code-block:: console
 
    replaced filter dev eth62 ingress protocol ip pref 3 flower chain 0 handle 0x9
      dst_mac fa:16:3e:b2:20:82
@@ -194,9 +197,11 @@ Look for the 'in_hw' and 'not_in_hw' labels.
 Open vSwitch has a rich set of tools to monitor traffic flows and you can use
 the `data path control tools`_ to monitor offloaded flows.
 
-.. code-block:: bash
+.. code-block:: none
 
    sudo ovs-appctl dpctl/dump-flows type=offloaded
+
+.. code-block:: console
 
    tunnel(tun_id=0x4,src=10.6.12.3,dst=10.6.12.7,tp_dst=6081,geneve({class=0x102,type=0x80,len=4,0x20007/0x7fffffff}),flags(+key)),recirc_id(0),in_port(2),eth(src=fa:16:3e:f8:52:5c,dst=00:00:00:00:00:00/01:00:00:00:00:00),eth_type(0x0800),ipv4(proto=6,frag=no),tcp_flags(psh|ack), packets:2, bytes:204, used:5.710s, actions:7
    tunnel(tun_id=0x4,src=10.6.12.3,dst=10.6.12.7,tp_dst=6081,geneve({class=0x102,type=0x80,len=4,0x20007/0x7fffffff}),flags(+key)),recirc_id(0),in_port(2),eth(src=fa:16:3e:f8:52:5c,dst=00:00:00:00:00:00/01:00:00:00:00:00),eth_type(0x0800),ipv4(proto=6,frag=no),tcp_flags(ack), packets:3, bytes:230, used:5.710s, actions:7
@@ -234,7 +239,7 @@ parameters. The charm does not handle this facet of configuration and it is
 expected that the user configure this either manually or through the bare metal
 provisioning layer (for example `MAAS`_). Example:
 
-.. code-block:: bash
+.. code-block:: none
 
    intel_iommu=on iommu=pt probe_vf=0
 
@@ -244,7 +249,7 @@ Charm configuration
 Enable SR-IOV, map physical network name 'physnet2' to the physical port named
 'enp3s0f0' and create 4 virtual functions on it:
 
-.. code-block:: bash
+.. code-block:: none
 
    juju config ovn-chassis enable-sriov=true
    juju config ovn-chassis sriov-device-mappings=physnet2:enp3s0f0
@@ -253,11 +258,11 @@ Enable SR-IOV, map physical network name 'physnet2' to the physical port named
 After enabling the virtual functions you should take note of the ``vendor_id``
 and ``product_id`` of the virtual functions:
 
-.. code-block:: bash
+.. code-block:: none
 
    juju run --application ovn-chassis 'lspci -nn | grep "Virtual Function"'
 
-.. code-block:: bash
+.. code-block:: console
 
    03:10.0 Ethernet controller [0200]: Intel Corporation 82599 Ethernet Controller Virtual Function [8086:10ed] (rev 01)
    03:10.2 Ethernet controller [0200]: Intel Corporation 82599 Ethernet Controller Virtual Function [8086:10ed] (rev 01)
@@ -269,7 +274,7 @@ In the above example ``vendor_id`` is '8086' and ``product_id`` is '10ed'.
 Add mapping between physical network name, physical port and Open vSwitch
 bridge:
 
-.. code-block:: bash
+.. code-block:: none
 
    juju config ovn-chassis ovn-bridge-mappings=physnet2:br-ex
    juju config ovn-chassis bridge-interface-mappings br-ex:a0:36:9f:dd:37:a8
@@ -481,7 +486,7 @@ Networks for use with external Layer2 connectivity should have mappings present
 on all chassis with potential to host the consuming payload.
 
 Usage
-+++++
+-----
 
 Create networks, routers and subnets through the OpenStack API or CLI as you
 normally would.
@@ -496,42 +501,115 @@ The local ``ovn-controller`` daemon on each chassis consumes these rules and
 programs flows in the local Open vSwitch database.
 
 Information queries
-+++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~
 
-.. note::
+The OVN databases are configured to use the `Clustered Database Service
+Model`_. In this configuration only the leader processes transactions and the
+administrative client tools are configured to require a connection to the
+leader to operate.
 
-   Future versions of the charms will provide information-gathering in the
-   form of actions and/or through updates to the ``juju status`` command.
+The leader of the Northbound and Southbound databases does not have to coincide
+with the charm leader, so before querying databases you must consult the output
+of :command:`juju status` to check which unit is the leader of the database you
+want to query. Example:
+
+.. code-block:: none
+
+   juju status ovn-central
+
+.. code-block:: console
+
+   Unit            Workload  Agent  Machine  Public address  Ports              Message
+   ovn-central/0*  active    idle   0/lxd/5  10.246.114.39   6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db)
+   ovn-central/1   active    idle   1/lxd/4  10.246.114.15   6641/tcp,6642/tcp  Unit is ready (northd: active)
+   ovn-central/2   active    idle   2/lxd/2  10.246.114.27   6641/tcp,6642/tcp  Unit is ready (leader: ovnsb_db)
+
+In the above example 'ovn-central/0' is the leader for the Northbound DB,
+'ovn-central/1' has the active ``ovn-northd`` daemon and 'ovn-central/2' is the
+leader for the Southbound DB.
 
 OVSDB Cluster status
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
-.. code::
+The cluster status as conveyed through :command:`juju status` is updated each
+time a hook is run, in some circumstances it may be necessary to get an
+immediate view of the current cluster status.
 
-   juju run --application ovn-central 'ovs-appctl -t \
-       /var/run/openvswitch/ovnnb_db.ctl cluster/status OVN_Northbound'
-   juju run --application ovn-central 'ovs-appctl -t \
-       /var/run/openvswitch/ovnsb_db.ctl cluster/status OVN_Southbound'
+To get an immediate view of the database clusters:
+
+.. code-block:: none
+
+   juju run --application ovn-central 'ovn-appctl -t \
+       /var/run/ovn/ovnnb_db.ctl cluster/status OVN_Northbound'
+   juju run --application ovn-central 'ovn-appctl -t \
+       /var/run/ovn/ovnsb_db.ctl cluster/status OVN_Southbound'
 
 Querying DBs
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
-.. code::
+To query the individual databases:
 
-   juju run --unit ovn-central/leader 'ovn-nbctl show'
-   juju run --unit ovn-central/leader 'ovn-sbctl show'
-   juju run --unit ovn-central/leader 'ovn-sbctl lflow-list'
+.. code-block:: none
+
+   juju run --unit ovn-central/0 'ovn-nbctl show'
+   juju run --unit ovn-central/2 'ovn-sbctl show'
+   juju run --unit ovn-central/2 'ovn-sbctl lflow-list'
+
+As an alternative you may provide the administrative client tools with
+command-line arguments for path to certificates and IP address of servers so
+that you can run the client from anywhere:
+
+.. code-block:: none
+
+   ovn-nbctl \
+      -p /etc/ovn/key_host \
+      -C /etc/ovn/ovn-central.crt \
+      -c /etc/ovn/cert_host \
+      --db ssl:10.246.114.39:6641,ssl:10.246.114.15:6641,ssl:10.246.114.27:6641 \
+      show
+
+Note that for remote administrative write access to the Southbound DB you must
+use port number '16642'. This is due to OVN RBAC being enabled on the standard
+'6642' port:
+
+.. code-block:: none
+
+   ovn-sbctl \
+      -p /etc/ovn/key_host \
+      -C /etc/ovn/ovn-central.crt \
+      -c /etc/ovn/cert_host \
+      --db ssl:10.246.114.39:16642,ssl:10.246.114.15:16642,ssl:10.246.114.27:16642 \
+      show
 
 Data plane flow tracing
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code::
+SSH into one of the chassis units to get access to various diagnostic tools:
 
-   juju run --unit ovn-chassis/1 'ovs-vsctl show'
-   juju run --unit ovn-chassis/1 'ovs-ofctl dump-flows br-int'
-   juju run --unit ovn-chassis/1 'sudo ovs-appctl -t ovs-vswitchd \
-       ofproto/trace br-provider \
-       in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100'
+.. code-block:: none
+
+   juju ssh ovn-chassis/0
+
+   sudo ovs-vsctl show
+
+   sudo ovs-ofctl dump-flows br-int
+
+   sudo ovs-appctl -t ovs-vswitchd \
+      ofproto/trace br-provider \
+      in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100'
+
+   sudo ovn-trace \
+      -p /etc/ovn/key_host \
+      -C /etc/ovn/ovn-chassis.crt \
+      -c /etc/ovn/cert_host \
+      --db ssl:10.246.114.39:6642,ssl:10.246.114.15:6642,ssl:10.246.114.27:6642 \
+      --ovs ext-net 'inport=="provnet-dde76bc9-0620-44f7-b99a-99cfc66e1095" && \
+      eth.src==30:e1:71:5c:7a:b5 && \
+      eth.dst==fa:16:3e:f7:15:73 && \
+      ip4.src==10.172.193.250 && \
+      ip4.dst==10.246.119.8 && \
+      icmp4.type==8 && \
+      ip.ttl == 64'
 
 .. LINKS
 .. _Vault: app-vault
@@ -554,3 +632,4 @@ Data plane flow tracing
 .. _SR-IOV for networking support: app-ovn.html#sr-iov-for-networking-support
 .. _traffic control monitor: http://manpages.ubuntu.com/manpages/focal/man8/tc.8.html#monitor
 .. _data path control tools: http://manpages.ubuntu.com/manpages/focal/man8/ovs-dpctl.8.html
+.. _Clustered Database Service Model: http://docs.openvswitch.org/en/latest/ref/ovsdb.7/#clustered-database-service-model
