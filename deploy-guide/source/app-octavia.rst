@@ -1,8 +1,9 @@
+=========================
 Appendix H: Octavia LBaaS
 =========================
 
 Overview
-++++++++
+--------
 
 As of the 18.11 charm release, with OpenStack Rocky and later, OpenStack
 Octavia can be deployed to provide Load-balancing services as part of an
@@ -17,63 +18,82 @@ placed haproxy instances on neutron-gateway units.
 
 .. warning::
 
-    Octavia is only supported by the OpenStack Charms for OpenStack
-    Rocky or later.
+   Octavia is only supported by the OpenStack Charms for OpenStack
+   Rocky or later.
 
 .. warning::
 
-    There is no automatic migration path for Neutron LBaaS
-    haproxy-on-host configurations (as deployed under the existing
-    support) to Octavia Amphora configurations.  New load balancers
-    must be created in Octavia before the octavia charm is related
-    to the existing neutron-api charm.  Floating IP's can then be
-    moved prior to deletion of existing LBaaS based balancers.
+   There is no automatic migration path for Neutron LBaaS
+   haproxy-on-host configurations (as deployed under the existing
+   support) to Octavia Amphora configurations.  New load balancers
+   must be created in Octavia before the octavia charm is related
+   to the existing neutron-api charm.  Floating IP's can then be
+   moved prior to deletion of existing LBaaS based balancers.
 
 Deployment
-++++++++++
+----------
 
 Octavia makes use of OpenStack Barbican for storage of certificates for
 TLS termination on load balancers; Barbican makes use of Vault for secure
 storage of this data.  Follow the instructions for deployment and
-configuration of Vault in `Appendix C <./app-vault.html>`_ and then
-deploy Barbican:
+configuration of Vault in the `Vault`_ and `Certificate Lifecycle Management`_
+appendices and then deploy Barbican:
 
-.. code::
+.. code-block:: none
 
-    juju deploy barbican --config openstack-origin=cloud:bionic-rocky
-    juju deploy barbican-vault
-    juju add-relation barbican mysql
-    juju add-relation barbican rabbitmq-server
-    juju add-relation barbican keystone
-    juju add-relation barbican barbican-vault
-    juju add-relation barbican-vault vault
+   juju deploy barbican --config openstack-origin=cloud:bionic-rocky
+   juju deploy barbican-vault
+   juju add-relation barbican mysql
+   juju add-relation barbican rabbitmq-server
+   juju add-relation barbican keystone
+   juju add-relation barbican barbican-vault
+   juju add-relation barbican-vault vault
 
 Octavia can then be deployed:
 
-.. code::
+Neutron ML2+OVS
+~~~~~~~~~~~~~~~
 
-    juju deploy octavia --config openstack-origin=cloud:bionic-rocky
-    juju add-relation octavia rabbitmq-server
-    juju add-relation octavia mysql
-    juju add-relation octavia keystone
-    juju add-relation octavia neutron-openvswitch
-    juju add-relation octavia neutron-api
+.. code-block:: none
 
-    juju deploy octavia-dashboard
-    juju add-relation octavia-dashboard openstack-dashboard
+   juju deploy octavia --config openstack-origin=cloud:bionic-rocky
+   juju add-relation octavia rabbitmq-server
+   juju add-relation octavia mysql
+   juju add-relation octavia keystone
+   juju add-relation octavia neutron-openvswitch
+   juju add-relation octavia neutron-api
+
+   juju deploy octavia-dashboard
+   juju add-relation octavia-dashboard openstack-dashboard
+
+Neutron ML2+OVN
+~~~~~~~~~~~~~~~
+
+.. code-block:: none
+
+   juju deploy octavia --config openstack-origin=cloud:bionic-ussuri
+   juju add-relation octavia rabbitmq-server
+   juju add-relation octavia mysql
+   juju add-relation octavia keystone
+   juju add-relation octavia ovn-chassis
+   juju add-relation octavia neutron-api
+
+   juju deploy octavia-dashboard
+   juju add-relation octavia-dashboard openstack-dashboard
+
 
 .. note::
 
-    Octavia uses a Neutron network for communication between
-    Octavia control plane services and Octavia Amphorae; units will
-    deploy into a 'blocked' state until the configuration steps
-    are executed.
+   Octavia uses a Neutron network for communication between
+   Octavia control plane services and Octavia Amphorae; units will
+   deploy into a 'blocked' state until the configuration steps
+   are executed.
 
 Configuration
-+++++++++++++
+-------------
 
 Generate Certificates
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Octavia uses client certificates for authentication and security of
 communication between Amphorae (load balancers) and the Octavia
@@ -84,62 +104,62 @@ as configuration.
 The script below generates example certificates and keys with a 365
 day expiry period:
 
-.. code::
+.. code-block:: none
 
-    mkdir -p demoCA/newcerts
-    touch demoCA/index.txt
-    touch demoCA/index.txt.attr
-    openssl genrsa -passout pass:foobar -des3 -out issuing_ca_key.pem 2048
-    openssl req -x509 -passin pass:foobar -new -nodes -key issuing_ca_key.pem \
-        -config /etc/ssl/openssl.cnf \
-        -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
-        -days 365 \
-        -out issuing_ca.pem
+   mkdir -p demoCA/newcerts
+   touch demoCA/index.txt
+   touch demoCA/index.txt.attr
+   openssl genrsa -passout pass:foobar -des3 -out issuing_ca_key.pem 2048
+   openssl req -x509 -passin pass:foobar -new -nodes -key issuing_ca_key.pem \
+       -config /etc/ssl/openssl.cnf \
+       -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+       -days 365 \
+       -out issuing_ca.pem
 
-    openssl genrsa -passout pass:foobar -des3 -out controller_ca_key.pem 2048
-    openssl req -x509 -passin pass:foobar -new -nodes \
-            -key controller_ca_key.pem \
-        -config /etc/ssl/openssl.cnf \
-        -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
-        -days 365 \
-        -out controller_ca.pem
-    openssl req \
-        -newkey rsa:2048 -nodes -keyout controller_key.pem \
-        -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
-        -out controller.csr
-    openssl ca -passin pass:foobar -config /etc/ssl/openssl.cnf \
-        -cert controller_ca.pem -keyfile controller_ca_key.pem \
-        -create_serial -batch \
-        -in controller.csr -days 365 -out controller_cert.pem
-    cat controller_cert.pem controller_key.pem > controller_cert_bundle.pem
+   openssl genrsa -passout pass:foobar -des3 -out controller_ca_key.pem 2048
+   openssl req -x509 -passin pass:foobar -new -nodes \
+           -key controller_ca_key.pem \
+       -config /etc/ssl/openssl.cnf \
+       -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+       -days 365 \
+       -out controller_ca.pem
+   openssl req \
+       -newkey rsa:2048 -nodes -keyout controller_key.pem \
+       -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
+       -out controller.csr
+   openssl ca -passin pass:foobar -config /etc/ssl/openssl.cnf \
+       -cert controller_ca.pem -keyfile controller_ca_key.pem \
+       -create_serial -batch \
+       -in controller.csr -days 365 -out controller_cert.pem
+   cat controller_cert.pem controller_key.pem > controller_cert_bundle.pem
 
 
 The generated certs and keys must then be provided to the octavia charm:
 
-.. code::
+.. code-block:: none
 
-    juju config octavia \
-        lb-mgmt-issuing-cacert="$(base64 controller_ca.pem)" \
-        lb-mgmt-issuing-ca-private-key="$(base64 controller_ca_key.pem)" \
-        lb-mgmt-issuing-ca-key-passphrase=foobar \
-        lb-mgmt-controller-cacert="$(base64 controller_ca.pem)" \
-        lb-mgmt-controller-cert="$(base64 controller_cert_bundle.pem)"
+   juju config octavia \
+       lb-mgmt-issuing-cacert="$(base64 controller_ca.pem)" \
+       lb-mgmt-issuing-ca-private-key="$(base64 controller_ca_key.pem)" \
+       lb-mgmt-issuing-ca-key-passphrase=foobar \
+       lb-mgmt-controller-cacert="$(base64 controller_ca.pem)" \
+       lb-mgmt-controller-cert="$(base64 controller_cert_bundle.pem)"
 
 .. note::
 
-    Future versions of the charm may automatically generate the internal
-    Certification Authority required to operate Octavia.
+   Future versions of the charm may automatically generate the internal
+   Certification Authority required to operate Octavia.
 
 Resource Configuration
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 The charm will automatically create and maintain the resources required for
 operation of the Octavia service by running the `configure-resources` action
 on the lead octavia unit:
 
-.. code::
+.. code-block:: none
 
-    juju run-action --wait octavia/0 configure-resources
+   juju run-action --wait octavia/0 configure-resources
 
 This action must be run before Octavia is fully operational.
 
@@ -147,7 +167,7 @@ Access to the Octavia load-balancer API is guarded by policies and end users
 must have specific roles to gain access to the service.  The charm will request
 Keystone to pre-create these roles for you on deployment but you must assign the
 roles to your end users as you see fit.  Take a look at
-`Octavia Policies <https://docs.openstack.org/octavia/latest/configuration/policy.html>`_.
+`Octavia Policies`_.
 
 The charm also allows the operator to pre-configure these resources to support
 full custom configuration of the management network for Octavia. If you want
@@ -176,7 +196,7 @@ The UUID of the Nova flavor to use for Amphorae can be set using the
 `custom-amp-flavor-id` configuration option.
 
 Amphora image
--------------
+~~~~~~~~~~~~~
 
 Octavia uses Amphorae (cloud instances running HAProxy) to provide LBaaS services;
 an appropriate image must be uploaded to Glance with the tag `octavia-amphora`.
@@ -190,17 +210,17 @@ image store.
 
 Example usage:
 
-.. code::
+.. code-block:: none
 
-    juju deploy glance-simplestreams-sync \
-        --config source=ppa:simplestreams-dev/trunk
-    juju deploy octavia-diskimage-retrofit \
-        --config amp-image-tag=octavia-amphora
+   juju deploy glance-simplestreams-sync \
+       --config source=ppa:simplestreams-dev/trunk
+   juju deploy octavia-diskimage-retrofit \
+       --config amp-image-tag=octavia-amphora
 
-    juju add-relation glance-simplestreams-sync keystone
-    juju add-relation glance-simplestreams-sync rabbitmq-server
-    juju add-relation octavia-diskimage-retrofit glance-simplestreams-sync
-    juju add-relation octavia-diskimage-retrofit keystone
+   juju add-relation glance-simplestreams-sync keystone
+   juju add-relation glance-simplestreams-sync rabbitmq-server
+   juju add-relation octavia-diskimage-retrofit glance-simplestreams-sync
+   juju add-relation octavia-diskimage-retrofit keystone
 
 After the deployment has settled and ``glance-simplestreams-sync`` has
 completed its initial image sync, you may ask a ``octavia-diskimage-retrofit``
@@ -208,40 +228,40 @@ unit to initiate the Amphora image retrofitting process.
 
 This is accomplished through running an action on one of the units.
 
-.. code::
+.. code-block:: none
 
-    juju run-action --wait octavia-diskimage-retrofit/leader retrofit-image
+   juju run-action --wait octavia-diskimage-retrofit/leader retrofit-image
 
 Octavia will use this image for all Amphora instances.
 
 .. warning::
 
-    It's important to keep the Amphora image up-to-date to ensure that
-    LBaaS services remain secure; this process is not covered in this
-    document.
+   It's important to keep the Amphora image up-to-date to ensure that
+   LBaaS services remain secure; this process is not covered in this
+   document.
 
-    See the Octavia `operators maintenance <https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images>`_ guide for more details.
+   See the Octavia `operators maintenance`_ guide for more details.
 
 Usage
-+++++
+-----
 
 To deploy a basic HTTP load balancer using a floating IP for access:
 
-.. code::
+.. code-block:: none
 
-    lb_vip_port_id=$(openstack loadbalancer create -f value -c vip_port_id --name lb1 --vip-subnet-id private_subnet)
+   lb_vip_port_id=$(openstack loadbalancer create -f value -c vip_port_id --name lb1 --vip-subnet-id private_subnet)
 
-    # Re-run the following until lb1 shows ACTIVE and ONLINE status':
-    openstack loadbalancer show lb1
+   # Re-run the following until lb1 shows ACTIVE and ONLINE status':
+   openstack loadbalancer show lb1
 
-    openstack loadbalancer listener create --name listener1 --protocol HTTP --protocol-port 80 lb1
-    openstack loadbalancer pool create --name pool1 --lb-algorithm ROUND_ROBIN --listener listener1 --protocol HTTP
-    openstack loadbalancer healthmonitor create --delay 5 --max-retries 4 --timeout 10 --type HTTP --url-path /healthcheck pool1
-    openstack loadbalancer member create --subnet-id private_subnet --address 192.168.21.100 --protocol-port 80 pool1
-    openstack loadbalancer member create --subnet-id private_subnet --address 192.168.21.101 --protocol-port 80 pool1
+   openstack loadbalancer listener create --name listener1 --protocol HTTP --protocol-port 80 lb1
+   openstack loadbalancer pool create --name pool1 --lb-algorithm ROUND_ROBIN --listener listener1 --protocol HTTP
+   openstack loadbalancer healthmonitor create --delay 5 --max-retries 4 --timeout 10 --type HTTP --url-path /healthcheck pool1
+   openstack loadbalancer member create --subnet-id private_subnet --address 192.168.21.100 --protocol-port 80 pool1
+   openstack loadbalancer member create --subnet-id private_subnet --address 192.168.21.101 --protocol-port 80 pool1
 
-    floating_ip=$(openstack floating ip create -f value -c floating_ip_address ext_net)
-    openstack floating ip set --port $lb_vip_port_id $floating_ip
+   floating_ip=$(openstack floating ip create -f value -c floating_ip_address ext_net)
+   openstack floating ip set --port $lb_vip_port_id $floating_ip
 
 The example above assumes:
 
@@ -256,6 +276,12 @@ The example is also most applicable in cloud deployments which use overlay
 networking for project networks and floating IP's for network ingress to project
 networks.
 
-For more information on creating and configuring load balancing services in Octavia
-please refer to the
-`Octavia cookbook <https://docs.openstack.org/octavia/latest/user/guides/basic-cookbook.html>`_.
+For more information on creating and configuring load balancing services in
+Octavia please refer to the `Octavia cookbook`_.
+
+.. LINKS
+.. _Vault: app-vault
+.. _Certificate Lifecycle Management: app-certificate-management
+.. _Octavia Policies: https://docs.openstack.org/octavia/latest/configuration/policy.html
+.. _Octavia cookbook: https://docs.openstack.org/octavia/latest/user/guides/basic-cookbook.html
+.. _operators maintenance: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
