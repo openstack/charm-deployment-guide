@@ -592,7 +592,7 @@ SSH into one of the chassis units to get access to various diagnostic tools:
 
    sudo ovs-vsctl show
 
-   sudo ovs-ofctl dump-flows br-int
+   sudo ovs-ofctl -O OpenFlow13 dump-flows br-int
 
    sudo ovs-appctl -t ovs-vswitchd \
       ofproto/trace br-provider \
@@ -610,6 +610,16 @@ SSH into one of the chassis units to get access to various diagnostic tools:
       ip4.dst==10.246.119.8 && \
       icmp4.type==8 && \
       ip.ttl == 64'
+
+.. note::
+
+   OVN makes use of OpenFlow 1.3 or newer and as such the charm configures
+   bridges to use these protocols. To be able to successfully use the
+   :command:`ovs-ofctl` command you must specify the OpenFlow version as shown
+   in the example above.
+
+   You may issue the :command:`ovs-vsctl list bridge` command to show what
+   protocols are enabled on the bridges.
 
 .. LINKS
 .. _Vault: app-vault
