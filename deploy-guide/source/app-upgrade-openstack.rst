@@ -632,6 +632,18 @@ To disable TLS:
 
    juju config enforce-ssl=false openstack-dashboard
 
+
+Designate Upgrades to Train
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When upgrading Designate to Train, there is an encoding issue between the
+designate-producer and memcached that causes the designate-producer to crash.
+See bug `LP #1828534`_. This can be resolved by restarting the memcached service.
+
+.. code-block:: none
+
+   juju run --application=memcached 'sudo systemctl restart memcached'
+
 .. LINKS
 
 .. _Series upgrade: app-series-upgrade
@@ -646,3 +658,4 @@ To disable TLS:
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
 .. _LP #1809190: https://bugs.launchpad.net/charm-neutron-gateway/+bug/1809190
 .. _LP #1853173: https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1853173
+.. _LP #1828534: https://bugs.launchpad.net/charm-designate/+bug/1828534
