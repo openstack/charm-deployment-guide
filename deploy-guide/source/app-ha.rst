@@ -142,6 +142,8 @@ client-specified AZ during instance creation, one of these zones will be
 scheduled. When 'true', and MAAS is the backing cloud, this option overrides
 option ``default-availability-zone``.
 
+.. _ceph_az:
+
 Ceph AZ
 ^^^^^^^
 
