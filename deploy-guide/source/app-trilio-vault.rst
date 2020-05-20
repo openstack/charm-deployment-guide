@@ -60,24 +60,19 @@ overlay bundle:
    applications:
      trilio-data-mover:
        charm: cs:~openstack-charmers/trilio-data-mover
-       options:
-         triliovault-pkg-source: "deb [trusted=yes] https://apt.fury.io/triliovault-python3/ /"
      trilio-dm-api:
        charm: cs:~openstack-charmers/trilio-dm-api
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
-         triliovault-pkg-source: "deb [trusted=yes] https://apt.fury.io/triliovault-python3/ /"
      trilio-horizon-plugin:
-       charm: cs:~openstack-charmers-next/trilio-horizon-plugin
+       charm: cs:~openstack-charmers/trilio-horizon-plugin
        options:
-         triliovault-pkg-source: "deb [trusted=yes] https://apt.fury.io/triliovault-python3/ /"
      trilio-wlm:
        charm: cs:~openstack-charmers/trilio-wlm
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
-         triliovault-pkg-source: "deb [trusted=yes] https://apt.fury.io/triliovault-python3/ /"
    relations:
      - - trilio-horizon-plugin:dashboard-plugin
        - openstack-dashboard:dashboard-plugin
