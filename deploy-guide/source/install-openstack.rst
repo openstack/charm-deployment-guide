@@ -269,7 +269,7 @@ charm (it will be installed on a machine once its relation is added):
 
 .. code-block:: none
 
-   juju deploy neutron-openvswitch --config neutron.yaml
+   juju deploy neutron-openvswitch
 
 Three relations need to be added:
 
