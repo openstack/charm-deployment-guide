@@ -222,7 +222,8 @@ machine 1/lxd/0 (the principle leader machine).
    provided by hacluster will **not** be monitored during the series upgrade
    due to the pausing of units.
 
-#. Perform a backup of percona-cluster and transfer it to a secure location:
+#. Perform any workload maintenance pre-upgrade steps. For percona-cluster,
+   take a backup and transfer it to a secure location:
 
    .. code-block:: none
 
@@ -253,19 +254,21 @@ machine 1/lxd/0 (the principle leader machine).
       juju run-action --wait percona-cluster/0 pause
       juju run-action --wait percona-cluster/2 pause
 
+   For percona-cluster, leaving the principle leader unit up will ensure it
+   has the latest MySQL sequence number; it will be considered the most up to
+   date cluster member.
+
 #. Perform a series upgrade on the principle leader machine:
 
    .. code-block:: none
 
-      # Perform any workload maintenance pre-upgrade steps here
       juju upgrade-series 1/lxd/0 prepare bionic
       juju run --machine=1/lxd/0 -- sudo apt update
       juju ssh 1/lxd/0 sudo apt full-upgrade
       juju ssh 1/lxd/0 sudo do-release-upgrade
-      # Perform any workload maintenance post-upgrade steps here
 
-   There are no pre-upgrade nor post-upgrade workload maintenance steps to
-   perform; the prompt to reboot can be answered in the affirmative.
+   For percona-cluster, there are no post-upgrade steps; the prompt to reboot
+   can be answered in the affirmative.
 
 #. Set the value of the ``source`` configuration option to 'distro':
 
@@ -305,6 +308,9 @@ machine 1/lxd/0 (the principle leader machine).
       1/lxd/0  started  10.0.0.48  juju-f83fcd-1-lxd-0  bionic  zone2  Running
       2        started  10.0.0.46  node3                xenial  zone3  Deployed
       2/lxd/0  started  10.0.0.49  juju-f83fcd-2-lxd-0  xenial  zone3  Container started
+
+#. For percona-cluster, a sanity check should be done on the leader unit's
+   databases and data.
 
 #. Repeat steps 5 and 7 for the principle non-leader machines.
 
