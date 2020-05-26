@@ -21,8 +21,8 @@ Software versions used in this guide are as follows:
 * **Ubuntu 18.04 LTS** (Bionic) for the MAAS system, its cluster nodes, and all
   cloud nodes
 * **MAAS 2.6.2**
-* **Juju 2.7.6**
-* **OpenStack Ussuri**
+* **Juju 2.7.0**
+* **OpenStack Train**
 
 .. note::
 
