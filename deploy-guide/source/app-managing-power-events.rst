@@ -260,6 +260,12 @@ shutdown list. Finally, once the nodes are powered on, by abiding as much as
 possible to the startup list, act on any verification steps found in section
 `Notable applications`_ for all cloud services.
 
+.. important::
+
+   To prevent affected machines from turning back on automatically, and thus
+   interfering with the startup procedures for your cloud, it is recommended to
+   disable the auto-poweron BIOS setting on all cloud nodes.
+
 Notable applications
 ++++++++++++++++++++
 
