@@ -724,6 +724,15 @@ are working nova-compute and vault applications.
    juju add-relation ovn-chassis:certificates vault:certificates
    juju add-relation ovn-chassis:nova-compute nova-compute:neutron-plugin
 
+Finally, you will need to provide an SSL certificate. This can be done by
+having Vault use a self-signed certificate or by using a certificate chain.
+We'll do the former here for simplicity but see `Certificate lifecycle
+management`_ for how to use a chain.
+
+.. code-block:: none
+
+   juju run-action --wait vault/leader generate-root-ca
+
 Here is select output from the :command:`juju status` command for a minimal
 deployment of OVN with MySQL 8:
 
@@ -805,6 +814,7 @@ Charms`_ project group.
 .. _Clustered Database Service Model: http://docs.openvswitch.org/en/latest/ref/ovsdb.7/#clustered-database-service-model
 .. _Raft algorithm: https://raft.github.io/
 .. _Ceph bucket type: https://docs.ceph.com/docs/master/rados/operations/crush-map/#types-and-buckets
+.. _Certificate lifecycle management: app-certificate-management
 
 .. BUGS
 .. _LP #1234561: https://bugs.launchpad.net/charm-ceph-osd/+bug/1234561
