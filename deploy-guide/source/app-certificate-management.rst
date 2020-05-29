@@ -1,23 +1,24 @@
+============================================
 Appendix E: Certificate Lifecycle Management
 ============================================
 
 Overview
-++++++++
+--------
 
-As of the 18.05 release, the OpenStack charms preview using Vault for the
-provisioning of TLS certificates. Currently, the only supported workflow is for
-Vault to generate a certificate signing request for an intermediate
-certificate authority. This csr then needs to be signed by an external ca, the
-signed certificate is then uploaded to Vault along with the root certificate.
+The preferred way to provide your charmed OpenStack deployment with
+certificates for enabling transport layer security (TLS) is to add a
+certificate authority to your model. The charms consume the certificates
+through the `tls-certificates relation`_ and we do our validation using the
+`Vault charm`_.
 
 Vault
-+++++
+-----
 
 See `Appendix C Vault <./app-vault.html>`__
 
 
 Enabling Vault Certificate Management
-+++++++++++++++++++++++++++++++++++++
+-------------------------------------
 
 OpenStack charms providing an API service have a new 'certificates' relation.
 Adding this relation will trigger the OpenStack charm to request
@@ -34,9 +35,34 @@ updated.
     juju add-relation neutron-api:certificates vault:certificates
     ...
 
+Adding a Certificate Authority (CA) certificate to Vault
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Vault to be able to issue certificates on your behalf you must equip it
+with a CA certificate.
+
+You can either add your own intermediate CA certificate to Vault or have Vault
+generate a self-signed root CA certificate for you.
+
+Generate self-signed root CA certifitcate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To have Vault generate a self-signed root CA certificate for you:
+
+.. code-block:: none
+
+   juju run-action --wait vault/leader generate-root-ca
+
+Add your own intermediate CA certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Currently, the only supported workflow is for Vault to generate a Certificate
+Signing Request (CSR) for an intermediate CA. This CSR then needs to be signed
+by an external CA. The resulting signed intermediate CA certificate is then
+uploaded to Vault along with any certificates to support the certificate chain.
 
 Retrieve CSR from Vault
-~~~~~~~~~~~~~~~~~~~~~~~
+.......................
 
 Run the *get-csr* action against the lead unit of the vault application:
 
@@ -74,7 +100,7 @@ Retrieve the CSR from the action output and place it in a file, removing any
 leading whitespace.
 
 Sign CSR
-~~~~~~~~
+........
 
 The exact command from signing the CSR will depend on the setup of the
 external CA. Below is an example:
@@ -89,7 +115,7 @@ external CA. Below is an example:
 get-csr actions and specify the mismatched items*
 
 Upload signed CSR and root CA cert to vault
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+...........................................
 
 (Where /tmp/root-ca.pem is the root ca cert)
 
@@ -163,3 +189,5 @@ must be run on the lead unit.
 .. LINKS
 .. _RFC5280: https://tools.ietf.org/html/rfc5280#section-3.2
 .. _RFC7468: https://tools.ietf.org/html/rfc7468#section-5
+.. _tls-certificates relation: https://github.com/juju-solutions/interface-tls-certificates#readme
+.. _Vault charm: https://jaas.ai/vault/
