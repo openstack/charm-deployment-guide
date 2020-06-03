@@ -541,7 +541,7 @@ that any existing volumes are in (see above):
 
 .. code-block:: none
 
-   juju deploy --config rbd-pool-name=cinder cs:~openstack-charmers-next/cinder-ceph
+   juju deploy --config rbd-pool-name=cinder cinder-ceph
    juju add-relation cinder cinder-ceph
    juju add-relation cinder-ceph ceph-mon
    juju remove-relation cinder ceph-mon
