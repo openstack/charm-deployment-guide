@@ -303,6 +303,11 @@ An error will occur if:
 * ``dns-ha`` is set and none of ``os-admin-hostname``,
   ``os-internal-hostname``, or ``os-public-hostname`` are set
 
+.. caution::
+
+   DNS HA has been reported to not work on the focal series. See `LP #1882508`_
+   for more information.
+
 Deployment of HA applications
 -----------------------------
 
@@ -818,3 +823,4 @@ Charms`_ project group.
 
 .. BUGS
 .. _LP #1234561: https://bugs.launchpad.net/charm-ceph-osd/+bug/1234561
+.. _LP #1882508: https://bugs.launchpad.net/charm-deployment-guide/+bug/1882508

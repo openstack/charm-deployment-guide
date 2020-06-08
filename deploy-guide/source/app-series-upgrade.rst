@@ -22,10 +22,10 @@ that describes the process in more detail.
 Concerning the cloud being operated upon, the following is assumed:
 
 * It is being upgraded from one LTS series to another (e.g. xenial to
-  bionic, bionic to focal, etc.)
+  bionic, bionic to focal, etc.).
 * Its nodes are backed by MAAS.
-* Its services are highly available
-* It is being upgraded with minimal downtime
+* Its services are highly available.
+* It is being upgraded with minimal downtime.
 
 .. warning::
 
@@ -137,6 +137,19 @@ is no longer supported on the new operating system). Any core OpenStack charms
 affected in this way will be documented below.
 
 * :ref:`percona-cluster charm: series upgrade to Focal <percona_series_upgrade_to_focal>`
+
+Known series-related issues
+---------------------------
+
+Ensure that your deployment will not be adversely affected by known
+series-related problems when upgrading. The following issues have been flagged
+for consideration.
+
+DNS HA with the focal series
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DNS HA has been reported to not work on the focal series. See `LP #1882508`_
+for more information.
 
 .. _workload_specific_preparations:
 
@@ -336,3 +349,6 @@ appendix :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>`.
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
 .. _Application leadership: https://juju.is/docs/implementing-leadership
 .. _ubuntu: https://jaas.ai/ubuntu
+
+.. BUGS
+.. _LP #1882508: https://bugs.launchpad.net/charm-deployment-guide/+bug/1882508
