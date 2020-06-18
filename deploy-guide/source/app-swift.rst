@@ -339,7 +339,7 @@ This is the contents of bundle ``swift-ny.yaml``:
          block-device: /etc/swift/storage.img|2G
          openstack-origin: cloud:bionic-train
      percona-cluster:
-       charm: cs:~openstack-charmers-next/percona-cluster
+       charm: cs:percona-cluster
        num_units: 1
        options:
          dataset-size: 25%
@@ -347,13 +347,13 @@ This is the contents of bundle ``swift-ny.yaml``:
          source: cloud:bionic-train
      keystone:
        expose: True
-       charm: cs:~openstack-charmers-next/keystone
+       charm: cs:keystone
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
      glance:
        expose: True
-       charm: cs:~openstack-charmers-next/glance
+       charm: cs:glance
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
