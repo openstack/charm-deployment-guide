@@ -102,6 +102,44 @@ encountered problem will surface as a message in its output. This sample
 This shows that the charm now has a revision number of '309' but Keystone
 itself remains at '15.0.0'.
 
+Upgrade target revisions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default the :command:`upgrade-charm` command will upgrade a charm to its
+latest stable revision (a possible multi-step upgrade). This means that
+intervening revisions can be conveniently skipped. Use the ``--revision``
+option to specify a target revision.
+
+The current revision can be discovered via :command:`juju status` output (see
+column 'Rev'). For the ceph-mon charm:
+
+.. code-block:: console
+
+   App       Version  Status  Scale  Charm     Store       Rev  OS      Notes
+   ceph-mon  13.2.8   active      3  ceph-mon  jujucharms   48  ubuntu
+
+The latest available stable revision of a charm can be obtained by querying the
+Charm Store with the :command:`charm` snap:
+
+.. code-block:: none
+
+   sudo snap install charm --classic
+   charm pull ceph-mon
+
+Sample output:
+
+.. code-block:: console
+
+   cs:ceph-mon-48
+
+Based on the above, the ceph-mon charm does not require an upgrade.
+
+.. important::
+
+   As stated earlier, any kind of upgrade should first be tested in a
+   pre-production environment. OpenStack charm upgrades have been tested for
+   single-step upgrades only (N+1).
+
 OpenStack upgrades
 ------------------
 
