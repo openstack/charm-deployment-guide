@@ -1,5 +1,6 @@
+=================
 Appendix C: Vault
-==============================
+=================
 
 Overview
 ++++++++
@@ -109,11 +110,10 @@ environment variable each time to point at the individual units.
     vault operator unseal djvVAAste0F5iSe43nmBs2ZX5r+wUqHe4UfUrcprWkyM
     vault operator unseal iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
 
-
 Authorize vault charm
 ~~~~~~~~~~~~~~~~~~~~~
 
-vault is now ready for use - however the charm needs to be authorized
+Vault is now ready for use - however the charm needs to be authorized
 using a root token to be able to create secrets storage back-ends and
 roles to allow other applications to access vault for encryption key
 storage.
@@ -148,6 +148,19 @@ Vault:
 After the action completes execution, the vault unit will go active
 and any pending requests for secrets storage will be processed for
 consuming applications.
+
+Managing TLS certificates
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vault can be used to manage a deployment's TLS certificates, either by basing
+them on a self-signed CA certificate (that Vault can generate by itself) or on
+a third-party CA certificate that you can upload to Vault. It is the
+recommended way to use TLS in Charmed OpenStack. This topic is covered on the
+`Certificate lifecycle management`_ page.
+
+.. note::
+
+   The OVN charms require TLS certificates to be managed by Vault.
 
 Enabling HA
 ~~~~~~~~~~~
@@ -239,3 +252,6 @@ and the appropriate unseal keys):
     vault operator unseal iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
 
 The ``juju status`` command will return: ``active, Unit is ready...``
+
+.. LINKS
+.. _Certificate lifecycle management: app-certificate-management.html
