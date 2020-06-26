@@ -317,6 +317,10 @@ non-interactive mode is preferred, those two lines can be replaced with:
 The :command:`apt-get` command is preferred while in non-interactive mode (or
 with scripting).
 
+By default, an LTS release will not have an upgrade candidate until the "point
+release" of the next LTS is published. You can override this policy by using
+the ``-d`` (development) option with the ``do-release-upgrade`` command.
+
 .. caution::
 
    Performing a series upgrade non-interactively can be risky so the decision
