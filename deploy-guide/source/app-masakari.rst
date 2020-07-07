@@ -1,301 +1,505 @@
-Appendix L: Automated Instance Recovery
-=======================================
+====================
+Appendix L: Masakari
+====================
 
 Overview
-++++++++
+--------
 
-As of the 19.04 charm release, with OpenStack Stein and later, Masakari can be
-a deployed to provide automated instance recovery for guests using shared
-storage. Masakari responds to two different failures types, individual guest
-failure and the loss of an entire compute node.
+As of the 20.05 charm release, Masakari can be deployed to provide automated
+instance recovery for clouds that use shared storage for its instances. The
+following functionality is provided:
 
-.. warning::
+#. **Evacuation of instances** (supported since OpenStack Stein)
 
-    These charms bring forward upstream Masakari features which need to be
-    carefully considered and pre-validated in test labs by cloud operators.
-    Further upstream Masakari development, charm feature work and scenario
-    validation is likely going to be necessary before the solution can be
-    considered mature on the whole.
+   In the event of hypervisor software failure the associated compute node is
+   shut down and instance images are started on another hypervisor.
 
-STONITH
-+++++++
+#. **Restarting of instances** (supported since OpenStack Ussuri)
 
-It is important that guests using shared storage cannot continue to run in the
-event of a compute node becoming isolated. The risk being that masakari
-attempts to bring the same guest up on a new compute node when the old one
-is still running which could lead to data corruption. To ensure that this does
-not occur stonith can be setup for the compute nodes. For stonith to be
-configured the **maas_url** and **maas_credentials** config option must be
-set in the hacluster charm related to the masakari charm. Also the
-**enable-stonith** config option should be set to **True** in the
-pacemaker-remote charm.
+   A failed instance can be restarted on its current hypervisor.
+
+See the `Masakari charm`_ for an overview of the charms involved.
+
+.. note::
+
+   `MAAS`_ is required when enabling Masakari on Charmed OpenStack.
+
+Software
+--------
+
+Install the software necessary for configuring Masakari:
+
+.. code-block:: none
+
+   sudo snap install openstackclients
+
+Verify that the ``segment`` sub-command is available (this is provided by the
+``python-masakariclient`` plugin):
+
+.. code-block:: none
+
+   openstack segment --help
+
+.. important::
+
+   If the ``segment`` sub-command is not available you will need a more recent
+   version of the ``openstackclients`` snap. For example, you may need to use
+   the 'edge' channel: :command:`sudo snap refresh openstackclients
+   --channel=edge`.
+
+Instance evacuation mechanics
+-----------------------------
+
+In order for an instance to be relocated to another hypervisor some form of
+shared storage must be implemented. As a result, the scenario where a
+hypervisor has lost network access to its peers yet continues to access that
+shared storage must be considered.
+
+The mechanics of instance evacuation is now described:
+
+Masakari Monitors, on a peer hypervisor, detects that its peer is unavailable
+and notifies the Masakari API server. This in turn triggers the Masakari engine
+to initiate a failover of the instance via Nova. Assuming that Nova concurs
+that the hypervisor is absent, it will attempt to start the instance on another
+hypervisor. At this point there are two instances competing for the same disk
+image, which can lead to data corruption.
+
+The solution is to enable a STONITH Pacemaker plugin, which will power off the
+compute node via the MAAS API when Pacemaker detects the hypervisor as being
+offline.
+
+.. caution::
+
+   Since nova-compute is typically deployed on bare metal, which may host
+   containerised applications and possibly even applications alongside
+   nova-compute (e.g. ceph-osd), care is advised when designing a cloud with
+   Masakari to avoid a powered-off compute node from disrupting crucial non-HA
+   cloud services.
+
+   Ensure that Masakari functionality has been fully validated in a staging
+   environment prior to using it in production.
+
+Usage
+-----
+
+Configuration
+~~~~~~~~~~~~~
+
+The below overlay bundle can be used to deploy Masakari when using a bundle to
+deploy OpenStack.
+
+Ensure that the ``machines`` section and the placement directives (i.e. the
+``to`` option under the masakari application) can co-exist with your OpenStack
+bundle.
+
+Provide values for the ``maas_url``, ``maas_credentials``, and ``vip``
+hacluster charm options . A VIP is a virtual IP needed for Masakari to enable
+HA (a requirement when using the masakari charm). If multiple networks are
+used, multiple (space separated) VIPs should be provided. See `OpenStack high
+availability`_ for HA guidance.
+
+Enable STONITH via the ``enable-stonith`` pacemaker-remote charm option.
+
+Provide values for the ``binding`` (network spaces) masakari charm option
+according to your local environment. For simplicity (or for testing), the same
+network space can be used for all Masakari bindings.
+
+.. code-block:: yaml
+
+   machines:
+     '0':
+       series: bionic
+     '1':
+       series: bionic
+     '2':
+       series: bionic
+     '3':
+       series: bionic
+   relations:
+   - - nova-compute:juju-info
+     - masakari-monitors:container
+   - - masakari:ha
+     - hacluster:ha
+   - - keystone:identity-credentials
+     - masakari-monitors:identity-credentials
+   - - nova-compute:juju-info
+     - pacemaker-remote:juju-info
+   - - hacluster:pacemaker-remote
+     - pacemaker-remote:pacemaker-remote
+   - - masakari:identity-service
+     - keystone:identity-service
+   - - masakari:shared-db
+     - mysql:shared-db
+   - - masakari:amqp
+     - rabbitmq-server:amqp
+   series: bionic
+   applications:
+     masakari-monitors:
+       charm: cs:masakari-monitors
+     hacluster:
+       charm: cs:hacluster
+       options:
+         maas_url: <INSERT MAAS URL>
+         maas_credentials: <INSERT MAAS API KEY>
+     pacemaker-remote:
+       charm: cs:pacemaker-remote
+       options:
+         enable-stonith: True
+         enable-resources: False
+     masakari:
+       charm: cs:masakari
+       series: bionic
+       num_units: 3
+       options:
+         openstack-origin: cloud:bionic-stein
+         vip: <INSERT VIP(S)>
+       bindings:
+         public: public
+         admin: admin
+         internal: internal
+         shared-db: internal
+         amqp: internal
+       to:
+       - 'lxd:1'
+       - 'lxd:2'
+       - 'lxd:3'
 
 Deployment
-++++++++++
+~~~~~~~~~~
 
-Three new charms are needeed to deploy this solution: masakari,
-masakari-monitors and pacemaker-remote. The masakari charm provides api
-services and is a principal or standalone charm. The masakari-monitors charm is
-deployed as a subordinate to the nova-compute charm as it monitors
-nova-compute directly and sends messages to the masakari API charm. The
-pacemaker-remote charm is also a subordinate to the nova-compute charm and is
-required to monitor the compute nodes health.
+To deploy Masakari during the deployment of a new cloud (e.g. via the
+`openstack-base`_ bundle):
 
-Below is an overlay which can be used to add masakari to an existing
-deployment:
+.. code-block:: none
 
-.. code::
+   juju deploy ./bundle.yaml --overlay masakari-overlay.yaml
 
-    machines:
-      '0':
-        series: bionic
-      '1':
-        series: bionic
-      '2':
-        series: bionic
-      '3':
-        series: bionic
-    relations:
-    - - nova-compute:juju-info
-      - masakari-monitors:container
-    - - masakari:ha
-      - hacluster:ha
-    - - keystone:identity-credentials
-      - masakari-monitors:identity-credentials
-    - - nova-compute:juju-info
-      - pacemaker-remote:juju-info
-    - - hacluster:pacemaker-remote
-      - pacemaker-remote:pacemaker-remote
-    - - masakari:identity-service
-      - keystone:identity-service
-    - - masakari:shared-db
-      - mysql:shared-db
-    - - masakari:amqp
-      - rabbitmq-server:amqp
-    series: bionic
-    applications:
-      masakari-monitors:
-        charm: cs:masakari-monitors
-      hacluster:
-        charm: cs:hacluster
-        options:
-          maas_url: <INSERT MAAS URL>
-          maas_credentials: <INSERT MAAS API KEY>
-      pacemaker-remote:
-        charm: cs:pacemaker-remote
-        options:
-          enable-stonith: True
-          enable-resources: False
-      masakari:
-        charm: cs:masakari
-        series: bionic
-        num_units: 3
-        options:
-          openstack-origin: cloud:bionic-stein
-          vip: <INSERT VIP(S)>
-        bindings:
-          public: public
-          admin: admin
-          internal: internal
-          shared-db: internal
-          amqp: internal
-        to:
-        - 'lxd:1'
-        - 'lxd:2'
-        - 'lxd:3'
+To add Masakari to an existing deployment (i.e. the Juju model has pre-existing
+machines) the ``--map-machines`` option should be used.
 
-.. warning::
+The cloud should then be configured for usage. See `Configure OpenStack`_ for
+assistance.
 
-    The bundle above with need customising to correct maas_url,
-    maas_credentials and vip settings. The machine mappings will almost
-    certainly need updating too.
+For the purposes of this document the below hypervisors are presumed:
 
-To use the overlay with an existing model remember to use the
-**--map-machines** switch to juju
+.. code-block:: console
 
-.. code::
+   +-------------------+---------+-------+
+   | Host              | Status  | State |
+   +-------------------+---------+-------+
+   | virt-node-01.maas | enabled | up    |
+   | virt-node-10.maas | enabled | up    |
+   | virt-node-02.maas | enabled | up    |
+   +-------------------+---------+-------+
 
-    $ juju deploy base.yaml --overlay masakari-overlay.yaml --map-machines=existing
+In addition let us assume that instance 'bionic-1' now resides on host
+'virt-node-02.maas':
 
-Configuring Masakari
-++++++++++++++++++++
+.. code-block:: console
 
-In Masakari the compute nodes are grouped into failover segments. In the event
-of a failure guests are moved onto other nodes within the same segment. Which
-compute node is chosen to house the evacuated guests is determined by the
-recovery method of that segment.
+   +----------------------+-------------------+
+   | Field                | Value             |
+   +----------------------+-------------------+
+   | OS-EXT-SRV-ATTR:host | virt-node-02.maas |
+   +----------------------+-------------------+
 
-'AUTO' Recovery Method
-----------------------
+The above information was obtained by the following two commands,
+respectively:
 
-With auto recovery the guests are relocated to any of the available nodes in
-the same segment. The problem with this approach is that there is no guarantee
-that resources will be available to accommodate guests from a failed compute
-node.
+.. code-block:: none
 
-To configure a group of compute hosts for auto recovery, first create a segment
-with the recovery method set to auto:
+   openstack compute service list -c Host -c Status -c State --service nova-compute
+   openstack server show bionic-1 -c OS-EXT-SRV-ATTR:host
 
-.. code::
+Instance evacuation recovery methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    $ openstack segment create segment1 auto COMPUTE
-    +-----------------+--------------------------------------+
-    | Field           | Value                                |
-    +-----------------+--------------------------------------+
-    | created_at      | 2019-04-12T13:59:50.000000           |
-    | updated_at      | None                                 |
-    | uuid            | 691b8ef3-7481-48b2-afb6-908a98c8a768 |
-    | name            | segment1                             |
-    | description     | None                                 |
-    | id              | 1                                    |
-    | service_type    | COMPUTE                              |
-    | recovery_method | auto                                 |
-    +-----------------+--------------------------------------+
+With Masakari, compute nodes are grouped into failover segments. In the event
+of a compute node failure, that node's instances are moved onto another compute
+node within the same segment.
 
+The destination node is determined by the recovery method configured for the
+affected segment. There are four methods:
 
-Next the hypervisors need to be added into the segment, these should be
-referenced by their unqualified hostname:
+* ``reserved_host``
+* ``auto``
+* ``rh_priority``
+* ``auto_priority``
 
-.. code::
+A compute node failure can be simulated by bringing down its primary network
+interface. For example, to bring down a node that corresponds to unit
+``nova-compute/2``:
 
-    $ openstack segment host create tidy-goose COMPUTE SSH 691b8ef3-7481-48b2-afb6-908a98c8a768
-    +---------------------+--------------------------------------+
-    | Field               | Value                                |
-    +---------------------+--------------------------------------+
-    | created_at          | 2019-04-12T14:18:24.000000           |
-    | updated_at          | None                                 |
-    | uuid                | 11b85c9d-2b97-4b83-b773-0e9565e407b5 |
-    | name                | tidy-goose                           |
-    | type                | COMPUTE                              |
-    | control_attributes  | SSH                                  |
-    | reserved            | False                                |
-    | on_maintenance      | False                                |
-    | failover_segment_id | 691b8ef3-7481-48b2-afb6-908a98c8a768 |
-    +---------------------+--------------------------------------+
+.. code-block:: none
 
-Repeat above for all remaining hypervisors:
+   juju run --unit nova-compute/2 sudo ip link set br-ens3 down
 
+'reserved_host'
+^^^^^^^^^^^^^^^
 
-.. code::
+The ``reserved_host`` recovery method relocates instances to a subset of
+non-active nodes. Because these nodes are not active and are typically
+resourced adequately for failover duty, there is a guarantee that sufficient
+resources will exist on a reserved node to accommodate migrated instances.
 
-    $ openstack segment host list 691b8ef3-7481-48b2-afb6-908a98c8a768
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | uuid                                 | name       | type    | control_attributes | reserved | on_maintenance | failover_segment_id                  |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | 75afadbb-67cc-47b2-914e-e3bf848028e4 | frank-colt | COMPUTE | SSH                | False    | False          | 691b8ef3-7481-48b2-afb6-908a98c8a768 |
-    | 11b85c9d-2b97-4b83-b773-0e9565e407b5 | tidy-goose | COMPUTE | SSH                | False    | False          | 691b8ef3-7481-48b2-afb6-908a98c8a768 |
-    | f1e9b0b4-3ac9-4f07-9f83-5af2f9151109 | model-crow | COMPUTE | SSH                | False    | False          | 691b8ef3-7481-48b2-afb6-908a98c8a768 |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
+For example, to create segment 'S1', configure it to use the ``reserved_host``
+method, and assign it three compute nodes, with one being tagged as a reserved
+node:
 
-'RESERVED_HOST' Recovery Method
--------------------------------
+.. code-block:: none
 
-With reserved_host recovery compute hosts are allocated as reserved which
-allows an operator to guarantee there is sufficient capacity available for any
-guests in need of evacuation.
+   openstack segment create S1 reserved_host COMPUTE
+   openstack segment host create virt-node-10.maas COMPUTE SSH S1
+   openstack segment host create virt-node-02.maas COMPUTE SSH S1
+   openstack segment host create --reserved True virt-node-01.maas COMPUTE SSH S1
 
-Firstly create a segment with the reserved_host recovery method:
+View the details of a segment:
 
-.. code::
+.. code-block:: none
 
-    $ openstack segment create segment1 reserved_host COMPUTE -c uuid -f value
-    2598f8aa-3612-4731-9716-e126ca6cc280
+   openstack segment list
 
+Sample output:
 
-Add a host using the --reserved switch to indicate that it will act as a
-standby:
+.. code-block:: console
 
-.. code::
+   +--------------------------------------+------+-------------+--------------+-----------------+
+   | uuid                                 | name | description | service_type | recovery_method |
+   +--------------------------------------+------+-------------+--------------+-----------------+
+   | 3af6dfe7-1619-486f-a2c6-8453488c6a66 | S2   | None        | COMPUTE      | auto            |
+   +--------------------------------------+------+-------------+--------------+-----------------+
 
-    $ openstack segment host create model-crow --reserved True COMPUTE SSH 2598f8aa-3612-4731-9716-e126ca6cc280
+A segment's hosts can be listed like this:
 
+.. code-block:: none
 
-Add the remaining hypervisors as before:
+   openstack segment host list -c name -c reserved -c on_maintenance S2
 
-.. code::
+The output should show a value of 'True' in the 'reserved' column for the
+appropriate node:
 
-    $ openstack segment host create frank-colt COMPUTE SSH 2598f8aa-3612-4731-9716-e126ca6cc280
-    $ openstack segment host create tidy-goose COMPUTE SSH 2598f8aa-3612-4731-9716-e126ca6cc280
+.. code-block:: console
 
+   +-------------------+----------+----------------+
+   | name              | reserved | on_maintenance |
+   +-------------------+----------+----------------+
+   | virt-node-01.maas | True     | False          |
+   | virt-node-10.maas | False    | False          |
+   | virt-node-02.maas | False    | False          |
+   +-------------------+----------+----------------+
 
-Listing the segment hosts shows that model-crow is a reserved host:
+Finally, disable the reserved node in Nova so that it becomes non-active, and
+thus available for failover:
 
-.. code::
+.. code-block:: none
 
-    $ openstack segment host list 2598f8aa-3612-4731-9716-e126ca6cc280
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | uuid                                 | name       | type    | control_attributes | reserved | on_maintenance | failover_segment_id                  |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | 4769e08c-ed52-440a-866e-832b977aa5e2 | tidy-goose | COMPUTE | SSH                | False    | False          | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    | 90aedbd2-e03b-4dbd-b330-a1c848f300df | frank-colt | COMPUTE | SSH                | False    | False          | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    | c77574cc-b6e7-440e-9c86-84e91981f15e | model-crow | COMPUTE | SSH                | True     | False          | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
+   openstack compute service set --disable virt-node-01.maas nova-compute
 
-Finally disable the reserved host in nova so that it remains available for
-failover:
+The cloud's compute node list should show a status of 'disabled' for the
+appropriate node:
 
-.. code::
+.. code-block:: console
 
-    $ openstack compute service set --disable model-crow nova-compute
-    $ openstack compute service list
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
-    | ID | Binary         | Host                | Zone     | Status   | State | Updated At                 |
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
-    |  1 | nova-scheduler | juju-44b912-3-lxd-3 | internal | enabled  | up    | 2019-04-13T10:59:10.000000 |
-    |  5 | nova-conductor | juju-44b912-3-lxd-3 | internal | enabled  | up    | 2019-04-13T10:59:08.000000 |
-    |  7 | nova-compute   | tidy-goose          | nova     | enabled  | up    | 2019-04-13T10:59:11.000000 |
-    |  8 | nova-compute   | frank-colt          | nova     | enabled  | up    | 2019-04-13T10:59:05.000000 |
-    |  9 | nova-compute   | model-crow          | nova     | disabled | up    | 2019-04-13T10:59:12.000000 |
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
+   +-------------------+----------+-------+
+   | Host              | Status   | State |
+   +-------------------+----------+-------+
+   | virt-node-01.maas | disabled | up    |
+   | virt-node-10.maas | enabled  | up    |
+   | virt-node-02.maas | enabled  | up    |
+   +-------------------+----------+-------+
 
-When a compute node failure is detected, masakari will disable the failed node
-and enable the reserve node in nova. After simulating a failure of frank-colt
-the service list now looks like this:
+When a compute node failure is detected, Masakari will, in Nova, disable the
+failed node and enable a reserved node. The state of the node should also show
+as 'down'.
 
-.. code::
+Presuming that node 'virt-node-02.maas' has failed the cloud's compute node
+list should become:
 
-    $ openstack compute service list
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
-    | ID | Binary         | Host                | Zone     | Status   | State | Updated At                 |
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
-    |  1 | nova-scheduler | juju-44b912-3-lxd-3 | internal | enabled  | up    | 2019-04-13T11:05:20.000000 |
-    |  5 | nova-conductor | juju-44b912-3-lxd-3 | internal | enabled  | up    | 2019-04-13T11:05:28.000000 |
-    |  7 | nova-compute   | tidy-goose          | nova     | enabled  | up    | 2019-04-13T11:05:21.000000 |
-    |  8 | nova-compute   | frank-colt          | nova     | disabled | down  | 2019-04-13T11:03:56.000000 |
-    |  9 | nova-compute   | model-crow          | nova     | enabled  | up    | 2019-04-13T11:05:22.000000 |
-    +----+----------------+---------------------+----------+----------+-------+----------------------------+
+.. code-block:: console
 
-Since the reserved host has now been enabled and is hosting evacuated guests,
-masakari has removed the reserved flag from it. Masakari has also placed the
-failed node in maintenance mode.
+   +-------------------+----------+-------+
+   | Host              | Status   | State |
+   +-------------------+----------+-------+
+   | virt-node-01.maas | enabled  | up    |
+   | virt-node-10.maas | enabled  | up    |
+   | virt-node-02.maas | disabled | down  |
+   +-------------------+----------+-------+
 
-.. code::
+The reserved node will begin hosting evacuated instances and Masakari will
+remove the reserved flag from it. It will also place the failed node in
+maintenance mode.
 
-    $ openstack segment host list 2598f8aa-3612-4731-9716-e126ca6cc280
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | uuid                                 | name       | type    | control_attributes | reserved | on_maintenance | failover_segment_id                  |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
-    | 4769e08c-ed52-440a-866e-832b977aa5e2 | tidy-goose | COMPUTE | SSH                | False    | False          | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    | 90aedbd2-e03b-4dbd-b330-a1c848f300df | frank-colt | COMPUTE | SSH                | False    | True           | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    | c77574cc-b6e7-440e-9c86-84e91981f15e | model-crow | COMPUTE | SSH                | False    | False          | 2598f8aa-3612-4731-9716-e126ca6cc280 |
-    +--------------------------------------+------------+---------+--------------------+----------+----------------+--------------------------------------+
+The segment's host list should show:
 
-‘AUTO_PRIORITY’ and ‘RH_PRIORITY’ Recovery Methods
---------------------------------------------------
+.. code-block:: console
 
-These methods appear to chain the previous methods together. So, auto_priority
-attempts to move the guest using the auto method first and if that fails it
-tries the reserved_host method. rh_priority does the same thing but in the
-reverse order. See
-`Masakari Pike Release Note <https://docs.openstack.org/releasenotes/masakari/pike.html>`_  for details.
+   +-------------------+----------+----------------+
+   | name              | reserved | on_maintenance |
+   +-------------------+----------+----------------+
+   | virt-node-01.maas | False    | False          |
+   | virt-node-10.maas | False    | False          |
+   | virt-node-02.maas | False    | True           |
+   +-------------------+----------+----------------+
 
-Individual Instance Recovery
-----------------------------
+The expectation is that instance 'bionic-1' has been moved from
+'virt-node-02.maas' to the reserved node, host 'virt-node-01.maas':
 
-Finally, to use the masakari feature which reacts to a single guest failing
-rather than a whole hypervisor, the guest(s) need to be marked with a small
-piece of metadata:
+.. code-block:: console
 
-.. code::
+   +----------------------+-------------------+
+   | Field                | Value             |
+   +----------------------+-------------------+
+   | OS-EXT-SRV-ATTR:host | virt-node-01.maas |
+   +----------------------+-------------------+
 
-    $ openstack server set --property HA_Enabled=True server_120419134342
+'auto'
+^^^^^^
+
+The ``auto`` recovery method relocates instances to any available node in the
+same segment. Because all the nodes are active, contrarily to the
+``reserved_host`` method, there is no guarantee that sufficient resources will
+exist on the destination node to accommodate migrated instances.
+
+For example, to create segment 'S2', configure it to use the ``auto`` method,
+and assign it three compute nodes:
+
+.. code-block:: none
+
+   openstack segment create S2 auto COMPUTE
+   openstack segment host create virt-node-01.maas COMPUTE SSH S2
+   openstack segment host create virt-node-02.maas COMPUTE SSH S2
+   openstack segment host create virt-node-10.maas COMPUTE SSH S2
+
+In contrast to the ``reserved_host`` method all the nodes show as active (i.e.
+none are reserved):
+
+.. code-block:: console
+
+   +-------------------+----------+----------------+
+   | name              | reserved | on_maintenance |
+   +-------------------+----------+----------------+
+   | virt-node-10.maas | False    | False          |
+   | virt-node-02.maas | False    | False          |
+   | virt-node-01.maas | False    | False          |
+   +-------------------+----------+----------------+
+
+Continuing with the above observation, upon node failure, there are no
+hypervisors for Masakari to enable in Nova. A failed node will however be put
+``on_maintenance`` in Masakari:
+
+.. code-block:: console
+
+   +-------------------+----------+----------------+
+   | name              | reserved | on_maintenance |
+   +-------------------+----------+----------------+
+   | virt-node-10.maas | False    | False          |
+   | virt-node-02.maas | False    | False          |
+   | virt-node-01.maas | False    | True           |
+   +-------------------+----------+----------------+
+
+'rh_priority' and 'auto_priority'
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The below recovery methods utilise one of the previously described methods but
+use the other as a failover.
+
+* ``rh_priority``
+
+  Attempts to evacuate instances using the ``reserved_host`` method. If the
+  latter is unsuccessful the ``auto`` method will be used.
+
+* ``auto_priority``
+
+  Attempts to evacuate instances using the ``auto`` method. If the latter is
+  unsuccessful the ``reserved_host`` method will be used.
+
+Instance restart
+~~~~~~~~~~~~~~~~
+
+The enabling of the instance restart feature is done on a per-instance basis.
+
+For example, tag instance 'bionic-1' as HA-enabled in order to have it
+restarted automatically on its hypervisor:
+
+.. code-block:: none
+
+   openstack server set --property HA_Enabled=True bionic-1
+
+.. important::
+
+   Perhaps non-intuitively, if the instance evacuation feature is not desired a
+   hypervisor must nonetheless be assigned a failover segment in order for the
+   restart feature to be available to its instances.
+
+An instance failure can be simulated by killing its process. First determine
+its hypervisor and ``qemu`` guest name:
+
+.. code-block:: none
+
+   openstack server show bionic-1 -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name
+
+Output:
+
+.. code-block:: console
+
+   +-------------------------------+-------------------+
+   | Field                         | Value             |
+   +-------------------------------+-------------------+
+   | OS-EXT-SRV-ATTR:host          | virt-node-02.maas |
+   | OS-EXT-SRV-ATTR:instance_name | instance-00000001 |
+   +-------------------------------+-------------------+
+
+If you do not have admin rights in the cloud the above fields may not be
+visible.
+
+This hypervisor corresponds to unit ``nova-compute/2`` in this example cloud.
+
+Check the current PID, kill the process, wait a minute, and verify that a new
+process gets started:
+
+.. code-block:: none
+
+   juju run --unit nova-compute/2 'pgrep -f guest=instance-00000001'
+   juju run --unit nova-compute/2 'sudo pkill -f -9 guest=instance-00000001'
+   juju run --unit nova-compute/2 'pgrep -f guest=instance-00000001'
+
+Supplementary information
+-------------------------
+
+This section contains information that can be useful when working with
+Masakari.
+
+* Once a failed node has been re-inserted into the cloud it will show, in
+  Nova, as 'disabled' but 'up' and, in Masakari, as 'on_maintenance'. It can
+  become an active hypervisor with:
+
+  .. code-block:: none
+
+     openstack compute service set --enable <host-name> nova-compute
+     openstack segment host update --on_maintenance=False <segment-name> <host-name>
+
+* A segment's recovery method can be updated with:
+
+  .. code-block:: none
+
+     openstack segment update --recovery_method <method> --service_type COMPUTE <segment-name>
+
+* A node cannot be assigned to a segment while it's assigned to another
+  segment. It must first be removed from the current segment with:
+
+  .. code-block:: none
+
+     openstack segment host delete <segment-name> <host-name>
+
+* A node's reserved status can be updated with:
+
+  .. code-block:: none
+
+     openstack segment host update --reserved=<boolean> <segment-name> <host-name>
+
+.. LINKS
+.. _MAAS: https://maas.io
+.. _Masakari charm: http://jaas.ai/masakari
+.. _openstack-base: https://jaas.ai/openstack-base
+.. _OpenStack high availability: app-ha.html#ha-applications
+.. _Configure OpenStack: config-openstack.html
