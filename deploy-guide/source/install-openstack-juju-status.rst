@@ -124,7 +124,6 @@ installed from the instructions given on the :doc:`Install OpenStack
    placement:cluster                        placement:cluster                              openstack-ha            peer
    placement:placement                      nova-cloud-controller:placement                placement               regular
    rabbitmq-server:amqp                     cinder:amqp                                    rabbitmq                regular
-   rabbitmq-server:amqp                     glance:amqp                                    rabbitmq                regular
    rabbitmq-server:amqp                     neutron-api:amqp                               rabbitmq                regular
    rabbitmq-server:amqp                     neutron-gateway:amqp                           rabbitmq                regular
    rabbitmq-server:amqp                     neutron-openvswitch:amqp                       rabbitmq                regular

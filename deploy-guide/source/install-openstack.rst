@@ -461,7 +461,7 @@ To deploy:
 
    juju deploy --to lxd:2 --config glance.yaml glance
 
-Five relations are needed:
+Four relations are needed:
 
 .. code-block:: none
 
@@ -469,7 +469,6 @@ Five relations are needed:
    juju add-relation glance:image-service nova-compute:image-service
    juju add-relation glance:shared-db mysql:shared-db
    juju add-relation glance:identity-service keystone:identity-service
-   juju add-relation glance:amqp rabbitmq-server:amqp
 
 Ceph monitor
 ~~~~~~~~~~~~
