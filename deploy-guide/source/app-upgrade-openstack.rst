@@ -49,8 +49,13 @@ performing the OpenStack upgrade. The Juju command to use is
 :command:`upgrade-charm`. For extra guidance see `Upgrading applications`_
 in the Juju documentation.
 
+.. note::
+
+   A charm upgrade affects all corresponding units; per-unit upgrades is not
+   currently supported.
+
 Although it may be possible to upgrade some charms in parallel it is
-recommended that the upgrades be performed in series (i.e. one at a time).
+recommended that the upgrades be performed sequentially (i.e. one at a time).
 Verify a charm upgrade before moving on to the next.
 
 In terms of the upgrade order, begin with 'keystone'. After that, the rest of
@@ -334,12 +339,13 @@ Perform the upgrade
 The essence of a charmed OpenStack service upgrade is a change of the
 corresponding machine software sources so that a more recent combination of
 Ubuntu release and OpenStack release is used. This combination is based on the
-`Ubuntu Cloud Archive`_ and translates to a configuration known as the "cloud
-archive pocket". It takes on the following syntax:
+`Ubuntu Cloud Archive`_ and translates to a "cloud archive OpenStack release".
+It takes on the following syntax:
 
-``cloud:<ubuntu series>-<openstack-release>``
+``<ubuntu series>-<openstack-release>``
 
-For example, for the 'bionic-train' pocket:
+For example, the 'bionic-train' UCA release is expressed during configuration
+as:
 
 ``cloud:bionic-train``
 
@@ -369,7 +375,7 @@ The syntax is:
 
 .. code:: bash
 
-   juju config <openstack-charm> openstack-origin=cloud:<cloud-archive-pocket>
+   juju config <openstack-charm> openstack-origin=cloud:<cloud-archive-release>
 
 Charms whose services are not technically part of the OpenStack project will
 use the ``source`` charm option instead. The Ceph charms are a classic example:
@@ -381,7 +387,7 @@ use the ``source`` charm option instead. The Ceph charms are a classic example:
 .. note::
 
    The ceph-osd and ceph-mon charms are able to maintain service availability
-   during their upgrade.
+   during the upgrade.
 
 So to upgrade Cinder across all units (currently running Bionic) from Stein to
 Train:

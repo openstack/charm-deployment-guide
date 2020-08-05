@@ -208,9 +208,9 @@ built-in capabilities, and can be called *natively HA*.
 
 .. important::
 
-   The nova-compute application cannot be made highly available. :doc:`Charmed
-   Masakari <app-masakari>` implements cloud instance HA but is not
-   production-ready at this time.
+   The nova-compute application cannot be made highly available. However, see
+   :doc:`Charmed Masakari <app-masakari>` for an implementation of cloud
+   instance HA.
 
 Native HA
 ~~~~~~~~~
@@ -265,8 +265,7 @@ Generic deployment commands for a three-unit cluster are provided below.
 
 .. code-block:: none
 
-   juju deploy --config vip=<ip-address> <charm-name>
-   juju add-unit -n 2 <charm-name>
+   juju deploy -n 3 --config vip=<ip-address> <charm-name>
    juju deploy --config cluster_count=3 hacluster <charm-name>-hacluster
    juju add-relation <charm-name>-hacluster:ha <charm-name>:ha
 

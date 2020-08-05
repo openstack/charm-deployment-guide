@@ -52,7 +52,7 @@ OpenStack release
 
 As the guide's :doc:`Overview <index>` section states, OpenStack Train will be
 deployed atop Ubuntu 18.04 LTS (Bionic) cloud nodes. In order to achieve this a
-"cloud archive pocket" of 'cloud:bionic-train' will be used during the install
+cloud archive release of 'cloud:bionic-train' will be used during the install
 of each OpenStack application. Note that some applications are not part of the
 OpenStack project per se and therefore do not apply (exceptionally, Ceph
 applications do use this method). Not using a more recent OpenStack release in
@@ -60,8 +60,8 @@ this way will result in a Queens deployment (i.e. Queens is in the Ubuntu
 package archive for Bionic).
 
 See :ref:`Perform the upgrade <perform_the_upgrade>` in the :doc:`OpenStack
-Upgrades <app-upgrade-openstack>` appendix for more details on the cloud
-archive pocket and how it is used when upgrading OpenStack.
+Upgrades <app-upgrade-openstack>` appendix for more details on cloud
+archive releases and how they are used when upgrading OpenStack.
 
 .. important::
 

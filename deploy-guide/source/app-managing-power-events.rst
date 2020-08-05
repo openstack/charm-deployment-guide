@@ -336,7 +336,7 @@ cluster
 2. Shut down all components/clients consuming Ceph before shutting down Ceph
    components to avoid application-level data loss.
 
-3. Set the ``noout`` option on the cluster a single MON unit, to prevent data
+3. Set the cluster-wide ``noout`` option, on any MON unit, to prevent data
    rebalancing from occurring when OSDs start disappearing from the network::
 
     juju run-action --wait ceph-mon/1 set-noout

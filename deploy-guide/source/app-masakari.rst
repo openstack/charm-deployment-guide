@@ -57,10 +57,10 @@ shared storage must be considered.
 
 The mechanics of instance evacuation is now described:
 
-Masakari Monitors, on a peer hypervisor, detects that its peer is unavailable
-and notifies the Masakari API server. This in turn triggers the Masakari engine
-to initiate a failover of the instance via Nova. Assuming that Nova concurs
-that the hypervisor is absent, it will attempt to start the instance on another
+Masakari Monitors, on a hypervisor, detects that its peer is unavailable and
+notifies the Masakari API server. This in turn triggers the Masakari engine to
+initiate a failover of the instance via Nova. Assuming that Nova concurs that
+the hypervisor is absent, it will attempt to start the instance on another
 hypervisor. At this point there are two instances competing for the same disk
 image, which can lead to data corruption.
 
