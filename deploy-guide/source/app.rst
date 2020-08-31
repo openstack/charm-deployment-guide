@@ -28,3 +28,4 @@ Appendices
    app-ha.rst
    app-trilio-vault.rst
    app-bridge-interface-configuration.rst
+   app-ceph-iscsi.rst
