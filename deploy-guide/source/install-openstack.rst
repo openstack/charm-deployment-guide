@@ -535,12 +535,13 @@ implemented via the `cinder-ceph`_ subordinate charm:
 
    juju deploy cinder-ceph
 
-A relation is needed for both Cinder and Ceph:
+A relation is needed to Cinder, Ceph, and Nova:
 
 .. code-block:: none
 
    juju add-relation cinder-ceph:storage-backend cinder:storage-backend
    juju add-relation cinder-ceph:ceph ceph-mon:client
+   juju add-relation cinder-ceph:ceph-access nova-compute:ceph-access
 
 Swift proxy
 ~~~~~~~~~~~
