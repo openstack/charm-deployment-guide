@@ -95,6 +95,14 @@ overlay bundle:
      - - trilio-data-mover:ceph
        - ceph-mon:client
 
+.. note::
+
+   The trilio-wlm and trilio-dm-api charms must be deployed with
+   openstack-origin >= cloud:bionic-train - even for Queens deployments.
+   These parts of the TrilioVault deployment are Python 3 only and have
+   dependency version requirements that are only supported from Train
+   onwards.
+
 NFS
 ---
 
