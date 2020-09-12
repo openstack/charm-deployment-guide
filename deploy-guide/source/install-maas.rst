@@ -41,12 +41,12 @@ MAAS is also considered to be the sole provider of DHCP and DNS for the network
 hosting the MAAS cluster.
 
 The MAAS system's single network interface resides on subnet
-**10.0.0.0/21** and the system itself has an assigned IP address of
-**10.0.0.3**.
+**10.0.0.0/24** and the system itself has an assigned IP address of
+**10.0.0.2**.
 
 .. attention::
 
-   The MAAS-provisioned nodes rely upon Bionic AMD64 images provided by MAAS.
+   The MAAS-provisioned nodes rely upon Focal AMD64 images provided by MAAS.
 
 .. _install_maas:
 
@@ -59,19 +59,19 @@ instructions`_ for details:
 
 .. code-block:: none
 
-   sudo apt-add-repository -y ppa:maas/2.6
-   sudo apt install -y maas
-   sudo maas init --admin-username admin --admin-password ubuntu \
-      --admin-email admin@example.com --admin-ssh-import <username>
-   sudo maas-region apikey --username=admin > ~/admin-api-key
+   sudo snap install maas-test-db
+   sudo snap install maas --channel=2.8/stable
+   sudo maas init region+rack --maas-url http://10.0.0.2:5240/MAAS --database-uri maas-test-db:///
+   sudo maas createadmin --username admin --password ubuntu --email admin@example.com --ssh-import lp:<unsername>
+   sudo maas apikey --username admin > ~ubuntu/admin-api-key
 
 See :command:`maas init --help` for details.
 
 Notes:
 
-* MAAS does not currently make use of the email address supplied to the
-  :command:`maas init` command.
 * The :command:`maas init` command cannot be invoked a second time.
+* MAAS does not currently make use of the email address supplied to the
+  :command:`maas createadmin` command.
 * The last command puts a copy of the API key for user 'admin' in a file. We'll
   need this information on the next page.
 
@@ -95,14 +95,14 @@ MAAS administrator are:
 | Password: **ubuntu**
 |
 
-In this example, the address of the MAAS system is 10.0.0.3.
+In this example, the address of the MAAS system is 10.0.0.2.
 
 The web UI URL then becomes:
 
-**http://10.0.0.3:5240/MAAS**
+**http://10.0.0.2:5240/MAAS**
 
 You will be whisked through an on-boarding process when you access the web UI
-for the first time. Recall that we require 18.04 LTS AMD64 images.
+for the first time. Recall that we require 20.04 LTS AMD64 images.
 
 Enable DHCP
 ~~~~~~~~~~~
@@ -136,8 +136,8 @@ will eliminate this concern.
 
 .. important::
 
-   A MAAS node should *always* remain configured to netboot. MAAS will manage
-   the booting of its cluster members.
+   A MAAS node should always remain configured to netboot. MAAS will manage the
+   booting of its cluster members.
 
 Configure node power type
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,9 +161,8 @@ Rename nodes
 Rename the newly commissioned nodes to something more appealing or meaningful.
 
 To change the name of a node, select it from the **Machines** page and use the
-name field in the top-left. Here we've used 'os-compute01' through
-'os-compute04' for the four cloud nodes and 'os-juju01' for the Juju controller
-node.
+name field in the top-left. Here we've used 'node1' through 'node4' for the
+four cloud nodes and 'controller' for the Juju controller node.
 
 .. note::
 
@@ -187,32 +186,33 @@ Node summary
 
 Here's a summary of the five MAAS nodes:
 
-+---------------------+-----------+------+------+-----+-------+---------+
-| Node name           | Tag(s)    | CPUs | NICs | RAM | Disks | Storage |
-+=====================+===========+======+======+=====+=======+=========+
-| os-compute01.maas   | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
-+---------------------+-----------+------+------+-----+-------+---------+
-| os-compute02.maas   | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
-+---------------------+-----------+------+------+-----+-------+---------+
-| os-compute03.maas   | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
-+---------------------+-----------+------+------+-----+-------+---------+
-| os-compute04.maas   | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
-+---------------------+-----------+------+------+-----+-------+---------+
-| os-juju01.maas      | juju      | 2    | 1    | 4.0 | 1     | 40.0    |
-+---------------------+-----------+------+------+-----+-------+---------+
++-----------------+-----------+------+------+-----+-------+---------+
+| Node name       | Tag(s)    | CPUs | NICs | RAM | Disks | Storage |
++=================+===========+======+======+=====+=======+=========+
+| node1.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
++-----------------+-----------+------+------+-----+-------+---------+
+| node2.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
++-----------------+-----------+------+------+-----+-------+---------+
+| node3.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
++-----------------+-----------+------+------+-----+-------+---------+
+| node4.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
++-----------------+-----------+------+------+-----+-------+---------+
+| controller.maas | juju      | 2    | 1    | 4.0 | 1     | 40.0    |
++-----------------+-----------+------+------+-----+-------+---------+
 
 Next steps
 ----------
 
 The next step is to create a Juju controller. This will involve deploying
-Ubuntu and Juju software onto the designated node.
+Ubuntu and Juju software onto the designated node. Go to :doc:`Install Juju
+<install-juju>` now.
 
 .. LINKS
 .. _CLI: https://maas.io/docs/maas-cli
 .. _API: https://maas.io/docs/api
 .. _MAAS: https://maas.io
 .. _MAAS requirements: https://maas.io/docs/maas-requirements
-.. _MAAS installation instructions: https://maas.io/docs/install-from-packages
+.. _MAAS installation instructions: https://maas.io/docs/install-from-a-snap
 .. _Concepts and terms: https://maas.io/docs/concepts-and-terms
 .. _Handling DHCP: https://maas.io/docs/dhcp
 .. _BMC power types: https://maas.io/docs/bmc-power-types

@@ -12,22 +12,29 @@ Overview
 
 The main purpose of the OpenStack Charms Deployment Guide is to demonstrate how
 to build a multi-node OpenStack cloud with `MAAS`_, `Juju`_, and `OpenStack
-Charms`_. For accessibility reasons, the cloud will be minimal, while remaining
+Charms`_. For easy adoption the cloud will be minimal. Nevertheless, it will be
 capable of both performing some real work and scaling to fit more ambitious
-projects.
-
-Software versions used in this guide are as follows:
-
-* **Ubuntu 18.04 LTS** (Bionic) for the MAAS system, its cluster nodes, and all
-  cloud nodes
-* **MAAS 2.6.2**
-* **Juju 2.7.0**
-* **OpenStack Train**
+projects. High availability will not be implemented beyond natively HA
+applications (Ceph, MySQL8, OVN, Swift, and RabbitMQ).
 
 .. note::
 
    For OpenStack Charms project information, development guidelines, release
    notes, and release schedules, please refer to the `OpenStack Charm Guide`_.
+
+Requirements
+------------
+
+The software versions used in this guide are as follows:
+
+* **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, Juju
+  controller, and all cloud nodes (including containers)
+* **MAAS 2.8.2**
+* **Juju 2.8.1**
+* **OpenStack Ussuri**
+
+Hardware requirements are listed on the :doc:`Install MAAS <install-maas>`
+page.
 
 Appendices
 ----------

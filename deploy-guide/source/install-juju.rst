@@ -8,7 +8,7 @@ Overview
 In the :doc:`previous section <install-maas>`, we set up the base environment
 in the form of a `MAAS`_ cluster. We are now going to implement `Juju`_ as a
 management solution for that environment. The main goal will be the creation of
-a Juju *controller*, the administrative node for a Juju-managed cloud.
+a Juju controller, the administrative node for a Juju-managed cloud.
 
 Install Juju
 ------------
@@ -119,7 +119,8 @@ Next steps
 ----------
 
 The next step is to use Juju to deploy OpenStack. This will involve deploying
-the OpenStack applications and adding relations between them.
+the OpenStack applications and adding relations between them. Go to
+:doc:`Install OpenStack <install-openstack>` now.
 
 .. LINKS
 .. _Juju: https://jaas.ai
