@@ -305,6 +305,13 @@ own rules. We do the latter by creating a group called 'Allow_SSH':
 Create and access an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. important::
+
+   It has been observed in some newly-deployed clouds that the configuration of
+   OVN remains incomplete, which prevents cloud instances from being created.
+   The workaround is to restart the ``ovn-northd`` daemon on each ovn-central
+   unit. See `LP #1895303`_ for details.
+
 Determine the network ID of private network 'Network1' and then create an
 instance called 'bionic-1':
 
@@ -388,3 +395,6 @@ guidance.
 .. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles/blob/master/stable/shared/openrcv3_project
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
 .. _Using OpenStack with Juju: https://jaas.ai/docs/openstack-cloud
+
+.. BUGS
+.. _LP #1895303: https://bugs.launchpad.net/charm-ovn-central/+bug/1895303
