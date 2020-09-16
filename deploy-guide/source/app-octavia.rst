@@ -33,6 +33,11 @@ placed haproxy instances on neutron-gateway units.
 Deployment
 ----------
 
+.. warning::
+
+   Throughout this guide make sure ``openstack-origin`` matches the value you
+   used when `deploying OpenStack`_.
+
 Octavia makes use of OpenStack Barbican for storage of certificates for
 TLS termination on load balancers; Barbican makes use of Vault for secure
 storage of this data.  Follow the instructions for deployment and
@@ -282,6 +287,7 @@ Octavia please refer to the `Octavia cookbook`_.
 .. LINKS
 .. _Vault: app-vault
 .. _Certificate Lifecycle Management: app-certificate-management
+.. _deploying OpenStack: install-openstack
 .. _Octavia Policies: https://docs.openstack.org/octavia/latest/configuration/policy.html
 .. _Octavia cookbook: https://docs.openstack.org/octavia/latest/user/guides/basic-cookbook.html
 .. _operators maintenance: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images

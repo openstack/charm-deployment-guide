@@ -36,6 +36,11 @@ Prerequisites
 Deployment
 ----------
 
+.. warning::
+
+   Throughout this guide make sure ``openstack-origin`` matches the value you
+   used when `deploying OpenStack`_.
+
 The TrilioVault solution consists of three core services:
 
  - TrilioVault Workload Manager: this service provides the main API
@@ -146,4 +151,5 @@ The trilio-wlm and trilio-data-mover applications should be in the 'active'
 state and ready for use.
 
 .. LINKS
+.. _deploying OpenStack: install-openstack
 .. _trilio.io: https://www.trilio.io/triliovault/openstack/
