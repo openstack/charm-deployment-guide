@@ -44,7 +44,7 @@ Reference cloud topology
 
 This section describes a hyperconverged cloud topology that this document will
 use for the procedural steps to follow. Hyperconvergence refers to the practice
-of co-locating principle applications on the same machine.
+of co-locating principal applications on the same machine.
 
 The topology is defined in this way:
 
@@ -104,20 +104,20 @@ rabbitmq-server.
 .. important::
 
    The first machine to be upgraded is always associated with the leader of the
-   principle application. Let this machine be called the "principle leader
-   machine" and its unit be called the "principle leader unit".
+   principal application. Let this machine be called the "principal leader
+   machine" and its unit be called the "principal leader unit".
 
 The steps are as follows:
 
-#. Set the default series for the principle application and ensure the same has
+#. Set the default series for the principal application and ensure the same has
    been done to the model.
 
 #. If hacluster is used, pause the hacluster units not associated with the
-   principle leader machine.
+   principal leader machine.
 
-#. Pause the principle non-leader units.
+#. Pause the principal non-leader units.
 
-#. Perform a series upgrade on the principle leader machine.
+#. Perform a series upgrade on the principal leader machine.
 
    #. Perform any pre-upgrade workload maintenance tasks.
 
@@ -132,7 +132,7 @@ The steps are as follows:
 #. Set the value of the (application-dependent) ``openstack-origin`` or the
    ``source`` configuration option to 'distro' (new operating system).
 
-#. Invoke the :command:`complete` sub-command on the principle leader machine.
+#. Invoke the :command:`complete` sub-command on the principal leader machine.
 
 #. Repeat steps 4 and 6 for the application non-leader machines.
 
@@ -213,8 +213,8 @@ command output:
    percona-cluster/2               active    idle   2/lxd/0  10.0.0.49       3306/tcp  Unit is ready
      percona-cluster-hacluster/1   active    idle            10.0.0.49                 Unit is ready and clustered
 
-In summary, the principle leader unit is percona-cluster/1 and is deployed on
-machine 1/lxd/0 (the principle leader machine).
+In summary, the principal leader unit is percona-cluster/1 and is deployed on
+machine 1/lxd/0 (the principal leader machine).
 
 .. warning::
 
@@ -233,32 +233,32 @@ machine 1/lxd/0 (the principle leader machine).
    Permissions will need to be altered on the remote machine, and note that the
    last command transfers **all** existing backups.
 
-#. Set the default series for both the model and the principle application:
+#. Set the default series for both the model and the principal application:
 
    .. code-block:: none
 
       juju model-config default-series=bionic
       juju set-series percona-cluster bionic
 
-#. Pause the hacluster units not associated with the principle leader machine:
+#. Pause the hacluster units not associated with the principal leader machine:
 
    .. code-block:: none
 
       juju run-action --wait percona-cluster-hacluster/0 pause
       juju run-action --wait percona-cluster-hacluster/1 pause
 
-#. Pause the principle non-leader units:
+#. Pause the principal non-leader units:
 
    .. code-block:: none
 
       juju run-action --wait percona-cluster/0 pause
       juju run-action --wait percona-cluster/2 pause
 
-   For percona-cluster, leaving the principle leader unit up will ensure it
+   For percona-cluster, leaving the principal leader unit up will ensure it
    has the latest MySQL sequence number; it will be considered the most up to
    date cluster member.
 
-#. Perform a series upgrade on the principle leader machine:
+#. Perform a series upgrade on the principal leader machine:
 
    .. code-block:: none
 
@@ -276,7 +276,7 @@ machine 1/lxd/0 (the principle leader machine).
 
       juju config percona-cluster source=distro
 
-#. Invoke the :command:`complete` sub-command on the principle leader machine:
+#. Invoke the :command:`complete` sub-command on the principal leader machine:
 
    .. code-block:: none
 
@@ -312,7 +312,7 @@ machine 1/lxd/0 (the principle leader machine).
 #. For percona-cluster, a sanity check should be done on the leader unit's
    databases and data.
 
-#. Repeat steps 5 and 7 for the principle non-leader machines.
+#. Repeat steps 5 and 7 for the principal non-leader machines.
 
 #. Perform any possible cluster completed upgrade tasks once all machines have
    had their series upgraded:
@@ -372,24 +372,24 @@ command output:
    keystone/2               active    idle   2/lxd/0  10.0.0.72       5000/tcp  Unit is ready
      keystone-hacluster/1   active    idle            10.0.0.72                 Unit is ready and clustered
 
-In summary, the principle leader unit is keystone/0 and is deployed on machine
-0/lxd/0 (the principle leader machine).
+In summary, the principal leader unit is keystone/0 and is deployed on machine
+0/lxd/0 (the principal leader machine).
 
-#. Set the default series for both the model and the principle application:
+#. Set the default series for both the model and the principal application:
 
    .. code-block:: none
 
       juju model-config default-series=bionic
       juju set-series keystone bionic
 
-#. Pause the hacluster units not associated with the principle leader machine:
+#. Pause the hacluster units not associated with the principal leader machine:
 
    .. code-block:: none
 
       juju run-action --wait keystone-hacluster/1 pause
       juju run-action --wait keystone-hacluster/2 pause
 
-#. Pause the principle non-leader units:
+#. Pause the principal non-leader units:
 
    .. code-block:: none
 
@@ -400,7 +400,7 @@ In summary, the principle leader unit is keystone/0 and is deployed on machine
    are no keystone-specific steps to perform.
 
 #. Invoke the :command:`prepare` sub-command on all machines, **starting with
-   the principle leader machine**:
+   the principal leader machine**:
 
    .. code-block:: none
 
@@ -506,16 +506,16 @@ command output:
 
 In summary,
 
-* The glance principle leader unit is glance/0 and is deployed on machine
-  0/lxd/0 (the glance principle leader machine).
-* The nova-cloud-controller principle leader unit is nova-cloud-controller/1
-  and is deployed on machine 4/lxd/0 (the nova-cloud-controller principle
+* The glance principal leader unit is glance/0 and is deployed on machine
+  0/lxd/0 (the glance principal leader machine).
+* The nova-cloud-controller principal leader unit is nova-cloud-controller/1
+  and is deployed on machine 4/lxd/0 (the nova-cloud-controller principal
   leader machine).
 
 The procedure has been expedited slightly by adding the ``--yes`` confirmation
 option to the :command:`prepare` sub-command.
 
-#. Set the default series for both the model and the principle applications:
+#. Set the default series for both the model and the principal applications:
 
    .. code-block:: none
 
@@ -523,7 +523,7 @@ option to the :command:`prepare` sub-command.
       juju set-series glance bionic
       juju set-series nova-cloud-controller bionic
 
-#. Pause the hacluster units not associated with their principle leader
+#. Pause the hacluster units not associated with their principal leader
    machines:
 
    .. code-block:: none
@@ -533,7 +533,7 @@ option to the :command:`prepare` sub-command.
       juju run-action --wait nova-cc-hacluster/1 pause
       juju run-action --wait nova-cc-hacluster/2 pause
 
-#. Pause the principle non-leader units:
+#. Pause the principal non-leader units:
 
    .. code-block:: none
 
@@ -546,7 +546,7 @@ option to the :command:`prepare` sub-command.
    are no glance-specific or nova-cloud-controller-specific steps to perform.
 
 #. Invoke the :command:`prepare` sub-command on all machines, **starting with
-   the principle leader machines**:
+   the principal leader machines**:
 
    .. code-block:: none
 
