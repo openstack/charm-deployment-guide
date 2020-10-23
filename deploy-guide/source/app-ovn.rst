@@ -839,11 +839,11 @@ Perform migration
 
 9. Pause the Neutron API units
 
-    .. code-block:: none
+   .. code-block:: none
 
-       juju run-action neutron-api/0 pause
-       juju run-action neutron-api/1 pause
-       juju run-action neutron-api/2 pause
+      juju run-action neutron-api/0 pause
+      juju run-action neutron-api/1 pause
+      juju run-action neutron-api/2 pause
 
    Wait for the deployment to settle.
 
