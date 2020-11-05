@@ -783,6 +783,12 @@ Once logged in you should see something like this:
    :scale: 70%
    :alt: Horizon dashboard
 
+To enable instance console access from within Horizon:
+
+.. code-block:: none
+
+   juju config nova-cloud-controller console-access-protocol=novnc
+
 Next steps
 ----------
 
