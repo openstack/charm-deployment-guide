@@ -834,40 +834,145 @@ percona-cluster
 shutdown
 ^^^^^^^^
 
-To pause the MySQL service for a ``percona-cluster`` unit::
+To pause the Percona XtraDB service for a ``percona-cluster`` unit:
 
-    juju run-action --wait percona-cluster/0 pause
+.. code-block:: none
+
+   juju run-action --wait percona-cluster/0 pause
 
 To gracefully shut down the cluster repeat the above for every unit.
 
 startup
 ^^^^^^^
 
-A special startup procedure is necessary regardless of whether services were
-shut down gracefully or not (power outage or hard shutdown):
+A special startup procedure is necessary regardless of how services were shut
+down (gracefully, hard shutdown, or power outage).
 
-1. Run action ``bootstrap-pxc`` on any percona-cluster unit.
+Upon startup the cluster will be in a state described by either scenario 3 or 6
+in the upstream document `How to recover a PXC cluster`_. The latter
+documentation provides important context to the steps outlined below.
 
-If the MySQL sequence numbers (obtained with command ``juju status
-percona-cluster``) vary across units then the action `must` be run on the unit
-with the highest sequence number::
+Both scenarios will require a unit to be assigned the role of "bootstrap node".
 
-    juju run-action --wait percona-cluster/? bootstrap-pxc
+.. warning::
 
-2. Run action ``notify-bootstrapped`` on a percona-cluster unit.
+   Data loss may occur if an incorrect bootstrap node is chosen.
 
-   There are two possibilities:
+The steps will also involve the concept of application unit leadership. An
+application leader unit is denoted by an asterisk in the Unit column of the
+:command:`juju status` output.
 
-   - If the ``bootstrap-pxc`` action was run on a leader then run
-     ``notify-bootstrapped`` on a non-leader.
-   - If the ``bootstrap-pxc`` action was run on a non-leader then run
-     ``notify-bootstrapped`` on the leader.
+Determine the bootstrap node
+""""""""""""""""""""""""""""
 
-Run the appropriate command now::
+Determine the bootstrap node by examining `Percona XtraDB sequence numbers`_.
+The percona-cluster units either have the same sequence number or they do not.
+Sequence numbers are displayed in the output of the :command:`juju status`
+command.
 
-    juju run-action --wait percona-cluster/? notify-bootstrapped
+.. note::
 
-For details see the `percona-cluster charm`_.
+   Alternatively, the sequence number can be found on the corresponding
+   machine's filesystem in file
+   ``/var/lib/percona-xtradb-cluster/grastate.dat``.
+
+Example #1 - Same sequence number
+
+In this output the units have a common sequence number of '355'. This indicates
+that any unit can act as the bootstrap node:
+
+.. code-block:: console
+
+   Unit                Workload  Agent  Machine  Public address  Ports     Message
+   keystone/0*         active    idle   0        10.5.0.32       5000/tcp  Unit is ready
+   percona-cluster/0   blocked   idle   1        10.5.0.20       3306/tcp  MySQL is down. Sequence Number: 355. Safe To Bootstrap: 0
+     hacluster/0       active    idle            10.5.0.20                 Unit is ready and clustered
+   percona-cluster/1   blocked   idle   2        10.5.0.17       3306/tcp  MySQL is down. Sequence Number: 355. Safe To Bootstrap: 0
+     hacluster/1       active    idle            10.5.0.17                 Unit is ready and clustered
+   percona-cluster/2*  blocked   idle   3        10.5.0.27       3306/tcp  MySQL is down. Sequence Number: 355. Safe To Bootstrap: 0
+     hacluster/2*      active    idle            10.5.0.27                 Unit is ready and clustered
+
+Example #2 - Different sequence numbers
+
+In this output the units do not have a common sequence number. **The unit
+chosen as the bootstrap node must be the one with the greatest sequence
+number.** Here it is unit ``percona-cluster/2``, with a number of '1325':
+
+.. code-block:: console
+
+   Unit                Workload  Agent  Machine  Public address  Ports     Message
+   keystone/0*         active    idle   0        10.5.0.32       5000/tcp  Unit is ready
+   percona-cluster/0*  blocked   idle   1        10.5.0.20       3306/tcp  MySQL is down. Sequence Number: 1318. Safe To Bootstrap: 0
+     hacluster/0*      active    idle            10.5.0.20                 Unit is ready and clustered
+   percona-cluster/1   blocked   idle   2        10.5.0.17       3306/tcp  MySQL is down. Sequence Number: 1318. Safe To Bootstrap: 0
+     hacluster/1       active    idle            10.5.0.17                 Unit is ready and clustered
+   percona-cluster/2   blocked   idle   3        10.5.0.27       3306/tcp  MySQL is down. Sequence Number: 1325. Safe To Bootstrap: 0
+     hacluster/2       active    idle            10.5.0.27                 Unit is ready and clustered
+
+Initialise the cluster
+""""""""""""""""""""""
+
+Initialise the cluster by running the ``bootstrap-pxc`` action on the chosen
+bootstrap node unit. In this example it is ``percona-cluster/2``, which happens
+to be a non-leader.
+
+.. code-block:: none
+
+   juju run-action --wait percona-cluster/2 bootstrap-pxc
+
+Notify the cluster of the new bootstrap UUID
+""""""""""""""""""""""""""""""""""""""""""""
+
+The cluster will typically require being notified of the new "bootstrap UUID".
+
+In the vast majority of cases, once the ``bootstrap-pxc`` action has been run,
+and the model has settled, the output to the :command:`juju status` command
+will look like this:
+
+.. code-block:: console
+
+   Unit                Workload  Agent  Machine  Public address  Ports     Message
+   keystone/0*         active    idle   0        10.5.0.32       5000/tcp  Unit is ready
+   percona-cluster/0*  waiting   idle   1        10.5.0.20       3306/tcp  Unit waiting for cluster bootstrap
+     hacluster/0*      active    idle            10.5.0.20                 Unit is ready and clustered
+   percona-cluster/1   waiting   idle   2        10.5.0.17       3306/tcp  Unit waiting for cluster bootstrap
+     hacluster/1       active    idle            10.5.0.17                 Unit is ready and clustered
+   percona-cluster/2   waiting   idle   3        10.5.0.27       3306/tcp  Unit waiting for cluster bootstrap
+     hacluster/2       active    idle            10.5.0.27                 Unit is ready and clustered
+
+The message "Unit waiting for cluster bootstrap" indicates that the cluster
+needs to be notified of the new bootstrap UUID, and is done via the
+``notify-bootstrapped`` action. Which unit to apply this action against depends
+on how the previous action was used:
+
+#. If ``bootstrap-pxc`` was run on the leader then ``notify-bootstrapped``
+   must be run on a non-leader.
+#. Inversely, if ``bootstrap-pxc`` was run on a non-leader then
+   ``notify-bootstrapped`` must be run on the leader.
+
+In the current example, the first action was run on a non-leader
+(``percona-cluster/2``). The second action should therefore be run on the
+leader, which here is ``percona-cluster/0``:
+
+.. code-block:: none
+
+   juju run-action --wait percona-cluster/0 notify-bootstrapped
+
+After the model settles, the status output should show all nodes in active and
+ready state:
+
+.. code-block:: console
+
+   Unit                Workload  Agent  Machine  Public address  Ports     Message
+   keystone/0*         active    idle   0        10.5.0.32       5000/tcp  Unit is ready
+   percona-cluster/0*  active    idle   1        10.5.0.20       3306/tcp  Unit is ready
+     hacluster/0*      active    idle            10.5.0.20                 Unit is ready and clustered
+   percona-cluster/1   active    idle   2        10.5.0.17       3306/tcp  Unit is ready
+     hacluster/1       active    idle            10.5.0.17                 Unit is ready and clustered
+   percona-cluster/2   active    idle   3        10.5.0.27       3306/tcp  Unit is ready
+     hacluster/2       active    idle            10.5.0.27                 Unit is ready and clustered
+
+The percona-cluster application is now back to a clustered and healthy state.
 
 -------------------------------------------------------------------------------
 
@@ -1006,6 +1111,8 @@ Charms`_ project group.
 
 .. LINKS
 .. _percona-cluster charm: https://opendev.org/openstack/charm-percona-cluster/src/branch/master/README.md#cold-boot
+.. _How to recover a PXC cluster: https://www.percona.com/blog/2014/09/01/galera-replication-how-to-recover-a-pxc-cluster
+.. _Percona XtraDB sequence numbers: https://www.percona.com/blog/2017/12/14/sequence-numbers-seqno-percona-xtradb-cluster/
 .. _Vault appendix: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-vault.html
 .. _High availability: https://docs.openstack.org/arch-design/arch-requirements/arch-requirements-ha.html
 .. _Control plane architecture: https://docs.openstack.org/arch-design/design-control-plane.html
