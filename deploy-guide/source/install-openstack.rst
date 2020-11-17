@@ -799,8 +799,8 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 
 .. LINKS
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
-.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
-.. _Series upgrade: app-series-upgrade
+.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades
+.. _Series upgrade: app-series-upgrade.html
 .. _Charm store: https://jaas.ai/store
 .. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
 .. _Deploying applications: https://jaas.ai/docs/deploying-applications

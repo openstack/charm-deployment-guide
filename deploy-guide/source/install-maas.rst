@@ -2,11 +2,9 @@
 Install MAAS
 ============
 
-Overview
---------
-
-In the :doc:`previous section <index>`, we gave a summary of the OpenStack
-cloud we'll be building and described the approach we'll take for doing that.
+In the :doc:`previous section <install-overview>`, we gave a summary of the
+OpenStack cloud we'll be building and described the approach we'll take for
+doing that.
 
 This page will cover the installation of `MAAS`_ as well as point out what is
 required out of MAAS in terms of post-installation tasks. The goal is to
