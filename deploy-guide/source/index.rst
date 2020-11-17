@@ -60,7 +60,7 @@ Table of contents
    install-juju.rst
    install-openstack.rst
    install-openstack-bundle.rst
-   config-openstack.rst
+   configure-openstack.rst
    app.rst
 
 * :ref:`search`

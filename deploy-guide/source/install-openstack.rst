@@ -795,7 +795,7 @@ Next steps
 You have successfully deployed OpenStack using both Juju and MAAS. The next
 step is to render the cloud functional for users. This will involve setting up
 networks, images, and a user environment. Go to :doc:`Configure OpenStack
-<config-openstack>` now.
+<configure-openstack>` now.
 
 .. LINKS
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
