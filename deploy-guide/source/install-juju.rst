@@ -2,6 +2,9 @@
 Install Juju
 ============
 
+Overview
+--------
+
 In the :doc:`previous section <install-maas>`, we set up the base environment
 in the form of a `MAAS`_ cluster. We are now going to implement `Juju`_ as a
 management solution for that environment. The main goal will be the creation of

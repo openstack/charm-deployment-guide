@@ -502,4 +502,4 @@ Masakari.
 .. _Masakari charm: http://jaas.ai/masakari
 .. _openstack-base: https://jaas.ai/openstack-base
 .. _OpenStack high availability: app-ha.html#ha-applications
-.. _Configure OpenStack: configure-openstack.html
+.. _Configure OpenStack: config-openstack.html

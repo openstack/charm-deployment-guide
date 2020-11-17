@@ -1,64 +1,74 @@
+.. OpenStack documentation master file, created by
+   sphinx-quickstart on Fri Jun 30 11:14:11 2017.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 =================================
 OpenStack Charms Deployment Guide
 =================================
 
-The OpenStack Charms Deployment Guide is the main source of information for
-OpenStack Charms usage. A search facility is available as a separate
-:ref:`search`.
+Overview
+--------
 
-Also included is a wealth of information in the form of appendices. These
-cover a wide variety of subjects, such as an elaboration of a specific charm
-feature or instructions for upgrading an OpenStack cloud.
+The main purpose of the OpenStack Charms Deployment Guide is to demonstrate how
+to build a multi-node OpenStack cloud with `MAAS`_, `Juju`_, and `OpenStack
+Charms`_. For easy adoption the cloud will be minimal. Nevertheless, it will be
+capable of both performing some real work and scaling to fit more ambitious
+projects. High availability will not be implemented beyond natively HA
+applications (Ceph, MySQL8, OVN, Swift, and RabbitMQ).
+
+.. note::
+
+   For OpenStack Charms project information, development guidelines, release
+   notes, and release schedules, please refer to the `OpenStack Charm Guide`_.
+
+Requirements
+------------
+
+The software versions used in this guide are as follows:
+
+* **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, Juju
+  controller, and all cloud nodes (including containers)
+* **MAAS 2.8.2**
+* **Juju 2.8.1**
+* **OpenStack Ussuri**
+
+Hardware requirements are listed on the :doc:`Install MAAS <install-maas>`
+page.
+
+Appendices
+----------
+
+The guide also includes a wealth of information in the form of appendices.
+These cover a wide variety of subjects, such as an elaboration of a specific
+charm feature, how to upgrade an OpenStack cloud, or how to manage power events
+in a cloud.
+
+Help improve this guide
+-----------------------
 
 To help improve this guide you may `file an issue`_ or `submit a
 contribution`_.
 
-.. note::
-
-   For project information, development guidelines, release notes, and release
-   schedules, please refer to the `OpenStack Charm Guide`_.
+Table of contents
+-----------------
 
 .. toctree::
-   :caption: Installation
-   :maxdepth: 1
+   :maxdepth: 2
 
-   install-overview
-   install-maas
-   install-juju
-   install-openstack
-   install-openstack-bundle
-   configure-openstack
+   install-maas.rst
+   install-juju.rst
+   install-openstack.rst
+   install-openstack-bundle.rst
+   config-openstack.rst
+   app.rst
 
-.. toctree::
-   :caption: Appendices
-   :maxdepth: 1
-
-   OpenStack upgrades <app-upgrade-openstack>
-   Series upgrade <app-series-upgrade>
-   Series upgrade OpenStack <app-series-upgrade-openstack>
-   Vault <app-vault>
-   Certificate lifecycle management <app-certificate-management>
-   Encryption at Rest <app-encryption-at-rest>
-   Additional Nova cells <app-nova-cells>
-   Octavia LBaaS <app-octavia>
-   PCI passthrough <app-pci-passthrough-gpu>
-   Ceph erasure coding <app-erasure-coding>
-   Ceph RADOS Gateway multisite replication <app-rgw-multisite>
-   Ceph RBD mirroring <app-ceph-rbd-mirror>
-   Ceph iSCSI <app-ceph-iscsi>
-   Ceph charm deprecation <app-ceph-migration>
-   Masakari <app-masakari>
-   Policy overrides <app-policy-overrides>
-   OVN <app-ovn>
-   Managing power events <app-managing-power-events>
-   Manila Ganesha <app-manila-ganesha>
-   Swift usage <app-swift>
-   NIC hardware offload <app-hardware-offload>
-   High availability <app-ha>
-   TrilioVault Data Protection <app-trilio-vault>
-   Bridge interface configuration <app-bridge-interface-configuration>
+* :ref:`search`
 
 .. LINKS
+.. _MAAS: https://maas.io
+.. _Juju: https://jaas.ai
+.. _OpenStack Charms: https://docs.openstack.org/charm-guide
+.. _OpenStack Charm Guide: https://docs.openstack.org/charm-guide
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug
 .. _submit a contribution: https://opendev.org/openstack/charm-deployment-guide
-.. _OpenStack Charm Guide: https://docs.openstack.org/charm-guide

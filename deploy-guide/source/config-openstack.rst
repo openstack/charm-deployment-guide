@@ -2,6 +2,9 @@
 Configure OpenStack
 ===================
 
+Overview
+--------
+
 In the :doc:`previous section <install-openstack>`, we installed OpenStack. We
 are now going to configure OpenStack with the intent of making it consumable by
 regular users. Configuration will be performed by both the admin user and the
