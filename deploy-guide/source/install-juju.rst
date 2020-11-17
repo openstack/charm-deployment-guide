@@ -28,7 +28,7 @@ this via a cloud definition file, such as ``maas-cloud.yaml``:
      mymaas:
        type: maas
        auth-types: [oauth1]
-       endpoint: http://10.0.0.3:5240/MAAS
+       endpoint: http://10.0.0.2:5240/MAAS
 
 We've called the cloud 'mymaas' and its endpoint is based on the IP address of
 the MAAS system.
@@ -95,12 +95,12 @@ Create the model
 ----------------
 
 The OpenStack deployment will be placed in its own Juju model for
-organisational purposes. It will be called 'openstack'. Create the model, and
-switch to it, with this one command:
+organisational purposes. Create the model 'openstack' and specify our desired
+series of 'focal':
 
 .. code-block:: none
 
-   juju add-model openstack
+   juju add-model --config default-series=focal openstack
 
 The output of the :command:`juju status` command summarises the Juju aspect of
 the environment. It should now look very similar to this:
@@ -108,7 +108,7 @@ the environment. It should now look very similar to this:
 .. code-block:: none
 
    Model      Controller       Cloud/Region    Version  SLA          Timestamp
-   openstack  maas-controller  mymaas/default  2.7.0    unsupported  04:28:49Z
+   openstack  maas-controller  mymaas/default  2.8.6    unsupported  04:28:49Z
 
    Model "admin/openstack" is empty
 
@@ -120,5 +120,5 @@ the OpenStack applications and adding relations between them. Go to
 :doc:`Install OpenStack <install-openstack>` now.
 
 .. LINKS
-.. _Juju: https://jaas.ai
+.. _Juju: https://juju.is
 .. _MAAS: https://maas.io

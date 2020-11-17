@@ -13,110 +13,106 @@ installed from the instructions given on the :doc:`Install OpenStack
 .. code-block:: console
 
    Model      Controller       Cloud/Region    Version  SLA          Timestamp
-   openstack  maas-controller  mymaas/default  2.8.1    unsupported  02:53:54Z
+   openstack  maas-controller  mymaas/default  2.8.6    unsupported  01:12:49Z
 
    App                       Version  Status  Scale  Charm                   Store       Rev  OS      Notes
-   ceph-mon                  15.2.3   active      3  ceph-mon                jujucharms   49  ubuntu
-   ceph-osd                  15.2.3   active      4  ceph-osd                jujucharms  304  ubuntu
-   cinder                    16.1.0   active      1  cinder                  jujucharms  304  ubuntu
-   cinder-ceph               16.1.0   active      1  cinder-ceph             jujucharms  257  ubuntu
-   cinder-mysql-router       8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   dashboard-mysql-router    8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   glance                    20.0.0   active      1  glance                  jujucharms  299  ubuntu
-   glance-mysql-router       8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   keystone                  17.0.0   active      1  keystone                jujucharms  317  ubuntu
-   keystone-mysql-router     8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   mysql-innodb-cluster      8.0.21   active      3  mysql-innodb-cluster    jujucharms    1  ubuntu
-   ncc-mysql-router          8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   neutron-api               16.0.0   active      1  neutron-api             jujucharms  288  ubuntu
-   neutron-api-mysql-router  8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   neutron-api-plugin-ovn    16.0.0   active      1  neutron-api-plugin-ovn  jujucharms    1  ubuntu
-   nova-cloud-controller     21.0.0   active      1  nova-cloud-controller   jujucharms  346  ubuntu
-   nova-compute              21.0.0   active      3  nova-compute            jujucharms  320  ubuntu
+   ceph-mon                  15.2.5   active      3  ceph-mon                jujucharms   50  ubuntu
+   ceph-osd                  15.2.5   active      4  ceph-osd                jujucharms  306  ubuntu
+   ceph-radosgw              15.2.5   active      1  ceph-radosgw            jujucharms  291  ubuntu
+   cinder                    17.0.0   active      1  cinder                  jujucharms  306  ubuntu
+   cinder-ceph               17.0.0   active      1  cinder-ceph             jujucharms  258  ubuntu
+   cinder-mysql-router       8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   dashboard-mysql-router    8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   glance                    21.0.0   active      1  glance                  jujucharms  301  ubuntu
+   glance-mysql-router       8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   keystone                  18.0.0   active      1  keystone                jujucharms  319  ubuntu
+   keystone-mysql-router     8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   mysql-innodb-cluster      8.0.22   active      3  mysql-innodb-cluster    jujucharms    3  ubuntu
+   ncc-mysql-router          8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   neutron-api               17.0.0   active      1  neutron-api             jujucharms  290  ubuntu
+   neutron-api-mysql-router  8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   neutron-api-plugin-ovn    17.0.0   active      1  neutron-api-plugin-ovn  jujucharms    2  ubuntu
+   nova-cloud-controller     22.0.0   active      1  nova-cloud-controller   jujucharms  349  ubuntu
+   nova-compute              22.0.0   active      3  nova-compute            jujucharms  323  ubuntu
    ntp                       3.5      active      4  ntp                     jujucharms   41  ubuntu
-   openstack-dashboard       18.3.2   active      1  openstack-dashboard     jujucharms  305  ubuntu
-   ovn-central               20.03.0  active      3  ovn-central             jujucharms    1  ubuntu
-   ovn-chassis               20.03.0  active      3  ovn-chassis             jujucharms    4  ubuntu
-   placement                 3.0.0    active      1  placement               jujucharms   12  ubuntu
-   placement-mysql-router    8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
-   rabbitmq-server           3.8.2    active      1  rabbitmq-server         jujucharms  104  ubuntu
-   swift-proxy               2.25.0   active      1  swift-proxy             jujucharms   94  ubuntu
-   swift-storage             2.25.0   active      3  swift-storage           jujucharms  271  ubuntu
-   vault                     1.1.1    active      1  vault                   jujucharms   40  ubuntu
-   vault-mysql-router        8.0.21   active      1  mysql-router            jujucharms    3  ubuntu
+   openstack-dashboard       18.6.1   active      1  openstack-dashboard     jujucharms  309  ubuntu
+   ovn-central               20.03.1  active      3  ovn-central             jujucharms    2  ubuntu
+   ovn-chassis               20.03.1  active      3  ovn-chassis             jujucharms    7  ubuntu
+   placement                 4.0.0    active      1  placement               jujucharms   15  ubuntu
+   placement-mysql-router    8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
+   rabbitmq-server           3.8.2    active      1  rabbitmq-server         jujucharms  106  ubuntu
+   vault                     1.5.4    active      1  vault                   jujucharms   41  ubuntu
+   vault-mysql-router        8.0.22   active      1  mysql-router            jujucharms    4  ubuntu
 
    Unit                           Workload  Agent  Machine  Public address  Ports              Message
-   ceph-mon/0*                    active    idle   0/lxd/3  10.0.0.227                         Unit is ready and clustered
-   ceph-mon/1                     active    idle   1/lxd/4  10.0.0.226                         Unit is ready and clustered
-   ceph-mon/2                     active    idle   2/lxd/3  10.0.0.225                         Unit is ready and clustered
-   ceph-osd/0*                    active    idle   0        10.0.0.206                         Unit is ready (1 OSD)
-     ntp/1                        active    idle            10.0.0.206      123/udp            chrony: Ready
-   ceph-osd/1                     active    idle   1        10.0.0.208                         Unit is ready (1 OSD)
-     ntp/0*                       active    idle            10.0.0.208      123/udp            chrony: Ready
-   ceph-osd/2                     active    idle   2        10.0.0.209                         Unit is ready (1 OSD)
-     ntp/3                        active    idle            10.0.0.209      123/udp            chrony: Ready
-   ceph-osd/3                     active    idle   3        10.0.0.213                         Unit is ready (1 OSD)
-     ntp/2                        active    idle            10.0.0.213      123/udp            chrony: Ready
-   cinder/0*                      active    idle   1/lxd/5  10.0.0.228      8776/tcp           Unit is ready
-     cinder-ceph/0*               active    idle            10.0.0.228                         Unit is ready
-     cinder-mysql-router/0*       active    idle            10.0.0.228                         Unit is ready
-   glance/0*                      active    idle   3/lxd/3  10.0.0.224      9292/tcp           Unit is ready
-     glance-mysql-router/0*       active    idle            10.0.0.224                         Unit is ready
-   keystone/0*                    active    idle   0/lxd/2  10.0.0.223      5000/tcp           Unit is ready
-     keystone-mysql-router/0*     active    idle            10.0.0.223                         Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.211                         Unit is ready: Mode: R/W
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.212                         Unit is ready: Mode: R/O
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.214                         Unit is ready: Mode: R/O
-   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.220      9696/tcp           Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.0.0.220                         Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.0.0.220                         Unit is ready
-   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.216      8774/tcp,8775/tcp  Unit is ready
-     ncc-mysql-router/0*          active    idle            10.0.0.216                         Unit is ready
-   nova-compute/0*                active    idle   1        10.0.0.208                         Unit is ready
-     ovn-chassis/1                active    idle            10.0.0.208                         Unit is ready
-   nova-compute/1                 active    idle   2        10.0.0.209                         Unit is ready
-     ovn-chassis/0*               active    idle            10.0.0.209                         Unit is ready
-   nova-compute/2                 active    idle   3        10.0.0.213                         Unit is ready
-     ovn-chassis/2                active    idle            10.0.0.213                         Unit is ready
-   openstack-dashboard/0*         active    idle   1/lxd/3  10.0.0.210      80/tcp,443/tcp     Unit is ready
-     dashboard-mysql-router/0*    active    idle            10.0.0.210                         Unit is ready
-   ovn-central/0*                 active    idle   0/lxd/1  10.0.0.218      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
-   ovn-central/1                  active    idle   1/lxd/1  10.0.0.221      6641/tcp,6642/tcp  Unit is ready
-   ovn-central/2                  active    idle   2/lxd/1  10.0.0.219      6641/tcp,6642/tcp  Unit is ready
-   placement/0*                   active    idle   3/lxd/2  10.0.0.215      8778/tcp           Unit is ready
-     placement-mysql-router/0*    active    idle            10.0.0.215                         Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.222      5672/tcp           Unit is ready
-   swift-proxy/0*                 active    idle   3/lxd/4  10.0.0.231      8080/tcp           Unit is ready
-   swift-storage/0*               active    idle   0        10.0.0.206                         Unit is ready
-   swift-storage/1                active    idle   2        10.0.0.209                         Unit is ready
-   swift-storage/2                active    idle   3        10.0.0.213                         Unit is ready
-   vault/0*                       active    idle   3/lxd/0  10.0.0.217      8200/tcp           Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.0.0.217                         Unit is ready
+   ceph-mon/0*                    active    idle   0/lxd/3  10.0.0.191                         Unit is ready and clustered
+   ceph-mon/1                     active    idle   1/lxd/3  10.0.0.189                         Unit is ready and clustered
+   ceph-mon/2                     active    idle   2/lxd/4  10.0.0.190                         Unit is ready and clustered
+   ceph-osd/0*                    active    idle   0        10.0.0.171                         Unit is ready (1 OSD)
+     ntp/1                        active    idle            10.0.0.171      123/udp            chrony: Ready
+   ceph-osd/1                     active    idle   1        10.0.0.172                         Unit is ready (1 OSD)
+     ntp/0*                       active    idle            10.0.0.172      123/udp            chrony: Ready
+   ceph-osd/2                     active    idle   2        10.0.0.173                         Unit is ready (1 OSD)
+     ntp/3                        active    idle            10.0.0.173      123/udp            chrony: Ready
+   ceph-osd/3                     active    idle   3        10.0.0.174                         Unit is ready (1 OSD)
+     ntp/2                        active    idle            10.0.0.174      123/udp            chrony: Ready
+   ceph-radosgw/0*                active    idle   0/lxd/4  10.0.0.193      80/tcp             Unit is ready
+   cinder/0*                      active    idle   1/lxd/4  10.0.0.192      8776/tcp           Unit is ready
+     cinder-ceph/0*               active    idle            10.0.0.192                         Unit is ready
+     cinder-mysql-router/0*       active    idle            10.0.0.192                         Unit is ready
+   glance/0*                      active    idle   3/lxd/3  10.0.0.188      9292/tcp           Unit is ready
+     glance-mysql-router/0*       active    idle            10.0.0.188                         Unit is ready
+   keystone/0*                    active    idle   0/lxd/2  10.0.0.183      5000/tcp           Unit is ready
+     keystone-mysql-router/0*     active    idle            10.0.0.183                         Unit is ready
+   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.175                         Unit is ready: Mode: R/W
+   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.176                         Unit is ready: Mode: R/O
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.177                         Unit is ready: Mode: R/O
+   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.182      9696/tcp           Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.0.0.182                         Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.0.0.182                         Unit is ready
+   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.185      8774/tcp,8775/tcp  Unit is ready
+     ncc-mysql-router/0*          active    idle            10.0.0.185                         Unit is ready
+   nova-compute/0*                active    idle   1        10.0.0.172                         Unit is ready
+     ovn-chassis/0*               active    idle            10.0.0.172                         Unit is ready
+   nova-compute/1                 active    idle   2        10.0.0.173                         Unit is ready
+     ovn-chassis/2                active    idle            10.0.0.173                         Unit is ready
+   nova-compute/2                 active    idle   3        10.0.0.174                         Unit is ready
+     ovn-chassis/1                active    idle            10.0.0.174                         Unit is ready
+   openstack-dashboard/0*         active    idle   2/lxd/3  10.0.0.187      80/tcp,443/tcp     Unit is ready
+     dashboard-mysql-router/0*    active    idle            10.0.0.187                         Unit is ready
+   ovn-central/0                  active    idle   0/lxd/1  10.0.0.181      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db)
+   ovn-central/1                  active    idle   1/lxd/1  10.0.0.179      6641/tcp,6642/tcp  Unit is ready
+   ovn-central/2*                 active    idle   2/lxd/1  10.0.0.180      6641/tcp,6642/tcp  Unit is ready (leader: ovnsb_db northd: active)
+   placement/0*                   active    idle   3/lxd/2  10.0.0.186      8778/tcp           Unit is ready
+     placement-mysql-router/0*    active    idle            10.0.0.186                         Unit is ready
+   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.184      5672/tcp           Unit is ready
+   vault/0*                       active    idle   3/lxd/0  10.0.0.178      8200/tcp           Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.0.0.178                         Unit is ready
 
    Machine  State    DNS         Inst id              Series  AZ       Message
-   0        started  10.0.0.206  node1                focal   default  Deployed
-   0/lxd/0  started  10.0.0.211  juju-6f106b-0-lxd-0  focal   default  Container started
-   0/lxd/1  started  10.0.0.218  juju-6f106b-0-lxd-1  focal   default  Container started
-   0/lxd/2  started  10.0.0.223  juju-6f106b-0-lxd-2  focal   default  Container started
-   0/lxd/3  started  10.0.0.227  juju-6f106b-0-lxd-3  focal   default  Container started
-   1        started  10.0.0.208  node2                focal   default  Deployed
-   1/lxd/0  started  10.0.0.212  juju-6f106b-1-lxd-0  focal   default  Container started
-   1/lxd/1  started  10.0.0.221  juju-6f106b-1-lxd-1  focal   default  Container started
-   1/lxd/2  started  10.0.0.220  juju-6f106b-1-lxd-2  focal   default  Container started
-   1/lxd/3  started  10.0.0.210  juju-6f106b-1-lxd-3  focal   default  Container started
-   1/lxd/4  started  10.0.0.226  juju-6f106b-1-lxd-4  focal   default  Container started
-   1/lxd/5  started  10.0.0.228  juju-6f106b-1-lxd-5  focal   default  Container started
-   2        started  10.0.0.209  node3                focal   default  Deployed
-   2/lxd/0  started  10.0.0.214  juju-6f106b-2-lxd-0  focal   default  Container started
-   2/lxd/1  started  10.0.0.219  juju-6f106b-2-lxd-1  focal   default  Container started
-   2/lxd/2  started  10.0.0.222  juju-6f106b-2-lxd-2  focal   default  Container started
-   2/lxd/3  started  10.0.0.225  juju-6f106b-2-lxd-3  focal   default  Container started
-   3        started  10.0.0.213  node4                focal   default  Deployed
-   3/lxd/0  started  10.0.0.217  juju-6f106b-3-lxd-0  focal   default  Container started
-   3/lxd/1  started  10.0.0.216  juju-6f106b-3-lxd-1  focal   default  Container started
-   3/lxd/2  started  10.0.0.215  juju-6f106b-3-lxd-2  focal   default  Container started
-   3/lxd/3  started  10.0.0.224  juju-6f106b-3-lxd-3  focal   default  Container started
-   3/lxd/4  started  10.0.0.231  juju-6f106b-3-lxd-4  focal   default  Container started
+   0        started  10.0.0.171  node2                focal   default  Deployed
+   0/lxd/0  started  10.0.0.175  juju-bdbf2c-0-lxd-0  focal   default  Container started
+   0/lxd/1  started  10.0.0.181  juju-bdbf2c-0-lxd-1  focal   default  Container started
+   0/lxd/2  started  10.0.0.183  juju-bdbf2c-0-lxd-2  focal   default  Container started
+   0/lxd/3  started  10.0.0.191  juju-bdbf2c-0-lxd-3  focal   default  Container started
+   0/lxd/4  started  10.0.0.193  juju-bdbf2c-0-lxd-4  focal   default  Container started
+   1        started  10.0.0.172  node1                focal   default  Deployed
+   1/lxd/0  started  10.0.0.176  juju-bdbf2c-1-lxd-0  focal   default  Container started
+   1/lxd/1  started  10.0.0.179  juju-bdbf2c-1-lxd-1  focal   default  Container started
+   1/lxd/2  started  10.0.0.182  juju-bdbf2c-1-lxd-2  focal   default  Container started
+   1/lxd/3  started  10.0.0.189  juju-bdbf2c-1-lxd-3  focal   default  Container started
+   1/lxd/4  started  10.0.0.192  juju-bdbf2c-1-lxd-4  focal   default  Container started
+   2        started  10.0.0.173  node3                focal   default  Deployed
+   2/lxd/0  started  10.0.0.177  juju-bdbf2c-2-lxd-0  focal   default  Container started
+   2/lxd/1  started  10.0.0.180  juju-bdbf2c-2-lxd-1  focal   default  Container started
+   2/lxd/2  started  10.0.0.184  juju-bdbf2c-2-lxd-2  focal   default  Container started
+   2/lxd/3  started  10.0.0.187  juju-bdbf2c-2-lxd-3  focal   default  Container started
+   2/lxd/4  started  10.0.0.190  juju-bdbf2c-2-lxd-4  focal   default  Container started
+   3        started  10.0.0.174  node4                focal   default  Deployed
+   3/lxd/0  started  10.0.0.178  juju-bdbf2c-3-lxd-0  focal   default  Container started
+   3/lxd/1  started  10.0.0.185  juju-bdbf2c-3-lxd-1  focal   default  Container started
+   3/lxd/2  started  10.0.0.186  juju-bdbf2c-3-lxd-2  focal   default  Container started
+   3/lxd/3  started  10.0.0.188  juju-bdbf2c-3-lxd-3  focal   default  Container started
 
    Relation provider                      Requirer                                     Interface                       Type         Message
    ceph-mon:client                        cinder-ceph:ceph                             ceph-client                     regular
@@ -124,7 +120,9 @@ installed from the instructions given on the :doc:`Install OpenStack
    ceph-mon:client                        nova-compute:ceph                            ceph-client                     regular
    ceph-mon:mon                           ceph-mon:mon                                 ceph                            peer
    ceph-mon:osd                           ceph-osd:mon                                 ceph-osd                        regular
+   ceph-mon:radosgw                       ceph-radosgw:mon                             ceph-radosgw                    regular
    ceph-osd:juju-info                     ntp:juju-info                                juju-info                       subordinate
+   ceph-radosgw:cluster                   ceph-radosgw:cluster                         swift-ha                        peer
    cinder-ceph:ceph-access                nova-compute:ceph-access                     cinder-ceph-key                 regular
    cinder-ceph:storage-backend            cinder:storage-backend                       cinder-backend                  subordinate
    cinder-mysql-router:shared-db          cinder:shared-db                             mysql-shared                    subordinate
@@ -144,7 +142,6 @@ installed from the instructions given on the :doc:`Install OpenStack
    keystone:identity-service              nova-cloud-controller:identity-service       keystone                        regular
    keystone:identity-service              openstack-dashboard:identity-service         keystone                        regular
    keystone:identity-service              placement:identity-service                   keystone                        regular
-   keystone:identity-service              swift-proxy:identity-service                 keystone                        regular
    mysql-innodb-cluster:cluster           mysql-innodb-cluster:cluster                 mysql-innodb-cluster            peer
    mysql-innodb-cluster:coordinator       mysql-innodb-cluster:coordinator             coordinator                     peer
    mysql-innodb-cluster:db-router         cinder-mysql-router:db-router                mysql-router                    regular
@@ -177,8 +174,6 @@ installed from the instructions given on the :doc:`Install OpenStack
    rabbitmq-server:amqp                   nova-cloud-controller:amqp                   rabbitmq                        regular
    rabbitmq-server:amqp                   nova-compute:amqp                            rabbitmq                        regular
    rabbitmq-server:cluster                rabbitmq-server:cluster                      rabbitmq-ha                     peer
-   swift-proxy:cluster                    swift-proxy:cluster                          swift-ha                        peer
-   swift-storage:swift-storage            swift-proxy:swift-storage                    swift                           regular
    vault-mysql-router:shared-db           vault:shared-db                              mysql-shared                    subordinate
    vault:certificates                     cinder:certificates                          tls-certificates                regular
    vault:certificates                     glance:certificates                          tls-certificates                regular

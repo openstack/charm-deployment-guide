@@ -14,6 +14,9 @@ Domains, projects, users, and roles are a vital part of OpenStack operations.
 For the non-admin case, we'll create a single domain with a single project and
 single user.
 
+The tasks on this page should be performed on the host where the Juju client is
+installed.
+
 Install the OpenStack clients
 -----------------------------
 
@@ -23,7 +26,6 @@ command line. Install them now:
 .. code-block:: none
 
    sudo snap install openstackclients --classic
-
 
 Create the admin user environment
 ---------------------------------
@@ -109,14 +111,14 @@ Create an image and flavor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Import a boot image into Glance to create server instances with. Here we import
-a Bionic amd64 image and call it 'bionic x86_64':
+a Focal amd64 image and call it 'focal x86_64':
 
 .. code-block:: none
 
-   curl http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img | \
+   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img | \
       openstack image create --public --container-format bare --disk-format qcow2 \
       --property architecture=x86_64 --property hw_disk_bus=virtio \
-      --property hw_vif_model=virtio "bionic x86_64"
+      --property hw_vif_model=virtio "focal x86_64"
 
 Create at least one flavor to define a hardware profile for new instances. Here
 we create one called 'm1.micro':
@@ -243,11 +245,11 @@ Perform a cloud query to ensure the user environment is functioning correctly:
 .. code-block:: none
 
    openstack image list
-   +--------------------------------------+---------------+--------+
-   | ID                                   | Name          | Status |
-   +--------------------------------------+---------------+--------+
-   | 429f79c7-9ed9-4873-b6da-41580acd2d5f | bionic x86_64 | active |
-   +--------------------------------------+---------------+--------+
+   +--------------------------------------+--------------+--------+
+   | ID                                   | Name         | Status |
+   +--------------------------------------+--------------+--------+
+   | 429f79c7-9ed9-4873-b6da-41580acd2d5f | focal x86_64 | active |
+   +--------------------------------------+--------------+--------+
 
 The image that was previously imported by the admin user should be returned.
 
@@ -305,22 +307,15 @@ own rules. We do the latter by creating a group called 'Allow_SSH':
 Create and access an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. important::
-
-   It has been observed in some newly-deployed clouds that the configuration of
-   OVN remains incomplete, which prevents cloud instances from being created.
-   The workaround is to restart the ``ovn-northd`` daemon on each ovn-central
-   unit. See `LP #1895303`_ for details.
-
 Determine the network ID of private network 'Network1' and then create an
-instance called 'bionic-1':
+instance called 'focal-1':
 
 .. code-block:: none
 
    NET_ID=$(openstack network list | grep Network1 | awk '{ print $2 }')
-   openstack server create --image 'bionic x86_64' --flavor m1.micro \
+   openstack server create --image 'focal x86_64' --flavor m1.micro \
       --key-name User1-key --security-group Allow_SSH --nic net-id=$NET_ID \
-      bionic-1
+      focal-1
 
 Request a floating IP address from the public network 'Pub_Net' and assign it
 to a variable:
@@ -329,11 +324,11 @@ to a variable:
 
    FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address Pub_Net)
 
-Now add that floating IP address to the newly-created instance 'bionic-1':
+Now add that floating IP address to the newly-created instance 'focal-1':
 
 .. code-block:: none
 
-   openstack server add floating ip bionic-1 $FLOATING_IP
+   openstack server add floating ip focal-1 $FLOATING_IP
 
 Ask for a listing of all instances within the context of the current project
 ('Project1'):
@@ -346,11 +341,11 @@ Sample output:
 
 .. code-block:: console
 
-   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
-   | ID                                   | Name     | Status | Networks                          | Image         | Flavor   |
-   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
-   | 9167b3e9-c653-43fc-858a-2d6f6da36daa | bionic-1 | ACTIVE | Network1=192.168.0.131, 10.0.8.10 | bionic x86_64 | m1.micro |
-   +--------------------------------------+----------+--------+-----------------------------------+---------------+----------+
+   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
+   | ID                                   | Name    | Status | Networks                          | Image         | Flavor   |
+   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
+   | 9167b3e9-c653-43fc-858a-2d6f6da36daa | focal-1 | ACTIVE | Network1=192.168.0.131, 10.0.8.10 | focal x86_64 | m1.micro |
+   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
 
 The first address listed is in the private network and the second one is in the
 public network:
@@ -359,7 +354,7 @@ You can monitor the booting of the instance with this command:
 
 .. code-block:: none
 
-   openstack console log show bionic-1
+   openstack console log show focal-1
 
 The instance is ready when the output contains:
 
@@ -368,9 +363,9 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 18.04.3 LTS bionic-1 ttyS0
+   Ubuntu 20.04.1 LTS focal-1 ttyS0
 
-   bionic-1 login:
+   focal-1 login:
 
 You can connect to the instance in this way:
 
@@ -394,7 +389,6 @@ guidance.
 .. LINKS
 .. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles/blob/master/stable/shared/openrcv3_project
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
-.. _Using OpenStack with Juju: https://jaas.ai/docs/openstack-cloud
+.. _Using OpenStack with Juju: https://juju.is/docs/openstack-cloud
 
 .. BUGS
-.. _LP #1895303: https://bugs.launchpad.net/charm-ovn-central/+bug/1895303

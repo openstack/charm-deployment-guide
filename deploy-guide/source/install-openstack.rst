@@ -51,21 +51,22 @@ OpenStack release
 -----------------
 
 .. TEMPLATE
-   As the guide's :doc:`Overview <index>` section states, OpenStack Ussuri will
-   be deployed atop Ubuntu 18.04 LTS (Bionic) cloud nodes. In order to achieve
-   this a cloud archive release of 'cloud:bionic-train' will be used during the
-   install of each OpenStack application. Note that some applications are not
-   part of the OpenStack project per se and therefore do not apply
-   (exceptionally, Ceph applications do use this method). Not using a more
-   recent OpenStack release in this way will result in a Queens deployment
-   (i.e. Queens is in the Ubuntu package archive for Bionic).
+   As the :doc:`Overview <install-overview>` of the Installation section
+   states, OpenStack Ussuri will be deployed atop Ubuntu 20.04 LTS (Focal)
+   cloud nodes. In order to achieve this the default package archive ("distro")
+   for the cloud nodes will be used during the install of each OpenStack
+   application. Note that some applications are not part of the OpenStack
+   project per se and therefore do not apply (exceptionally, Ceph applications
+   do use this method).
 
-As the guide's :doc:`Overview <index>` section states, OpenStack Ussuri will be
-deployed atop Ubuntu 20.04 LTS (Focal) cloud nodes. In order to achieve this
-the default package archive ("distro") for the cloud nodes will be used during
-the install of each OpenStack application. Note that some applications are not
-part of the OpenStack project per se and therefore do not apply (exceptionally,
-Ceph applications do use this method).
+As the :doc:`Overview <install-overview>` of the Installation section states,
+OpenStack Victoria will be deployed atop Ubuntu 20.04 LTS (Focal) cloud nodes.
+In order to achieve this a cloud archive release of 'cloud:focal-victoria' will
+be used during the install of each OpenStack application. Note that some
+applications are not part of the OpenStack project per se and therefore do not
+apply (exceptionally, Ceph applications do use this method). Not using a more
+recent OpenStack release in this way will result in an Ussuri deployment (i.e.
+Ussuri is in the Ubuntu package archive for Focal).
 
 See :ref:`Perform the upgrade <perform_the_upgrade>` in the :doc:`OpenStack
 Upgrades <app-upgrade-openstack>` appendix for more details on cloud
@@ -74,7 +75,7 @@ archive releases and how they are used when upgrading OpenStack.
 .. important::
 
    The chosen OpenStack release may impact the installation and configuration
-   instructions. **This guide assumes that OpenStack Ussuri is being
+   instructions. **This guide assumes that OpenStack Victoria is being
    deployed.**
 
 Installation progress
@@ -130,10 +131,10 @@ contains the configuration.
 
    ceph-osd:
      osd-devices: /dev/sdb
-     source: distro
+     source: cloud:focal-victoria
 
-To deploy the application we'll make use of the 'compute' tag we placed on each
-of these nodes on the :doc:`Install MAAS <install-maas>` page.
+To deploy the application we'll make use of the 'compute' tag that we placed on
+each of these nodes on the :doc:`Install MAAS <install-maas>` page:
 
 .. code-block:: none
 
@@ -164,7 +165,7 @@ charm. We'll then scale-out the application to two other machines. File
      enable-live-migration: true
      enable-resize: true
      migration-auth-type: ssh
-     openstack-origin: distro
+     openstack-origin: cloud:focal-victoria
 
 The initial node must be targeted by machine since there are no more free Juju
 machines (MAAS nodes) available. This means we're placing multiple services on
@@ -182,30 +183,6 @@ our nodes. We've chosen machines 1, 2, and 3:
    format will require manual image conversion for each instance. See bug `LP
    #1826888`_.
 
-Swift storage
-~~~~~~~~~~~~~
-
-The swift-storage application is deployed to three nodes (machines 0, 2, and
-3) with the `swift-storage`_ charm. File ``swift-storage.yaml`` contains the
-configuration:
-
-.. code-block:: yaml
-
-   swift-storage:
-     block-device: sdc
-     overwrite: "true"
-     openstack-origin: distro
-
-This configuration points to block device ``/dev/sdc``. Adjust according to
-your available hardware. In a production environment, avoid using a loopback
-device.
-
-Deploy to the three machines:
-
-.. code-block:: none
-
-   juju deploy -n 3 --to 0,2,3 --config swift-storage.yaml swift-storage
-
 MySQL InnoDB Cluster
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -220,9 +197,8 @@ Vault
 ~~~~~
 
 Vault is necessary for managing the TLS certificates that will enable encrypted
-communication between cloud applications.
-
-Deploy it in this way:
+communication between cloud applications. It will be containerised on machine
+3:
 
 .. code-block:: none
 
@@ -255,21 +231,18 @@ status` should look similar to this:
 .. code-block:: console
 
    Unit                     Workload  Agent  Machine  Public address  Ports     Message
-   ceph-osd/0*              blocked   idle   0        10.0.0.206                Missing relation: monitor
-   ceph-osd/1               blocked   idle   1        10.0.0.208                Missing relation: monitor
-   ceph-osd/2               blocked   idle   2        10.0.0.209                Missing relation: monitor
-   ceph-osd/3               blocked   idle   3        10.0.0.213                Missing relation: monitor
-   mysql-innodb-cluster/0*  active    idle   0/lxd/0  10.0.0.211                Unit is ready: Mode: R/W
-   mysql-innodb-cluster/1   active    idle   1/lxd/0  10.0.0.212                Unit is ready: Mode: R/O
-   mysql-innodb-cluster/2   active    idle   2/lxd/0  10.0.0.214                Unit is ready: Mode: R/O
-   nova-compute/0*          blocked   idle   1        10.0.0.208                Missing relations: image, messaging
-   nova-compute/1           blocked   idle   2        10.0.0.209                Missing relations: image, messaging
-   nova-compute/2           blocked   idle   3        10.0.0.213                Missing relations: messaging, image
-   swift-storage/0*         blocked   idle   0        10.0.0.206                Missing relations: proxy
-   swift-storage/1          blocked   idle   2        10.0.0.209                Missing relations: proxy
-   swift-storage/2          blocked   idle   3        10.0.0.213                Missing relations: proxy
-   vault/0*                 active    idle   3/lxd/0  10.0.0.217      8200/tcp  Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*  active    idle            10.0.0.217                Unit is ready
+   ceph-osd/0*              blocked   idle   0        10.0.0.171                Missing relation: monitor
+   ceph-osd/1               blocked   idle   1        10.0.0.172                Missing relation: monitor
+   ceph-osd/2               blocked   idle   2        10.0.0.173                Missing relation: monitor
+   ceph-osd/3               blocked   idle   3        10.0.0.174                Missing relation: monitor
+   mysql-innodb-cluster/0*  active    idle   0/lxd/0  10.0.0.175                Unit is ready: Mode: R/W
+   mysql-innodb-cluster/1   active    idle   1/lxd/0  10.0.0.176                Unit is ready: Mode: R/O
+   mysql-innodb-cluster/2   active    idle   2/lxd/0  10.0.0.177                Unit is ready: Mode: R/O
+   nova-compute/0*          blocked   idle   1        10.0.0.172                Missing relations: messaging, image
+   nova-compute/1           blocked   idle   2        10.0.0.173                Missing relations: messaging, image
+   nova-compute/2           blocked   idle   3        10.0.0.174                Missing relations: messaging, image
+   vault/0*                 active    idle   3/lxd/0  10.0.0.178      8200/tcp  Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*  active    idle            10.0.0.178                Unit is ready
 
 .. _neutron_networking:
 
@@ -293,9 +266,9 @@ File ``neutron.yaml`` contains the configuration necessary for three of them:
    neutron-api:
      neutron-security-groups: true
      flat-network-providers: physnet1
-     openstack-origin: distro
+     openstack-origin: cloud:focal-victoria
    ovn-central:
-     source: distro
+     source: cloud:focal-victoria
 
 The ``bridge-interface-mappings`` setting refers to a network interface that
 the OVN Chassis will bind to. In the above example it is 'eth1' and it should
@@ -356,13 +329,11 @@ Join neutron-api to the cloud database:
 Keystone
 ~~~~~~~~
 
-The keystone application will be containerised on machine 0.
-
-To deploy:
+The keystone application will be containerised on machine 0:
 
 .. code-block:: none
 
-   juju deploy --to lxd:0 --config openstack-origin=distro keystone
+   juju deploy --to lxd:0 --config openstack-origin=cloud:focal-victoria keystone
 
 Join keystone to the cloud database:
 
@@ -402,33 +373,30 @@ look similar to this:
 .. code-block:: console
 
    Unit                           Workload  Agent  Machine  Public address  Ports              Message
-   ceph-osd/0*                    blocked   idle   0        10.0.0.206                         Missing relation: monitor
-   ceph-osd/1                     blocked   idle   1        10.0.0.208                         Missing relation: monitor
-   ceph-osd/2                     blocked   idle   2        10.0.0.209                         Missing relation: monitor
-   ceph-osd/3                     blocked   idle   3        10.0.0.213                         Missing relation: monitor
-   keystone/0*                    active    idle   0/lxd/2  10.0.0.223      5000/tcp           Unit is ready
-     keystone-mysql-router/0*     active    idle            10.0.0.223                         Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.211                         Unit is ready: Mode: R/W
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.212                         Unit is ready: Mode: R/O
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.214                         Unit is ready: Mode: R/O
-   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.220      9696/tcp           Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.0.0.220                         Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.0.0.220                         Unit is ready
-   nova-compute/0*                blocked   idle   1        10.0.0.208                         Missing relations: image
-     ovn-chassis/1                active    idle            10.0.0.208                         Unit is ready
-   nova-compute/1                 blocked   idle   2        10.0.0.209                         Missing relations: image
-     ovn-chassis/0*               active    idle            10.0.0.209                         Unit is ready
-   nova-compute/2                 blocked   idle   3        10.0.0.213                         Missing relations: image
-     ovn-chassis/2                active    idle            10.0.0.213                         Unit is ready
-   ovn-central/0*                 active    idle   0/lxd/1  10.0.0.218      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
-   ovn-central/1                  active    idle   1/lxd/1  10.0.0.221      6641/tcp,6642/tcp  Unit is ready
-   ovn-central/2                  active    idle   2/lxd/1  10.0.0.219      6641/tcp,6642/tcp  Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.222      5672/tcp           Unit is ready
-   swift-storage/0*               blocked   idle   0        10.0.0.206                         Missing relations: proxy
-   swift-storage/1                blocked   idle   2        10.0.0.209                         Missing relations: proxy
-   swift-storage/2                blocked   idle   3        10.0.0.213                         Missing relations: proxy
-   vault/0*                       active    idle   3/lxd/0  10.0.0.217      8200/tcp           Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.0.0.217                         Unit is ready
+   ceph-osd/0*                    blocked   idle   0        10.0.0.171                         Missing relation: monitor
+   ceph-osd/1                     blocked   idle   1        10.0.0.172                         Missing relation: monitor
+   ceph-osd/2                     blocked   idle   2        10.0.0.173                         Missing relation: monitor
+   ceph-osd/3                     blocked   idle   3        10.0.0.174                         Missing relation: monitor
+   keystone/0*                    active    idle   0/lxd/2  10.0.0.183      5000/tcp           Unit is ready
+     keystone-mysql-router/0*     active    idle            10.0.0.183                         Unit is ready
+   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.175                         Unit is ready: Mode: R/W
+   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.176                         Unit is ready: Mode: R/O
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.177                         Unit is ready: Mode: R/O
+   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.182      9696/tcp           Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.0.0.182                         Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.0.0.182                         Unit is ready
+   nova-compute/0*                blocked   idle   1        10.0.0.172                         Missing relations: image
+     ovn-chassis/0*               active    idle            10.0.0.172                         Unit is ready
+   nova-compute/1                 blocked   idle   2        10.0.0.173                         Missing relations: image
+     ovn-chassis/2                active    idle            10.0.0.173                         Unit is ready
+   nova-compute/2                 blocked   idle   3        10.0.0.174                         Missing relations: image
+     ovn-chassis/1                active    idle            10.0.0.174                         Unit is ready
+   ovn-central/0                  active    idle   0/lxd/1  10.0.0.181      6641/tcp,6642/tcp  Unit is ready
+   ovn-central/1                  active    idle   1/lxd/1  10.0.0.179      6641/tcp,6642/tcp  Unit is ready
+   ovn-central/2*                 active    idle   2/lxd/1  10.0.0.180      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
+   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.184      5672/tcp           Unit is ready
+   vault/0*                       active    idle   3/lxd/0  10.0.0.178      8200/tcp           Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.0.0.178                         Unit is ready
 
 Nova cloud controller
 ~~~~~~~~~~~~~~~~~~~~~
@@ -442,7 +410,7 @@ the configuration:
 
    nova-cloud-controller:
      network-manager: Neutron
-     openstack-origin: distro
+     openstack-origin: cloud:focal-victoria
 
 To deploy:
 
@@ -477,14 +445,12 @@ Five additional relations can be added at this time:
 Placement
 ~~~~~~~~~
 
-The placement application will be containerised on machine 2 with the
-`placement`_ charm.
-
-To deploy:
+The placement application will be containerised on machine 3 with the
+`placement`_ charm:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --config openstack-origin=distro placement
+   juju deploy --to lxd:3 --config openstack-origin=cloud:focal-victoria placement
 
 Join placement to the cloud database:
 
@@ -506,13 +472,11 @@ OpenStack dashboard
 ~~~~~~~~~~~~~~~~~~~
 
 The openstack-dashboard application (Horizon) will be containerised on machine
-1 with the `openstack-dashboard`_ charm.
-
-To deploy:
+2 with the `openstack-dashboard`_ charm:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 --config openstack-origin=distro openstack-dashboard
+   juju deploy --to lxd:2 --config openstack-origin=cloud:focal-victoria openstack-dashboard
 
 Join openstack-dashboard to the cloud database:
 
@@ -538,14 +502,12 @@ Two additional relations are required:
 Glance
 ~~~~~~
 
-The glance application will be containerised on machine 2 with the `glance`_
-charm.
-
-To deploy:
+The glance application will be containerised on machine 3 with the `glance`_
+charm:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --config openstack-origin=distro glance
+   juju deploy --to lxd:3 --config openstack-origin=cloud:focal-victoria glance
 
 Join glance to the cloud database:
 
@@ -570,53 +532,48 @@ look similar to this:
 .. code-block:: console
 
    Unit                           Workload  Agent  Machine  Public address  Ports              Message
-   ceph-osd/0*                    blocked   idle   0        10.0.0.206                         Missing relation: monitor
-   ceph-osd/1                     blocked   idle   1        10.0.0.208                         Missing relation: monitor
-   ceph-osd/2                     blocked   idle   2        10.0.0.209                         Missing relation: monitor
-   ceph-osd/3                     blocked   idle   3        10.0.0.213                         Missing relation: monitor
-   glance/0*                      active    idle   3/lxd/3  10.0.0.224      9292/tcp           Unit is ready
-     glance-mysql-router/0*       active    idle            10.0.0.224                         Unit is ready
-   keystone/0*                    active    idle   0/lxd/2  10.0.0.223      5000/tcp           Unit is ready
-     keystone-mysql-router/0*     active    idle            10.0.0.223                         Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.211                         Unit is ready: Mode: R/W
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.212                         Unit is ready: Mode: R/O
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.214                         Unit is ready: Mode: R/O
-   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.220      9696/tcp           Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.0.0.220                         Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.0.0.220                         Unit is ready
-   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.216      8774/tcp,8775/tcp  Unit is ready
-     ncc-mysql-router/0*          active    idle            10.0.0.216                         Unit is ready
-   nova-compute/0*                active    idle   1        10.0.0.208                         Unit is ready
-     ovn-chassis/1                active    idle            10.0.0.208                         Unit is ready
-   nova-compute/1                 active    idle   2        10.0.0.209                         Unit is ready
-     ovn-chassis/0*               active    idle            10.0.0.209                         Unit is ready
-   nova-compute/2                 active    idle   3        10.0.0.213                         Unit is ready
-     ovn-chassis/2                active    idle            10.0.0.213                         Unit is ready
-   openstack-dashboard/0*         active    idle   1/lxd/3  10.0.0.210      80/tcp,443/tcp     Unit is ready
-     dashboard-mysql-router/0*    active    idle            10.0.0.210                         Unit is ready
-   ovn-central/0*                 active    idle   0/lxd/1  10.0.0.218      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
-   ovn-central/1                  active    idle   1/lxd/1  10.0.0.221      6641/tcp,6642/tcp  Unit is ready
-   ovn-central/2                  active    idle   2/lxd/1  10.0.0.219      6641/tcp,6642/tcp  Unit is ready
-   placement/0*                   active    idle   3/lxd/2  10.0.0.215      8778/tcp           Unit is ready
-     placement-mysql-router/0*    active    idle            10.0.0.215                         Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.222      5672/tcp           Unit is ready
-   swift-storage/0*               blocked   idle   0        10.0.0.206                         Missing relations: proxy
-   swift-storage/1                blocked   idle   2        10.0.0.209                         Missing relations: proxy
-   swift-storage/2                blocked   idle   3        10.0.0.213                         Missing relations: proxy
-   vault/0*                       active    idle   3/lxd/0  10.0.0.217      8200/tcp           Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.0.0.217                         Unit is ready
+   ceph-osd/0*                    blocked   idle   0        10.0.0.171                         Missing relation: monitor
+   ceph-osd/1                     blocked   idle   1        10.0.0.172                         Missing relation: monitor
+   ceph-osd/2                     blocked   idle   2        10.0.0.173                         Missing relation: monitor
+   ceph-osd/3                     blocked   idle   3        10.0.0.174                         Missing relation: monitor
+   glance/0*                      active    idle   3/lxd/3  10.0.0.188      9292/tcp           Unit is ready
+     glance-mysql-router/0*       active    idle            10.0.0.188                         Unit is ready
+   keystone/0*                    active    idle   0/lxd/2  10.0.0.183      5000/tcp           Unit is ready
+     keystone-mysql-router/0*     active    idle            10.0.0.183                         Unit is ready
+   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.175                         Unit is ready: Mode: R/W
+   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.176                         Unit is ready: Mode: R/O
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.177                         Unit is ready: Mode: R/O
+   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.182      9696/tcp           Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.0.0.182                         Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.0.0.182                         Unit is ready
+   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.185      8774/tcp,8775/tcp  Unit is ready
+     ncc-mysql-router/0*          active    idle            10.0.0.185                         Unit is ready
+   nova-compute/0*                active    idle   1        10.0.0.172                         Unit is ready
+     ovn-chassis/0*               active    idle            10.0.0.172                         Unit is ready
+   nova-compute/1                 active    idle   2        10.0.0.173                         Unit is ready
+     ovn-chassis/2                active    idle            10.0.0.173                         Unit is ready
+   nova-compute/2                 active    idle   3        10.0.0.174                         Unit is ready
+     ovn-chassis/1                active    idle            10.0.0.174                         Unit is ready
+   openstack-dashboard/0*         active    idle   2/lxd/3  10.0.0.187      80/tcp,443/tcp     Unit is ready
+     dashboard-mysql-router/0*    active    idle            10.0.0.187                         Unit is ready
+   ovn-central/0                  active    idle   0/lxd/1  10.0.0.181      6641/tcp,6642/tcp  Unit is ready
+   ovn-central/1                  active    idle   1/lxd/1  10.0.0.179      6641/tcp,6642/tcp  Unit is ready
+   ovn-central/2*                 active    idle   2/lxd/1  10.0.0.180      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
+   placement/0*                   active    idle   3/lxd/2  10.0.0.186      8778/tcp           Unit is ready
+     placement-mysql-router/0*    active    idle            10.0.0.186                         Unit is ready
+   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.184      5672/tcp           Unit is ready
+   vault/0*                       active    idle   3/lxd/0  10.0.0.178      8200/tcp           Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.0.0.178                         Unit is ready
 
 Ceph monitor
 ~~~~~~~~~~~~
 
 The ceph-mon application will be containerised on machines 0, 1, and 2 with the
-`ceph-mon`_ charm.
-
-To deploy:
+`ceph-mon`_ charm:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --config source=distro ceph-mon
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --config source=cloud:focal-victoria ceph-mon
 
 Three relations can be added at this time:
 
@@ -632,7 +589,7 @@ For the above relations,
   non-bootable disk images. The nova-compute charm option
   ``libvirt-image-backend`` must be set to 'rbd' for this to take effect.
 
-* The glance:ceph relation makes Ceph the storage backend for Glance.
+* The ``glance:ceph`` relation makes Ceph the storage backend for Glance.
 
 Cinder
 ~~~~~~
@@ -645,7 +602,7 @@ charm. File ``cinder.yaml`` contains the configuration:
    cinder:
      glance-api-version: 2
      block-device: None
-     openstack-origin: distro
+     openstack-origin: cloud:focal-victoria
 
 To deploy:
 
@@ -661,7 +618,7 @@ Join cinder to the cloud database:
    juju add-relation cinder-mysql-router:db-router mysql-innodb-cluster:db-router
    juju add-relation cinder-mysql-router:shared-db cinder:shared-db
 
-Four additional relations can be added at this time:
+Five additional relations can be added at this time:
 
 .. code-block:: none
 
@@ -669,8 +626,9 @@ Four additional relations can be added at this time:
    juju add-relation cinder:identity-service keystone:identity-service
    juju add-relation cinder:amqp rabbitmq-server:amqp
    juju add-relation cinder:image-service glance:image-service
+   juju add-relation cinder:certificates vault:certificates
 
-The above glance:image-service relation will enable Cinder to consume the
+The above ``glance:image-service`` relation will enable Cinder to consume the
 Glance API (e.g. making Cinder able to perform volume snapshots of Glance
 images).
 
@@ -682,43 +640,32 @@ None`` in the configuration file). This will be implemented via the
 
    juju deploy cinder-ceph
 
-Four relations need to be added:
+Three relations need to be added:
 
 .. code-block:: none
 
    juju add-relation cinder-ceph:storage-backend cinder:storage-backend
    juju add-relation cinder-ceph:ceph ceph-mon:client
    juju add-relation cinder-ceph:ceph-access nova-compute:ceph-access
-   juju add-relation cinder:certificates vault:certificates
 
-Swift proxy
-~~~~~~~~~~~
+Ceph RADOS Gateway
+~~~~~~~~~~~~~~~~~~
 
-The swift-proxy application will be containerised on machine 3 with the
-`swift-proxy`_ charm. File ``swift-proxy.yaml`` contains the configuration:
+The Ceph RADOS Gateway will be deployed to offer an S3 and Swift compatible
+HTTP gateway. This is an alternative to using OpenStack Swift.
 
-.. code-block:: yaml
-
-   swift-proxy:
-     zone-assignment: auto
-     swift-hash: "<uuid>"
-
-Swift proxy needs to be supplied with a unique identifier (UUID). Generate one
-with the :command:`uuid -v 4` command (you may need to first install the
-``uuid`` deb package) and insert it into the file.
-
-To deploy:
+The ceph-radosgw application will be containerised on machine 0 with the
+`ceph-radosgw`_ charm.
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --config swift-proxy.yaml swift-proxy
+   juju deploy --to lxd:0 ceph-radosgw
 
-Two relations are needed:
+A single relation is needed:
 
 .. code-block:: none
 
-   juju add-relation swift-proxy:swift-storage swift-storage:swift-storage
-   juju add-relation swift-proxy:identity-service keystone:identity-service
+   juju add-relation ceph-radosgw:mon ceph-mon:radosgw
 
 NTP
 ~~~
@@ -763,12 +710,12 @@ The password is queried from Keystone:
 
    juju run --unit keystone/0 leader-get admin_passwd
 
-In this example, the address is '10.0.0.210' and the password is
+In this example, the address is '10.0.0.187' and the password is
 'kohy6shoh3diWav5'.
 
 The dashboard URL then becomes:
 
-**http://10.0.0.210/horizon**
+**http://10.0.0.187/horizon**
 
 And the credentials are:
 
@@ -776,6 +723,13 @@ And the credentials are:
 | User Name: **admin**
 | Password: **kohy6shoh3diWav5**
 |
+
+.. tip::
+
+   To access the dasboard from your desktop you will need SSH local port
+   forwarding. Example: ``sudo ssh -L 8001:10.0.0.187:80 <user>@<host>``, where
+   <host> can contact 10.0.0.187 on port 80. Then go to
+   http://localhost:8001/horizon.
 
 Once logged in you should see something like this:
 
@@ -799,18 +753,19 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 
 .. LINKS
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
-.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades
+.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades.html
 .. _Series upgrade: app-series-upgrade.html
 .. _Charm store: https://jaas.ai/store
 .. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
-.. _Deploying applications: https://jaas.ai/docs/deploying-applications
-.. _Deploying to specific machines: https://jaas.ai/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
-.. _Managing relations: https://jaas.ai/docs/relations
+.. _Deploying applications: https://juju.is/docs/deploying-applications
+.. _Deploying to specific machines: https://juju.is/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
+.. _Managing relations: https://juju.is/docs/relations
 .. _Vault: app-vault.html
 
 .. CHARMS
 .. _ceph-mon: https://jaas.ai/ceph-mon
 .. _ceph-osd: https://jaas.ai/ceph-osd
+.. _ceph-radosgw: https://jaas.ai/ceph-radosgw
 .. _cinder: https://jaas.ai/cinder
 .. _cinder-ceph: https://jaas.ai/cinder-ceph
 .. _glance: https://jaas.ai/glance
@@ -825,8 +780,6 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _percona-cluster: https://jaas.ai/percona-cluster
 .. _placement: https://jaas.ai/placement
 .. _rabbitmq-server: https://jaas.ai/rabbitmq-server
-.. _swift-proxy: https://jaas.ai/swift-proxy
-.. _swift-storage: https://jaas.ai/swift-storage
 
 .. BUGS
 .. _LP #1826888: https://bugs.launchpad.net/charm-deployment-guide/+bug/1826888
