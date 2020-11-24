@@ -26,16 +26,22 @@ contribution`_.
    install-maas
    install-juju
    install-openstack
-   install-openstack-bundle
    configure-openstack
+
+.. toctree::
+   :caption: Upgrades
+   :maxdepth: 1
+
+   upgrade-overview
+   upgrade-charms
+   OpenStack upgrade <app-upgrade-openstack>
+   Series upgrade <app-series-upgrade>
+   Series upgrade OpenStack <app-series-upgrade-openstack>
 
 .. toctree::
    :caption: Appendices
    :maxdepth: 1
 
-   OpenStack upgrades <app-upgrade-openstack>
-   Series upgrade <app-series-upgrade>
-   Series upgrade OpenStack <app-series-upgrade-openstack>
    Vault <app-vault>
    Certificate lifecycle management <app-certificate-management>
    Encryption at Rest <app-encryption-at-rest>

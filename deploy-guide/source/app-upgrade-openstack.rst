@@ -1,9 +1,6 @@
-==============================
-Appendix B: OpenStack upgrades
-==============================
-
-Overview
---------
+=================
+OpenStack upgrade
+=================
 
 This document outlines how to upgrade a Juju-deployed OpenStack cloud.
 
@@ -14,142 +11,10 @@ This document outlines how to upgrade a Juju-deployed OpenStack cloud.
 
 Please read the following before continuing:
 
+* the :doc:`Upgrades overview <upgrade-overview>` page
 * the OpenStack charms `Release Notes`_ for the corresponding current and
   target versions of OpenStack
 * the `Known OpenStack upgrade issues`_ section in this document
-
-Definitions
------------
-
-Charm upgrade
-  An upgrade of the charm software which is used to deploy and manage
-  OpenStack. This includes charms that manage applications which are not
-  technically part of the OpenStack project such as Rabbitmq and MySQL.
-
-OpenStack upgrade
-  An upgrade of the OpenStack software (packages) that are installed and
-  managed by the charms. Each OpenStack service is upgraded (by the operator)
-  via its corresponding (and upgraded) charm. This constitutes an upgrade from
-  one major release to the next (e.g. Stein to Train).
-
-Ubuntu Server package upgrade
-  An upgrade of the software packages on a Juju machine that are not part of
-  the OpenStack project (e.g. kernel modules, QEMU binaries, KVM kernel
-  module).
-
-Series upgrade
-  An upgrade of the operating system (Ubuntu) on a Juju machine (e.g. Xenial to
-  Bionic). See appendix `Series upgrade`_ for more information.
-
-Charm upgrades
---------------
-
-All charms should be upgraded to their latest stable revision prior to
-performing the OpenStack upgrade. The Juju command to use is
-:command:`upgrade-charm`. For extra guidance see `Upgrading applications`_
-in the Juju documentation.
-
-.. note::
-
-   A charm upgrade affects all corresponding units; per-unit upgrades is not
-   currently supported.
-
-Although it may be possible to upgrade some charms in parallel it is
-recommended that the upgrades be performed sequentially (i.e. one at a time).
-Verify a charm upgrade before moving on to the next.
-
-In terms of the upgrade order, begin with 'keystone'. After that, the rest of
-the charms can be upgraded in any order.
-
-Do check the `Release Notes`_ for any special instructions regarding charm
-upgrades.
-
-.. caution::
-
-   Any software changes that may have (exceptionally) been made to a charm
-   currently running on a unit will be overwritten by the target charm during
-   the upgrade.
-
-Before upgrading, a (partial) output to :command:`juju status` may look like:
-
-.. code::
-
-   App       Version  Status   Scale  Charm     Store       Rev  OS      Notes
-   keystone  15.0.0   active       1  keystone  jujucharms  306  ubuntu
-
-   Unit             Workload  Agent  Machine  Public address  Ports      Message
-   keystone/0*      active    idle   3/lxd/1  10.248.64.69    5000/tcp   Unit is ready
-
-Here, as deduced from the Keystone **service** version of '15.0.0', the cloud
-is running Stein. The 'keystone' **charm** however shows a revision number of
-'306'. Upon charm upgrade, the service version will remain unchanged but the
-charm revision is expected to increase in number.
-
-So to upgrade this 'keystone' charm (to the most recent promulgated version in
-the Charm Store):
-
-.. code:: bash
-
-   juju upgrade-charm keystone
-
-The upgrade progress can be monitored via :command:`juju status`. Any
-encountered problem will surface as a message in its output. This sample
-(partial) output reflects a successful upgrade:
-
-.. code::
-
-   App       Version  Status   Scale  Charm     Store       Rev  OS      Notes
-   keystone  15.0.0   active       1  keystone  jujucharms  309  ubuntu
-
-   Unit             Workload  Agent  Machine  Public address  Ports      Message
-   keystone/0*      active    idle   3/lxd/1  10.248.64.69    5000/tcp   Unit is ready
-
-This shows that the charm now has a revision number of '309' but Keystone
-itself remains at '15.0.0'.
-
-Upgrade target revisions
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-By default the :command:`upgrade-charm` command will upgrade a charm to its
-latest stable revision (a possible multi-step upgrade). This means that
-intervening revisions can be conveniently skipped. Use the ``--revision``
-option to specify a target revision.
-
-The current revision can be discovered via :command:`juju status` output (see
-column 'Rev'). For the ceph-mon charm:
-
-.. code-block:: console
-
-   App       Version  Status  Scale  Charm     Store       Rev  OS      Notes
-   ceph-mon  13.2.8   active      3  ceph-mon  jujucharms   48  ubuntu
-
-The latest available stable revision of a charm can be obtained by querying the
-Charm Store with the :command:`charm` snap:
-
-.. code-block:: none
-
-   sudo snap install charm --classic
-   charm pull ceph-mon
-
-Sample output:
-
-.. code-block:: console
-
-   cs:ceph-mon-48
-
-Based on the above, the ceph-mon charm does not require an upgrade.
-
-.. important::
-
-   As stated earlier, any kind of upgrade should first be tested in a
-   pre-production environment. OpenStack charm upgrades have been tested for
-   single-step upgrades only (N+1).
-
-OpenStack upgrades
-------------------
-
-Go through each of the following sections to ensure a trouble-free OpenStack
-upgrade.
 
 .. note::
 
@@ -160,7 +25,7 @@ upgrade.
 It may be worthwhile to read the upstream OpenStack `Upgrades`_ guide.
 
 Release Notes
-~~~~~~~~~~~~~
+-------------
 
 The OpenStack charms `Release Notes`_ for the corresponding current and target
 versions of OpenStack **must** be consulted for any special instructions. In
@@ -168,7 +33,7 @@ particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
 
 Manual intervention
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 It is intended that the now upgraded charms are able to accommodate all
 software changes associated with the corresponding OpenStack services to be
@@ -184,7 +49,7 @@ All known issues requiring manual intervention are documented in section `Known
 OpenStack upgrade issues`_. You **must** look these over.
 
 Verify the current deployment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 Confirm that the output for the :command:`juju status` command of the current
 deployment is error-free. In addition, if monitoring is in use (e.g. Nagios),
@@ -192,7 +57,7 @@ ensure that all alerts have been resolved. This is to make certain that any
 issues that may appear after the upgrade are not for pre-existing problems.
 
 Perform a database backup
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Before making any changes to cloud services perform a backup of the cloud
 database by running the ``backup`` action on any single percona-cluster unit:
@@ -212,7 +77,7 @@ backups:
 Permissions may first need to be altered on the remote machine.
 
 Archive old database data
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 During the upgrade, database migrations will be run. This operation can be
 optimised by first archiving any stale data (e.g. deleted instances). Do this
@@ -227,7 +92,7 @@ This action may need to be run multiple times until the action output reports
 'Nothing was archived'.
 
 Purge old compute service entries
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 Old compute service entries for units which are no longer part of the model
 should be purged before the upgrade. These entries will show as 'down' (and be
@@ -245,7 +110,7 @@ To remove a compute service:
    openstack compute service delete <service-id>
 
 Disable unattended-upgrades
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 When performing a service upgrade on a unit that hosts multiple principle
 charms (e.g. ``nova-compute`` and ``ceph-osd``), ensure that
@@ -258,7 +123,7 @@ upgraded outside of Juju's control. On a unit run:
    sudo dpkg-reconfigure -plow unattended-upgrades
 
 Upgrade order
-~~~~~~~~~~~~~
+-------------
 
 The charms are put into groups to indicate the order in which their
 corresponding OpenStack services should be upgraded. The order within a group
@@ -334,7 +199,7 @@ individually.
 .. _perform_the_upgrade:
 
 Perform the upgrade
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 The essence of a charmed OpenStack service upgrade is a change of the
 corresponding machine software sources so that a more recent combination of
@@ -358,7 +223,7 @@ Actions for a charm can be listed in this way:
    juju actions <charm-name>
 
 All-in-one
-^^^^^^^^^^
+~~~~~~~~~~
 
 The "all-in-one" method upgrades an application immediately. Although it is the
 quickest route, it can be harsh when applied in the context of multi-unit
@@ -397,7 +262,7 @@ Train:
    juju config cinder openstack-origin=cloud:bionic-train
 
 Single-unit
-^^^^^^^^^^^
+~~~~~~~~~~~
 
 The "single-unit" method builds upon the "all-in-one" method by allowing for
 the upgrade of individual units in a controlled manner. It requires the
@@ -437,7 +302,7 @@ where ``glance/1`` is the leader:
    "all-in-one" method for the Ceph charms.
 
 Paused-single-unit
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 The "paused-single-unit" method extends the "single-unit" method by allowing
 for the upgrade of individual units *while paused*. Additional charm
@@ -514,7 +379,7 @@ where ``keystone/2`` is the leader:
    numbers correspond (i.e. keystone-hacluster/0 is the subordinate unit).
 
 Verify the new deployment
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Check for errors in :command:`juju status` output and any monitoring service.
 
@@ -696,7 +561,6 @@ To disable TLS:
 
    juju config enforce-ssl=false openstack-dashboard
 
-
 Designate Upgrades to Train
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -709,15 +573,12 @@ See bug `LP #1828534`_. This can be resolved by restarting the memcached service
    juju run --application=memcached 'sudo systemctl restart memcached'
 
 .. LINKS
-
-.. _Series upgrade: app-series-upgrade
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
-.. _Upgrading applications: https://jaas.ai/docs/upgrading-applications
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
 .. _Update services: https://docs.openstack.org/operations-guide/ops-upgrades.html#update-services
-.. _Octavia LBaaS: app-octavia
 .. _Keystone Fernet Token Implementation: https://specs.openstack.org/openstack/charm-specs/specs/rocky/implemented/keystone-fernet-tokens.html
+.. _Octavia LBaaS: app-octavia.html
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999

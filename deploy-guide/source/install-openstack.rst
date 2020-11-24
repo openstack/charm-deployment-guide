@@ -14,7 +14,7 @@ itself. There are two methods to choose from:
    OpenStack. Choose this option if you are familiar with how OpenStack is
    built with Juju.
 
-The current page is devoted to method #1. See :doc:`Deploying OpenStack from a
+The current page is devoted to method #1. See :doc:`Install OpenStack from a
 bundle <install-openstack-bundle>` for method #2.
 
 .. important::

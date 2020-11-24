@@ -1,19 +1,19 @@
-===========================
-Appendix F1: Series upgrade
-===========================
-
-Overview
---------
+==============
+Series upgrade
+==============
 
 The purpose of this document is to provide foundational knowledge for preparing
 an administrator to perform a series upgrade across a Charmed OpenStack cloud.
 This translates to upgrading the operating system of every cloud node to an
 entirely new version.
 
-.. note::
+Please read the following before continuing:
 
-   A series upgrade, a charm upgrade, and an OpenStack upgrade are all
-   conceptually different and involve separate operations.
+* the :doc:`Upgrades overview <upgrade-overview>` page
+* the OpenStack charms `Release Notes`_ for the corresponding current and
+  target versions of OpenStack
+* the `Known OpenStack upgrade issues`_ section in the OpenStack upgrade
+  document
 
 Once this document has been studied the administrator will be ready to graduate
 to the :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>` guide
@@ -346,8 +346,10 @@ When you are ready to perform a series upgrade across your cloud proceed to
 appendix :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>`.
 
 .. LINKS
-.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
-.. _OpenStack upgrades: app-series-upgrade-openstack
+.. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
+.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades
+.. _OpenStack upgrades: app-series-upgrade-openstack.html
+.. _Known OpenStack upgrade issues: app-series-upgrade-openstack.html#known-openstack-upgrade-issues
 .. _series upgrade: https://juju.is/docs/upgrading-series
 .. _automatic package updates: https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
