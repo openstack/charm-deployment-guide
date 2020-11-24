@@ -357,8 +357,16 @@ Example:
 By default, the charm will configure Open vSwitch/DPDK to consume one processor
 core + 1G of RAM from each NUMA node on the unit being deployed. This can be
 tuned using the ``dpdk-socket-memory`` and ``dpdk-socket-cores`` configuration
-options. The userspace kernel driver can be configured using the
-``dpdk-driver`` configuration option. See config.yaml for more details.
+options.
+
+.. note::
+
+    Please check that the value of dpdk-socket-memory is large enough to
+    accommodate the MTU size being used. For more information please refer to
+    `DPDK shared memory calculations`_
+
+The userspace kernel driver can be configured using the ``dpdk-driver``
+configuration option. See config.yaml for more details.
 
 .. note::
 
@@ -971,4 +979,5 @@ Perform migration
 .. _traffic control monitor: http://manpages.ubuntu.com/manpages/focal/man8/tc.8.html#monitor
 .. _data path control tools: http://manpages.ubuntu.com/manpages/focal/man8/ovs-dpctl.8.html
 .. _Clustered Database Service Model: http://docs.openvswitch.org/en/latest/ref/ovsdb.7/#clustered-database-service-model
+.. _DPDK shared memory calculations: https://docs.openvswitch.org/en/latest/topics/dpdk/memory/#shared-memory-calculations
 .. _Usage: app-ovn#usage
