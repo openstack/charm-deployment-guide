@@ -638,7 +638,7 @@ determine if there is room for this growth.
 
 Making room for the growth could be accomplished by increasing the MTU
 configuration on the physical network equipment and hypervisor physical links.
-If this can be done then steps #1 and #7 below can be skipped, where it is
+If this can be done then steps #1 and #9 below can be skipped, where it is
 shown how to **reduce** the MTU on all existing cloud instances.
 
 Remember to take any other encapsulation used in your physical network
@@ -704,9 +704,36 @@ of the actual migration.
    * Any instances not using DHCP must be configured manually by the end user of
      the instance.
 
-2. Make a fresh backup copy of the Neutron database
+2. Confirm cloud subnet configuration
 
-3. Deploy the OVN components and Vault
+   * Confirm that all subnets have IP addresses available for allocation.
+
+     During the migration OVN may create a new port in subnets and allocate an
+     IP address to it. Depending on the type of network, this port will be used
+     for either the OVN metadata service or for the SNAT address assigned to an
+     external router interface.
+
+     .. warning::
+
+        If a subnet has no free IP addresses for allocation the migration will
+        fail.
+
+   * Confirm that all subnets have a valid DNS server configuration.
+
+     OVN handles instance access to DNS differently to how ML2+OVS does. Please
+     refer to the Internal DNS resolution paragraph in this document for
+     details.
+
+     When the subnet ``dns_nameservers`` attribute is empty the OVN DHCP server
+     will provide instances with the DNS addresses specified in the
+     neutron-api-plugin-ovn ``dns-servers`` configuration option. If any of
+     your subnets have the ``dns_nameservers`` attribute set to the IP address
+     ML2+OVS used for instance DNS (usually the .2 address of the project
+     subnet) you will need to remove this configuration.
+
+3. Make a fresh backup copy of the Neutron database
+
+4. Deploy the OVN components and Vault
 
    In your Juju model you can have a charm deployed multiple times using
    different application names. In the text below this will be referred to as
@@ -774,14 +801,25 @@ of the actual migration.
       applications. You must tailor the commands to fit with your deployments
       topology.
 
-4. Unseal `Vault`_, enable `Certificate Lifecycle Management`_ and
+5. Unseal `Vault`_, enable `Certificate Lifecycle Management`_ and
    validate that the services on ovn-central units are running as expected.
    Please refer to the the `Usage`_ section for more information.
 
 Perform migration
 ~~~~~~~~~~~~~~~~~
 
-5. Pause neutron-openvswitch and/or neutron-gateway units.
+6. Change firewall driver to 'openvswitch'
+
+   To be able to successfully clean up after the Neutron agents on hypervisors
+   we need to instruct the neutron-openvswitch charm to use the 'openvswitch'
+   firewall driver. This is accomplished by setting the ``firewall-driver``
+   configuration option to 'openvswitch'.
+
+   .. code-block:: none
+
+      juju config neutron-openvswitch firewall-driver=openvswitch
+
+7. Pause neutron-openvswitch and/or neutron-gateway units.
 
    If your deployments have two neutron-gateway units and four
    neutron-openvswitch units the sequence of commands would be:
@@ -795,7 +833,7 @@ Perform migration
       juju run-action neutron-openvswitch/2 pause
       juju run-action neutron-openvswitch/3 pause
 
-6. Deploy the Neutron OVN plugin application
+8. Deploy the Neutron OVN plugin application
 
    .. code-block:: none
 
@@ -819,7 +857,7 @@ Perform migration
       ``manage-neutron-plugin-legacy-mode`` configuration option is changed in
       step 9.
 
-7. Adjust MTU on overlay networks (if required)
+9. Adjust MTU on overlay networks (if required)
 
    Now that 24 hours have passed since we reduced the MTU on the instances
    running in the cloud as described in step 1, we can update the MTU setting
@@ -829,7 +867,7 @@ Perform migration
 
       juju run-action --wait neutron-api-plugin-ovn/0 migrate-mtu
 
-8. Enable the Neutron OVN plugin
+10. Enable the Neutron OVN plugin
 
    .. code-block:: none
 
@@ -837,7 +875,7 @@ Perform migration
 
    Wait for the deployment to settle.
 
-9. Pause the Neutron API units
+11. Pause the Neutron API units
 
    .. code-block:: none
 
@@ -847,13 +885,13 @@ Perform migration
 
    Wait for the deployment to settle.
 
-10. Perform initial synchronization of the Neutron and OVN databases
+12. Perform initial synchronization of the Neutron and OVN databases
 
     .. code-block:: none
 
        juju run-action --wait neutron-api-plugin-ovn/0 migrate-ovn-db
 
-11. (Optional) Perform Neutron database surgery to update ``network_type`` of
+13. (Optional) Perform Neutron database surgery to update ``network_type`` of
     overlay networks to 'geneve'.
 
     At the time of this writing the Neutron OVN ML2 driver will assume that all
@@ -883,7 +921,7 @@ Perform migration
 
        juju run-action --wait neutron-api-plugin-ovn/0 offline-neutron-morph-db
 
-12. Resume the Neutron API units
+14. Resume the Neutron API units
 
     .. code-block:: none
 
@@ -893,7 +931,7 @@ Perform migration
 
    Wait for the deployment to settle.
 
-13. Migrate hypervisors and gateways
+15. Migrate hypervisors and gateways
 
     The final step of the migration is to clean up after the Neutron agents
     on the hypervisors/gateways and enable the OVN services so that they can
@@ -922,7 +960,7 @@ Perform migration
        juju run-action --wait neutron-gateway/0 cleanup
        juju run-action --wait ovn-dedicated-chassis/0 resume
 
-14. Post migration tasks
+16. Post migration tasks
 
     Remove the now redundant Neutron ML2+OVS agents from hypervisors and
     any dedicated gateways as well as the neutron-gateway and
