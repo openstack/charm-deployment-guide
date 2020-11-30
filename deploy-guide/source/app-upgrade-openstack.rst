@@ -602,6 +602,26 @@ defined cinder-ceph backend:
    juju run-action cinder/0 rename-volume-host currenthost='cinder' \
        newhost='cinder@cinder-ceph#cinder.volume.drivers.rbd.RBDDriver'
 
+Keystone and Fernet tokens: upgrading from Queens to Rocky
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting with OpenStack Rocky only the Fernet format for authentication tokens
+is supported. Therefore, prior to upgrading Keystone to Rocky a transition must
+be made from the legacy format (of UUID) to Fernet.
+
+Fernet support is available upstream (and in the keystone charm) starting with
+Ocata so the transition can be made on either Ocata, Pike, or Queens.
+
+Use option ``token-provider`` to transition to Fernet tokens:
+
+.. code-block:: none
+
+   juju config keystone token-provider=fernet
+
+The ``token-provider`` option has no effect starting with Rocky, where the
+charm defaults to Fernet and where upstream removes support for UUID. See
+`Keystone Fernet Token Implementation`_ for more information.
+
 Placement charm and nova-cloud-controller: upgrading from Stein to Train
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -697,6 +717,7 @@ See bug `LP #1828534`_. This can be resolved by restarting the memcached service
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
 .. _Update services: https://docs.openstack.org/operations-guide/ops-upgrades.html#update-services
 .. _Octavia LBaaS: app-octavia
+.. _Keystone Fernet Token Implementation: https://specs.openstack.org/openstack/charm-specs/specs/rocky/implemented/keystone-fernet-tokens.html
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
