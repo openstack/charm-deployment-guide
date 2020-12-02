@@ -877,21 +877,21 @@ Perform migration
 
 10. Enable the Neutron OVN plugin
 
-   .. code-block:: none
+    .. code-block:: none
 
-      juju config neutron-api manage-neutron-plugin-legacy-mode=false
+       juju config neutron-api manage-neutron-plugin-legacy-mode=false
 
-   Wait for the deployment to settle.
+    Wait for the deployment to settle.
 
 11. Pause the Neutron API units
 
-   .. code-block:: none
+    .. code-block:: none
 
-      juju run-action neutron-api/0 pause
-      juju run-action neutron-api/1 pause
-      juju run-action neutron-api/2 pause
+       juju run-action neutron-api/0 pause
+       juju run-action neutron-api/1 pause
+       juju run-action neutron-api/2 pause
 
-   Wait for the deployment to settle.
+    Wait for the deployment to settle.
 
 12. Perform initial synchronization of the Neutron and OVN databases
 
@@ -937,7 +937,7 @@ Perform migration
        juju run-action neutron-api/1 resume
        juju run-action neutron-api/2 resume
 
-   Wait for the deployment to settle.
+    Wait for the deployment to settle.
 
 15. Migrate hypervisors and gateways
 
