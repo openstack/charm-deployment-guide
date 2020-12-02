@@ -6,252 +6,167 @@ Overview
 ++++++++
 
 Vault provides a secure storage and certificate management service.
-Integrating vault into an OpenStack deployment involves a few
-post-deployment steps which have been encapsulated in charm actions.
+Integrating Vault into an OpenStack deployment involves a number of
+post-deployment steps.
 
-Vault
-+++++
+.. note::
 
-Deploy vault
+   For actual deployment steps see the `vault charm`_.
+
+Vault client
 ~~~~~~~~~~~~
 
-First deploy the vault charm along with supporting services:
+Vault is needed as a client in order to manage the Vault deployment. Install it
+on the host where the Juju client resides:
 
-.. code:: bash
+.. code:: none
 
-    juju deploy --to lxd:0 vault
-    juju add-relation vault:shared-db percona-cluster:shared-db
+   sudo snap install vault
 
-.. note::
+Initialise Vault
+~~~~~~~~~~~~~~~~
 
-    When running on hardware or in KVM, the vault charm will configure
-    vault to enable mlock (memory locking) which ensures that vault
-    won't get swapped out to disk, potentially compromising secrets.
-    Using mlock is not supported in LXD containers and will be
-    automatically disabled.
+Identify the vault unit by setting the ``VAULT_ADDR`` environment variable
+based on the IP address of the unit. This can be discovered from :command:`juju
+status` output (column 'Public address'). Here well use '10.0.0.126':
 
-Vault can make use of the existing Percona XtraDB Cluster deployed to
-support the rest of the OpenStack applications or could be deployed
-with a separate instance if required.  All data stored is encrypted by
-vault using its master encryption key.
+.. code:: none
 
-Vault will deploy and startup in an un-initialized state;  For production
-deployments the unseal keys used to manage the Vault master key used for
-encryption should be managed from outside of the Juju model hosting vault and
-the OpenStack Charms.
+   export VAULT_ADDR="http://10.0.0.126:8200"
 
-.. note::
+Initialise Vault by specifying the number of unseal keys that should get
+generated as well as the number of unseal keys that are needed in order to
+complete the unseal process. Below we will specify five and three,
+respectively:
 
-   Production deployments you should also secure vault using the ssl-*
-   configuration options provided by the charm; this ensures that communication
-   with the Vault REST API is always secure as data on the network is also
-   encrypted using TLS encryption.
+.. code:: none
 
-Initialize and unseal vault
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   vault operator init -key-shares=5 -key-threshold=3
 
-Install the vault snap and configure the VAULT_ADDR environment variable:
+Sample output:
 
-.. code:: bash
+.. code:: console
 
-    sudo snap install vault
-    export VAULT_ADDR="http://<IP of vault unit>:8200"
+   Unseal Key 1: XONSc5Ku8HJu+ix/zbzWhMvDTiPpwWX0W1X/e/J1Xixv
+   Unseal Key 2: J/fQCPvDeMFJT3WprfPy17gwvyPxcvf+GV751fTHUoN/
+   Unseal Key 3: +bRfX5HMISegsODqNZxvNcupQp/kYQuhsQ2XA+GamjY4
+   Unseal Key 4: FMRTPJwzykgXFQOl2XTupw2lfgLOXbbIep9wgi9jQ2ls
+   Unseal Key 5: 7rrxiIVQQWbDTJPMsqrZDKftD6JxJi6vFOlyC0KSabDB
 
-and then initialize the vault deployment:
+   Initial Root Token: s.ezlJjFw8ZDZO6KbkAkm605Qv
 
-.. code:: bash
+   Vault initialized with 5 key shares and a key threshold of 3. Please securely
+   distribute the key shares printed above. When the Vault is re-sealed,
+   restarted, or stopped, you must supply at least 3 of these keys to unseal it
+   before it can start servicing requests.
 
-    vault operator init -key-shares=5 -key-threshold=3
+   Vault does not store the generated master key. Without at least 3 key to
+   reconstruct the master key, Vault will remain permanently sealed!
 
-you should get a response like:
+   It is possible to generate new unseal keys, provided you have a quorum of
+   existing unseal keys shares. See "vault operator rekey" for more information.
 
-.. code:: bash
-
-    Unseal Key 1: XqeOza3SY6f4L6xfuk6f8JumrEF7cak9mUXCCPRXzs4B
-    Unseal Key 2: djvVAAste0F5iSe43nmBs2ZX5r+wUqHe4UfUrcprWkyM
-    Unseal Key 3: iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
-    Unseal Key 4: J8jzdUi0HOWgx8Ig75Mu8uVQTXkw6yNv2kMhjeNz2/5B
-    Unseal Key 5: xTJkk3guA9Mq3CYfDhIBevSWrD1CIer6q70HVACMbduc
-
-    Initial Root Token: ebded15e-c908-5d3a-1df0-1e7e7218c162
-
-    Vault initialized with 5 key shares and a key threshold of 3. Please securely
-    distribute the key shares printed above. When the Vault is re-sealed,
-    restarted, or stopped, you must supply at least 3 of these keys to unseal it
-    before it can start servicing requests.
-
-    Vault does not store the generated master key. Without at least 3 key to
-    reconstruct the master key, Vault will remain permanently sealed!
-
-    It is possible to generate new unseal keys, provided you have a quorum of
-    existing unseal keys shares. See "vault rekey" for more information.
-
-This response details the 5 keys that can be used to unseal the vault deployment
-and an initial root token for accessing the Vault API.
+Besides displaying the five unseal keys the output also includes an "initial
+root token". This token is used to access the Vault API.
 
 .. warning::
 
-    Do not lose the unseal keys! It's impossible to unseal
-    vault without them which must be completed after any restart
-    of the vault daemon as part of ongoing maintenance.
+   It is not possible to unseal Vault without the unseal keys, nor is it
+   possible to manage Vault without the intial root token. **Store this
+   information in a safe place immediately**.
 
-.. warning::
+Unseal Vault
+~~~~~~~~~~~~
 
-    Do not lose the root token! Without it the vault deployment will
-    be inaccessible.
+Unseal the vault unit using the requisite number of unique keys (three in this
+example):
 
-Each vault unit must be individually unsealed, so if there are multiple vault
-units repeat the unseal process below for each unit changing the VAULT_ADDR
-environment variable each time to point at the individual units.
+.. code:: none
 
-.. code:: bash
+   vault operator unseal XONSc5Ku8HJu+ix/zbzWhMvDTiPpwWX0W1X/e/J1Xixv
+   vault operator unseal FMRTPJwzykgXFQOl2XTupw2lfgLOXbbIep9wgi9jQ2ls
+   vault operator unseal 7rrxiIVQQWbDTJPMsqrZDKftD6JxJi6vFOlyC0KSabDB
 
-    vault operator unseal XqeOza3SY6f4L6xfuk6f8JumrEF7cak9mUXCCPRXzs4B
-    vault operator unseal djvVAAste0F5iSe43nmBs2ZX5r+wUqHe4UfUrcprWkyM
-    vault operator unseal iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
+In an HA environment repeat the unseal process for each unit. Prior to
+unsealing a different unit change the value of the ``VAULT_ADDR`` variable so
+that it points to that unit.
 
-Authorize vault charm
-~~~~~~~~~~~~~~~~~~~~~
+.. note::
 
-Vault is now ready for use - however the charm needs to be authorized
-using a root token to be able to create secrets storage back-ends and
-roles to allow other applications to access vault for encryption key
-storage.
+   Maintenance work on the cloud may require vault units to be paused and later
+   resumed. A resumed vault unit will be sealed and will therefore require
+   unsealing. See the `Managing power events`_ section for details.
 
-First generate a one-shot root token with a limited TTL using the
-initial root token for this purpose:
+Proceed to the next step once all units have been unsealed.
 
-.. code:: bash
+Authorise the vault charm
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   export VAULT_TOKEN=ebded15e-c908-5d3a-1df0-1e7e7218c162
+The vault charm must be authorised to access the Vault deployment in order to
+create storage backends (for secrets) and roles (to allow other applications to
+access Vault for encryption key storage).
+
+Generate a root token with a limited lifetime (10 minutes here) using the
+initial root token:
+
+.. code:: none
+
+   export VAULT_TOKEN=s.ezlJjFw8ZDZO6KbkAkm605Qv
    vault token create -ttl=10m
 
-you should get a response like:
+Sample output:
 
-.. code:: bash
+.. code:: console
 
-    Key                Value
-    ---                -----
-    token              03ceadf5-529d-6a64-0cfd-1e341b1dacb1
-    token_accessor     17390537-2012-51dc-93d0-9cc26ba953eb
-    token_duration     10m
-    token_renewable    true
-    token_policies     [root]
+   Key                  Value
+   ---                  -----
+   token                s.QMhaOED3UGQ4MeH3fmGOpNED
+   token_accessor       nApB972Dp2lnTTIF5VXQqnnb
+   token_duration       10m
+   token_renewable      true
+   token_policies       ["root"]
+   identity_policies    []
+   policies             ["root"]
 
-This token can then be used to setup access for the charm to
-Vault:
+This temporary token ('token') is then used to authorise the charm:
 
-.. code:: bash
+.. code:: none
 
-    juju run-action --wait vault/leader authorize-charm token=03ceadf5-529d-6a64-0cfd-1e341b1dacb1
+   juju run-action --wait vault/leader authorize-charm token=s.QMhaOED3UGQ4MeH3fmGOpNED
 
-After the action completes execution, the vault unit will go active
-and any pending requests for secrets storage will be processed for
-consuming applications.
+After the action completes execution, the vault unit(s) will become active and
+any pending requests for secrets storage will be processed for consuming
+applications.
+
+Here is sample status output for an unsealed three-unit Vault cluster:
+
+.. code:: console
+
+   vault/0*                 active    idle   0/lxd/1  10.0.0.126      8200/tcp  Unit is ready (active: false, mlock: disabled)
+     vault-hacluster/0*     active    idle            10.0.0.126                Unit is ready and clustered
+     vault-mysql-router/0*  active    idle            10.0.0.126                Unit is ready
+   vault/1                  active    idle   1/lxd/1  10.0.0.130      8200/tcp  Unit is ready (active: true, mlock: disabled)
+     vault-hacluster/2      active    idle            10.0.0.130                Unit is ready and clustered
+     vault-mysql-router/2   active    idle            10.0.0.130                Unit is ready
+   vault/2                  active    idle   2/lxd/1  10.0.0.132      8200/tcp  Unit is ready (active: false, mlock: disabled)
+     vault-hacluster/1      active    idle            10.0.0.132                Unit is ready and clustered
+     vault-mysql-router/1   active    idle            10.0.0.132                Unit is ready
 
 Managing TLS certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Vault can be used to manage a deployment's TLS certificates, either by basing
 them on a self-signed CA certificate (that Vault can generate by itself) or on
-a third-party CA certificate that you can upload to Vault. It is the
-recommended way to use TLS in Charmed OpenStack. This topic is covered on the
-`Certificate lifecycle management`_ page.
+a third-party CA certificate that you can upload to Vault.
 
-.. note::
+Vault is the recommended way to use TLS in Charmed OpenStack. This topic is
+covered on the `Certificate lifecycle management`_ page.
+
+.. important::
 
    The OVN charms require TLS certificates to be managed by Vault.
 
-Enabling HA
-~~~~~~~~~~~
-
-The vault charm supports deployment in HA configurations; this requires
-the use of etcd to provide HA storage to vault units, with access to
-vault being provided a virtual IP or DNS-HA hostname.
-
-The etcd application needs to support etcd3 so ensure it is using the latest
-snap channel which supports it:
-
-.. code:: bash
-
-    juju deploy --to lxd:0 vault
-    juju add-unit --to lxd:1 vault
-    juju add-unit --to lxd:2 vault
-    juju config vault vip=10.20.30.1
-    juju deploy hacluster vault-hacluster
-    juju add-relation vault:ha vault-hacluster:ha
-
-    juju deploy --config channel=3.1/stable --to lxd:0 etcd
-    juju add-unit --to lxd:1 etcd
-    juju add-unit --to lxd:2 etcd
-
-    juju deploy --to lxd:0 easyrsa  # required for TLS certs for etcd
-
-    juju add-relation etcd:certificates easyrsa:client
-    juju add-relation etcd:db vault:etcd
-    juju add-relation vault:shared-db percona-cluster:shared-db
-
-Only a single vault unit is 'active' at any point in time (reflected in juju
-status output). Other vault units will proxy incoming API requests to the
-active vault unit over a secure cluster connection between units.
-
-.. note::
-
-    When deploying vault in HA configurations, all vault units must be
-    unsealed using the unseal keys generated during initialization
-    in order to unlock the master key. This is performed externally
-    to the charm using the Vault API.
-
-Maintenance
-~~~~~~~~~~~
-
-The vault charm supports actions `pause` and `resume` to respectively
-stop and start the Vault process on units. It is important to remember
-that when the Vault process is started via the `resume` action its
-state will be ``sealed``. This means that steps will be required to
-unseal the process.
-
-.. warning::
-
-    Please ensure that you have unseal keys before attempting to
-    execute any of those commands.
-
-To pause the ``vault/0`` unit:
-
-.. code:: bash
-
-    juju run-action vault/0 pause --wait
-
-The ``juju status`` command will return: ``blocked, Vault service not running``
-
-To resume the ``vault/0`` unit:
-
-.. code:: bash
-
-    juju run-action vault/0 resume --wait
-
-The ``juju status`` command will return: ``blocked, Unit is sealed``
-
-You are now expected to pass the unseal keys.
-
-First determine the IP address the Vault process is listening on:
-
-.. code:: bash
-
-    juju status --format=yaml vault | grep public-address | awk '{print $2}'
-    10.5.0.7
-
-Then connect to the vault unit and issue these commands (using the IP address
-and the appropriate unseal keys):
-
-.. code:: bash
-
-    export VAULT_ADDR="https://10.5.0.7:8200"
-    vault operator unseal XqeOza3SY6f4L6xfuk6f8JumrEF7cak9mUXCCPRXzs4B
-    vault operator unseal djvVAAste0F5iSe43nmBs2ZX5r+wUqHe4UfUrcprWkyM
-    vault operator unseal iSXHBdTNIKrbd3JIEI+n+q7j04Q4HPsQOHgk7apupttT
-
-The ``juju status`` command will return: ``active, Unit is ready...``
-
 .. LINKS
+.. _vault charm: https://jaas.ai/vault
 .. _Certificate lifecycle management: app-certificate-management.html
+.. _Managing power events: app-managing-power-events.html#vault
