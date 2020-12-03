@@ -1,5 +1,5 @@
 ============================
-Appendix N: Policy Overrides
+Appendix N: Policy overrides
 ============================
 
 Overview
@@ -46,9 +46,9 @@ Here is the current list of override-aware charms:
 * `openstack-dashboard`_
 
 Overrides for one service may affect the functionality of another service.
-Therefore, it may be necessary to provide overrides for multiple services
-in order to achieve a consistent set of policies across the cloud. Do not
-proceed unless all affected services are represented in the above list.
+Therefore, it may be necessary to provide overrides for multiple services in
+order to achieve a consistent set of policies across the cloud. Do not proceed
+unless all affected services are represented in the above list.
 
 .. important::
 
@@ -59,13 +59,14 @@ Implementation
 
 Any policy statement valid for a given OpenStack service is placed, one per
 line, in a file (an *override file*). This file (or files) is then compressed
-into a single file (the *resource file*) and used as an `Application
-resource`_. Finally, the override is enabled via a Boolean charm option.
+into a single file (the *resource file*) and used as an `Application resource`_
+named 'policyd-override'. Finally, the override is enabled via a Boolean charm
+option.
 
 The enablement phase will cause validation checks to be performed. If
 successful, the effective contents of each override file is placed into a
 corresponding file under the ``/etc/<service-name>/policy.d/`` directory on the
-appropriate unit. The service will then use this information to override the
+appropriate unit(s). The service will then use this information to override the
 currently active policy.
 
 .. important::
@@ -80,7 +81,7 @@ include template variables that the charm will substitute with data that the
 charm has access to via current charm options, the environment, or relation
 data.
 
-The override implementation is *per charm*. Thus if several services require
+The override implementation is per charm. Thus if several services require
 overrides a separate resource file will need to be applied to each respective
 charm.
 
@@ -135,13 +136,43 @@ To update (or fix) the overrides simply attach a new resource file. Changes
 are applied immediately; there is no need to disable ('false') and re-enable
 ('true').
 
+.. note::
+
+   The overrides that get applied are always associated with the most recently
+   attached resource file.
+
+The last revision time of the resource can be viewed with the :command:`juju
+list-resources` command. Sample output is:
+
+.. code-block:: console
+
+   Resource          Revision
+   policyd-override  2020-03-12T19:53
+
+Disabling overrides
+-------------------
+
+Overrides are disabled by setting option ``use-policyd-override`` back to its
+default value of 'false':
+
+.. code-block:: none
+
+   juju config <charm-name> use-policyd-override=false
+
+There is no ability in Juju to remove a resource file.
+
+.. note::
+
+   A charm that supports policy overrides will always have the
+   'policyd-override' resource present.
+
 Override status
 ---------------
 
-The status of the overrides for an application is shown in the output for the
-:command:`juju status` command. When overrides are successful the text ``PO:``
-(Policy Overrides) will be prefixed to the application's status message. When
-they are unsuccessful ``PO: (broken)`` will be used.
+The status of enabled overrides for an application is shown in the output for
+the :command:`juju status` command. When overrides are successful the text
+``PO:`` (Policy Overrides) will be prefixed to the application's status
+message. When they are unsuccessful ``PO: (broken)`` will be used.
 
 An unsuccessful override implies that **none** of the override policy
 statements have been applied. In this case, the operator should either attach
@@ -271,12 +302,12 @@ See the upstream documentation on `Show Server Details`_.
 .. _Application resource: https://jaas.ai/docs/juju-resources#heading--application-resources
 
 .. CHARMS
-.. _cinder: https://opendev.org/openstack/charm-cinder/src/branch/master/README.md#policy-overrides
-.. _designate: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
-.. _glance: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#policy-overrides
-.. _heat: https://opendev.org/openstack/charm-heat/src/branch/master/README.md#policy-overrides
-.. _keystone: https://opendev.org/openstack/charm-keystone/src/branch/master/README.md#policy-overrides
-.. _neutron-api: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#policy-overrides
-.. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/src/branch/master/README.md#policy-overrides
-.. _octavia: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#policy-overrides
-.. _openstack-dashboard: https://opendev.org/openstack/charm-openstack-dashboard/src/branch/master/README.md#policy-overrides
+.. _cinder: https://opendev.org/openstack/charm-cinder/src/branch/master/README.md#user-content-policy-overrides
+.. _designate: https://opendev.org/openstack/charm-designate/src/branch/master/src/README.md#user-content-policy-overrides
+.. _glance: https://opendev.org/openstack/charm-glance/src/branch/master/README.md#user-content-policy-overrides
+.. _heat: https://opendev.org/openstack/charm-heat/src/branch/master/README.md#user-content-policy-overrides
+.. _keystone: https://opendev.org/openstack/charm-keystone/src/branch/master/README.md#user-content-policy-overrides
+.. _neutron-api: https://opendev.org/openstack/charm-neutron-api/src/branch/master/README.md#user-content-policy-overrides
+.. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/src/branch/master/README.md#user-content-policy-overrides
+.. _octavia: https://opendev.org/openstack/charm-octavia/src/branch/master/README.md#user-content-policy-overrides
+.. _openstack-dashboard: https://opendev.org/openstack/charm-openstack-dashboard/src/branch/master/README.md#user-content-policy-overrides
