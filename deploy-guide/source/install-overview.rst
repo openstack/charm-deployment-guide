@@ -1,6 +1,6 @@
-========
-Overview
-========
+=====================
+Installation overview
+=====================
 
 The purpose of the Installation section is to demonstrate how to build a
 multi-node OpenStack cloud with `MAAS`_, `Juju`_, and `OpenStack Charms`_. For

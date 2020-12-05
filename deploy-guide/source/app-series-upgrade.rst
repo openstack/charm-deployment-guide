@@ -12,8 +12,7 @@ Please read the following before continuing:
 * the :doc:`Upgrades overview <upgrade-overview>` page
 * the OpenStack charms `Release Notes`_ for the corresponding current and
   target versions of OpenStack
-* the `Known OpenStack upgrade issues`_ section in the OpenStack upgrade
-  document
+* the :doc:`Upgrade issues <upgrade-issues>` page
 
 Once this document has been studied the administrator will be ready to graduate
 to the :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>` guide
@@ -107,8 +106,8 @@ making any changes.
   upgrades).
 
 * The cloud should be running the latest OpenStack release supported by the
-  current series (e.g. Mitaka for trusty, Queens for xenial, etc.). See `Ubuntu
-  OpenStack release cycle`_ and `OpenStack upgrades`_.
+  current series. See `Ubuntu OpenStack release cycle`_ and `OpenStack
+  upgrades`_.
 
 * The cloud should be fully operational and error-free.
 
@@ -120,36 +119,6 @@ making any changes.
 
 * `Automatic package updates`_ should be disabled on the nodes to avoid
   potential conflicts with the manual (or scripted) APT steps.
-
-.. _series_specific_procedures:
-
-Specific series upgrade procedures
-----------------------------------
-
-Charms belonging to the OpenStack Charms project are designed to accommodate
-the next LTS target series wherever possible. However, a new series may
-occasionally introduce unavoidable challenges for a deployed charm. For
-instance, it could be that a charm is replaced by an entirely new charm on the
-new series. This can happen due to development policy concerning the charms
-themselves (e.g. the ceph charm is replaced by the ceph-mon and ceph-osd
-charms) or due to reasons independent of the charms (e.g. the workload software
-is no longer supported on the new operating system). Any core OpenStack charms
-affected in this way will be documented below.
-
-* :ref:`percona-cluster charm: series upgrade to Focal <percona_series_upgrade_to_focal>`
-
-Known series-related issues
----------------------------
-
-Ensure that your deployment will not be adversely affected by known
-series-related problems when upgrading. The following issues have been flagged
-for consideration.
-
-DNS HA with the focal series
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-DNS HA has been reported to not work on the focal series. See `LP #1882508`_
-for more information.
 
 .. _workload_specific_preparations:
 
@@ -355,6 +324,3 @@ appendix :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>`.
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
 .. _Application leadership: https://juju.is/docs/implementing-leadership
 .. _ubuntu: https://jaas.ai/ubuntu
-
-.. BUGS
-.. _LP #1882508: https://bugs.launchpad.net/charm-deployment-guide/+bug/1882508

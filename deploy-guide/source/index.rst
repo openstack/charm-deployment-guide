@@ -22,7 +22,7 @@ contribution`_.
    :caption: Installation
    :maxdepth: 1
 
-   install-overview
+   Overview <install-overview>
    install-maas
    install-juju
    install-openstack
@@ -32,11 +32,12 @@ contribution`_.
    :caption: Upgrades
    :maxdepth: 1
 
-   upgrade-overview
+   Overview <upgrade-overview>
    upgrade-charms
-   OpenStack upgrade <app-upgrade-openstack>
-   Series upgrade <app-series-upgrade>
-   Series upgrade OpenStack <app-series-upgrade-openstack>
+   app-upgrade-openstack
+   app-series-upgrade
+   upgrade-special
+   upgrade-issues
 
 .. toctree::
    :caption: Appendices
@@ -52,7 +53,6 @@ contribution`_.
    Ceph RADOS Gateway multisite replication <app-rgw-multisite>
    Ceph RBD mirroring <app-ceph-rbd-mirror>
    Ceph iSCSI <app-ceph-iscsi>
-   Ceph charm deprecation <app-ceph-migration>
    Masakari <app-masakari>
    Policy overrides <app-policy-overrides>
    OVN <app-ovn>

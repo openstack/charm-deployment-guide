@@ -31,7 +31,7 @@ the charms can be upgraded in any order.
 
 Before upgrading, a (partial) output to :command:`juju status` may look like:
 
-.. code::
+.. code-block:: console
 
    App       Version  Status   Scale  Charm     Store       Rev  OS      Notes
    keystone  15.0.0   active       1  keystone  jujucharms  306  ubuntu
@@ -47,7 +47,7 @@ charm revision is expected to increase in number.
 So to upgrade this 'keystone' charm (to the most recent promulgated version in
 the Charm Store):
 
-.. code:: bash
+.. code-block:: none
 
    juju upgrade-charm keystone
 
@@ -55,7 +55,7 @@ The upgrade progress can be monitored via :command:`juju status`. Any
 encountered problem will surface as a message in its output. This sample
 (partial) output reflects a successful upgrade:
 
-.. code::
+.. code-block:: console
 
    App       Version  Status   Scale  Charm     Store       Rev  OS      Notes
    keystone  15.0.0   active       1  keystone  jujucharms  309  ubuntu

@@ -1,3 +1,5 @@
+:orphan:
+
 ========================
 Series upgrade OpenStack
 ========================
@@ -11,10 +13,9 @@ across the entirety of a Charmed OpenStack cloud.
    forth in the more general `Series upgrade`_ appendix. That reference must be
    studied in-depth prior to attempting the steps outlined here. In particular,
    ensure that the :ref:`Pre-upgrade requirements <pre-upgrade_requirements>`
-   are satisfied; the :ref:`Specific series upgrade procedures
-   <series_specific_procedures>` have been reviewed and considered; and that
-   :ref:`Workload specific preparations <workload_specific_preparations>` have
-   been addressed during planning.
+   are satisfied; the :doc:`Upgrade issues <upgrade-issues>` have been reviewed
+   and considered; and that :ref:`Workload specific preparations
+   <workload_specific_preparations>` have been addressed during planning.
 
 Downtime
 --------
