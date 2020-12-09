@@ -39,6 +39,14 @@ contribution`_.
    Series upgrade OpenStack <app-series-upgrade-openstack>
 
 .. toctree::
+   :caption: Security
+   :maxdepth: 1
+
+   security-overview
+   keystone
+   app-policy-overrides
+
+.. toctree::
    :caption: Appendices
    :maxdepth: 1
 
@@ -54,7 +62,6 @@ contribution`_.
    Ceph iSCSI <app-ceph-iscsi>
    Ceph charm deprecation <app-ceph-migration>
    Masakari <app-masakari>
-   Policy overrides <app-policy-overrides>
    OVN <app-ovn>
    Managing power events <app-managing-power-events>
    Manila Ganesha <app-manila-ganesha>
