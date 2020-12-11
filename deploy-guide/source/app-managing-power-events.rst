@@ -1050,10 +1050,16 @@ start commands.
 vault
 ~~~~~
 
+With HA Vault, each unit may need to be processed individually.
+
 .. note::
 
-    The ``vault`` charm is lacking in actions. Some procedures will involve
-    direct intervention. See bug `LP #1846282`_.
+   The vault charm is lacking in actions. Some procedures will involve direct
+   intervention. See bug `LP #1846282`_.
+
+.. warning::
+
+   Ensure that the unseal keys are available before pausing a vault unit.
 
 shutdown
 ^^^^^^^^
@@ -1062,12 +1068,17 @@ To pause a Vault service::
 
     juju run-action --wait vault/0 pause
 
+The :command:`juju status` command will return: ``blocked, Vault service not
+running``.
+
 startup
 ^^^^^^^
 
 To resume a Vault service::
 
     juju run-action --wait vault/0 resume
+
+The :command:`juju status` command will return: ``blocked, Unit is sealed``.
 
 read queries
 ^^^^^^^^^^^^
@@ -1083,9 +1094,9 @@ Expected output is::
 unsealing units
 ^^^^^^^^^^^^^^^
 
-When Vault is clustered, each unit will manually (and locally) need to be
-unsealed with its respective ``VAULT_ADDR`` environment variable and with the
-minimum number of unseal keys (three here):
+The unit will manually (and locally) need to be unsealed with its respective
+``VAULT_ADDR`` environment variable and with the minimum number of unseal keys
+(three here):
 
 .. code::
 
@@ -1094,7 +1105,8 @@ minimum number of unseal keys (three here):
     vault operator unseal <key>
     vault operator unseal <key>
 
-See the `Vault appendix`_ in the Charms Deployment Guide for more details.
+Once the model has settled, the :command:`juju status` command will return:
+``active, Unit is ready...``
 
 Known issues
 ++++++++++++
