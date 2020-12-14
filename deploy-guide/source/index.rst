@@ -51,8 +51,7 @@ contribution`_.
    :caption: Appendices
    :maxdepth: 1
 
-   Vault <app-vault>
-   Certificate lifecycle management <app-certificate-management>
+   Managing TLS certificates with Vault <app-certificate-management>
    Encryption at Rest <app-encryption-at-rest>
    Additional Nova cells <app-nova-cells>
    Octavia LBaaS <app-octavia>

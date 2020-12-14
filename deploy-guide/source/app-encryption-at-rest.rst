@@ -22,7 +22,7 @@ event that disks or full servers are removed from data center deployments.
 Vault
 +++++
 
-See `Appendix C Vault <./app-vault.html>`__ 
+See the `vault charm`_.
 
 Enabling Encryption
 +++++++++++++++++++
@@ -69,3 +69,5 @@ LUKS encryption keys are never store on local disk; vaultlocker is used to encry
 and store the key in vault, and to retrieve the key and open encrypted block
 devices during boot.  Keys are only ever held in memory.
 
+.. LINKS
+.. _vault charm: https://jaas.ai/vault/

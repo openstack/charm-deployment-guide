@@ -222,8 +222,8 @@ Here are the corresponding commands for Vault:
    juju add-relation vault-mysql-router:shared-db vault:shared-db
 
 Vault now needs to be initialised and unsealed. The vault charm will also need
-to be authorised to carry out certain tasks. These steps are covered on the
-`Vault`_ page. Perform them now.
+to be authorised to carry out certain tasks. These steps are covered in the
+`vault charm`_ documentation. Perform them now.
 
 Once the above is completed the Unit section output to command :command:`juju
 status` should look similar to this:
@@ -760,7 +760,7 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _Deploying applications: https://juju.is/docs/deploying-applications
 .. _Deploying to specific machines: https://juju.is/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
 .. _Managing relations: https://juju.is/docs/relations
-.. _Vault: app-vault.html
+.. _vault charm: https://jaas.ai/vault/
 
 .. CHARMS
 .. _ceph-mon: https://jaas.ai/ceph-mon

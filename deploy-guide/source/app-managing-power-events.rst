@@ -1125,7 +1125,6 @@ Charms`_ project group.
 .. _percona-cluster charm: https://opendev.org/openstack/charm-percona-cluster/src/branch/master/README.md#cold-boot
 .. _How to recover a PXC cluster: https://www.percona.com/blog/2014/09/01/galera-replication-how-to-recover-a-pxc-cluster
 .. _Percona XtraDB sequence numbers: https://www.percona.com/blog/2017/12/14/sequence-numbers-seqno-percona-xtradb-cluster/
-.. _Vault appendix: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-vault.html
 .. _High availability: https://docs.openstack.org/arch-design/arch-requirements/arch-requirements-ha.html
 .. _Control plane architecture: https://docs.openstack.org/arch-design/design-control-plane.html
 .. _Evacuate instances: https://docs.openstack.org/nova/latest/admin/evacuate.html

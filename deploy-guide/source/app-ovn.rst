@@ -31,11 +31,15 @@ Deployment
 OVN makes use of Public Key Infrastructure (PKI) to authenticate and authorize
 control plane communication. The charm requires a Certificate Authority to be
 present in the model as represented by the ``certificates`` relation.
+Certificates must be managed by Vault.
 
-Follow the instructions for deployment and configuration of Vault in
-the `Vault`_ and `Certificate Lifecycle Management`_ appendices.
+.. note::
 
-OVN can then be deployed:
+   For Vault deployment instructions see the `vault charm`_. For certificate
+   management information read the `Managing TLS certificates with Vault`_
+   section of this guide.
+
+To deploy OVN:
 
 .. code-block:: none
 
@@ -809,9 +813,10 @@ of the actual migration.
       applications. You must tailor the commands to fit with your deployments
       topology.
 
-5. Unseal `Vault`_, enable `Certificate Lifecycle Management`_ and
-   validate that the services on ovn-central units are running as expected.
-   Please refer to the the `Usage`_ section for more information.
+5. Unseal Vault (see the `vault charm`_), set up TLS certificates (see
+   `Managing TLS certificates with Vault`_), and validate that the services on
+   ovn-central units are running as expected. Please refer to the `Usage`_
+   section for more information.
 
 Perform migration
 ~~~~~~~~~~~~~~~~~
@@ -996,8 +1001,8 @@ Perform migration
        openstack network agent delete ...
 
 .. LINKS
-.. _Vault: app-vault
-.. _Certificate Lifecycle Management: app-certificate-management
+.. _vault charm: https://jaas.ai/vault/
+.. _Managing TLS certificates with Vault: app-certificate-management.html
 .. _Toward Convergence of ML2+OVS+DVR and OVN: http://specs.openstack.org/openstack/neutron-specs/specs/ussuri/ml2ovs-ovn-convergence.html
 .. _ovn-dedicated-chassis charm: https://jaas.ai/u/openstack-charmers/ovn-dedicated-chassis/
 .. _networking-ovn plugin: https://docs.openstack.org/networking-ovn/latest/
