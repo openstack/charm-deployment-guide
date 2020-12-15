@@ -60,7 +60,7 @@ contribution`_.
    Ceph erasure coding <app-erasure-coding>
    Ceph RADOS Gateway multisite replication <app-rgw-multisite>
    Ceph RBD mirroring <app-ceph-rbd-mirror>
-   Ceph iSCSI <app-ceph-iscsi>
+   Ceph charm deprecation <app-ceph-migration>
    Masakari <app-masakari>
    OVN <app-ovn>
    Managing power events <app-managing-power-events>
