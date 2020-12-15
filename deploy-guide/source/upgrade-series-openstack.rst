@@ -788,8 +788,8 @@ ensuring the availability of services.
    is deployed with ``customize-failure-domain`` set to 'true' and the ceph-osd
    units are hosted on machines in three or more separate Juju AZs you can
    safely reboot ceph-osd machines concurrently in the same zone. See
-   :ref:`Ceph AZ <ceph_az>` in :doc:`OpenStack high availability <app-ha>` for
-   details.
+   :ref:`Ceph AZ <ceph_az>` in :doc:`Infrastructure high availability <app-ha>`
+   for details.
 
 Automation
 ----------

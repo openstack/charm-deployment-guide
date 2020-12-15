@@ -1,6 +1,6 @@
-====================
-Appendix L: Masakari
-====================
+==========================
+Instance high availability
+==========================
 
 Overview
 --------
@@ -100,8 +100,8 @@ bundle.
 Provide values for the ``maas_url``, ``maas_credentials``, and ``vip``
 hacluster charm options . A VIP is a virtual IP needed for Masakari to enable
 HA (a requirement when using the masakari charm). If multiple networks are
-used, multiple (space separated) VIPs should be provided. See `OpenStack high
-availability`_ for HA guidance.
+used, multiple (space separated) VIPs should be provided. See `Infrastructure
+high availability`_ for HA guidance.
 
 Enable STONITH via the ``enable-stonith`` pacemaker-remote charm option.
 
@@ -506,6 +506,6 @@ Masakari.
 .. _MAAS: https://maas.io
 .. _Masakari charm: http://jaas.ai/masakari
 .. _openstack-base: https://jaas.ai/openstack-base
-.. _OpenStack high availability: app-ha.html#ha-applications
+.. _Infrastructure high availability: app-ha.html#ha-applications
 .. _Configure OpenStack: configure-openstack.html
 .. _deploying OpenStack: install-openstack.html

@@ -45,7 +45,7 @@ documentation before continuing:
    Cloud topology section goes here (modelled on openstack-base README)
 
 This page will show how to install a minimal non-HA OpenStack cloud. See
-:doc:`OpenStack high availability <app-ha>` for guidance on that subject.
+:doc:`Infrastructure high availability <app-ha>` for guidance on that subject.
 
 OpenStack release
 -----------------

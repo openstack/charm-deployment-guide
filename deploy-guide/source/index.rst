@@ -64,6 +64,13 @@ contribution`_.
    app-bridge-interface-configuration
 
 .. toctree::
+   :caption: High availability
+   :maxdepth: 1
+
+   app-ha
+   app-masakari
+
+.. toctree::
    :caption: Appendices
    :maxdepth: 1
 
@@ -72,12 +79,9 @@ contribution`_.
    Ceph erasure coding <app-erasure-coding>
    Ceph RADOS Gateway multisite replication <app-rgw-multisite>
    Ceph RBD mirroring <app-ceph-rbd-mirror>
-   Ceph charm deprecation <app-ceph-migration>
-   Masakari <app-masakari>
    Managing power events <app-managing-power-events>
    Manila Ganesha <app-manila-ganesha>
    Swift usage <app-swift>
-   High availability <app-ha>
    TrilioVault Data Protection <app-trilio-vault>
 
 .. LINKS
