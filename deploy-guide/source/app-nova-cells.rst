@@ -1,5 +1,6 @@
-Appendix G: Additional Nova Cells
-=================================
+==========
+Nova Cells
+==========
 
 Overview
 ++++++++

@@ -47,15 +47,20 @@ contribution`_.
    app-policy-overrides
 
 .. toctree::
+   :caption: Compute
+   :maxdepth: 1
+
+   app-nova-cells
+   app-pci-passthrough-gpu
+
+.. toctree::
    :caption: Appendices
    :maxdepth: 1
 
    Vault <app-vault>
    Certificate lifecycle management <app-certificate-management>
    Encryption at Rest <app-encryption-at-rest>
-   Additional Nova cells <app-nova-cells>
    Octavia LBaaS <app-octavia>
-   PCI passthrough <app-pci-passthrough-gpu>
    Ceph erasure coding <app-erasure-coding>
    Ceph RADOS Gateway multisite replication <app-rgw-multisite>
    Ceph RBD mirroring <app-ceph-rbd-mirror>
