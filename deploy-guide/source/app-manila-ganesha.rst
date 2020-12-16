@@ -19,6 +19,11 @@ controlled NFS mounts to OpenStack instances.
 Deployment
 ----------
 
+.. warning::
+
+   Throughout this guide make sure ``openstack-origin`` matches the value you
+   used when `deploying OpenStack`_.
+
 One way to add Manila Ganesha is to do so during the bundle deployment of a new
 OpenStack cloud. This is done by means of a bundle overlay, such as
 `manila-ganesha-overlay.yaml`:
@@ -165,5 +170,6 @@ used to secure access to Ganesha even if the network is not a Neutron managed
 network.
 
 .. LINKS
+.. _deploying OpenStack: install-openstack
 .. _create the share: https://docs.openstack.org/manila/latest/admin/cephfs_driver.html#create-cephfs-nfs-share
 .. _grant access: https://docs.openstack.org/manila/latest/admin/cephfs_driver.html#allow-access-to-cephfs-nfs-share

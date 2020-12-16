@@ -85,6 +85,11 @@ Usage
 Configuration
 ~~~~~~~~~~~~~
 
+.. warning::
+
+   Throughout this guide make sure ``openstack-origin`` matches the value you
+   used when `deploying OpenStack`_.
+
 The below overlay bundle can be used to deploy Masakari when using a bundle to
 deploy OpenStack.
 
@@ -503,3 +508,4 @@ Masakari.
 .. _openstack-base: https://jaas.ai/openstack-base
 .. _OpenStack high availability: app-ha.html#ha-applications
 .. _Configure OpenStack: configure-openstack.html
+.. _deploying OpenStack: install-openstack.html
