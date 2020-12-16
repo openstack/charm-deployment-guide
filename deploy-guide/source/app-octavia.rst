@@ -38,11 +38,16 @@ Deployment
    Throughout this guide make sure ``openstack-origin`` matches the value you
    used when `deploying OpenStack`_.
 
-Octavia makes use of OpenStack Barbican for storage of certificates for
-TLS termination on load balancers; Barbican makes use of Vault for secure
-storage of this data.  Follow the instructions for deployment and
-configuration of Vault in the `Vault`_ and `Certificate Lifecycle Management`_
-appendices and then deploy Barbican:
+Octavia uses OpenStack Barbican to store certificates for TLS termination on
+load balancers. Barbican, in turn, uses Vault to securely store that data.
+
+.. note::
+
+   For Vault deployment instructions see the `vault charm`_. For certificate
+   management information read the `Managing TLS certificates with Vault`_
+   section of this guide.
+
+To deploy Barbican:
 
 .. code-block:: none
 
@@ -285,9 +290,9 @@ For more information on creating and configuring load balancing services in
 Octavia please refer to the `Octavia cookbook`_.
 
 .. LINKS
-.. _Vault: app-vault
-.. _Certificate Lifecycle Management: app-certificate-management
-.. _deploying OpenStack: install-openstack
+.. _deploying OpenStack: install-openstack.html
+.. _Managing TLS certificates with Vault: app-certificate-management.html
 .. _Octavia Policies: https://docs.openstack.org/octavia/latest/configuration/policy.html
 .. _Octavia cookbook: https://docs.openstack.org/octavia/latest/user/guides/basic-cookbook.html
 .. _operators maintenance: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
+.. _vault charm: https://jaas.ai/vault/

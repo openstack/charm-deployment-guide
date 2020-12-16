@@ -1,6 +1,6 @@
-============================================
-Appendix E: Certificate Lifecycle Management
-============================================
+====================================
+Managing TLS certificates with Vault
+====================================
 
 Overview
 --------
@@ -10,12 +10,6 @@ certificates for enabling transport layer security (TLS) is to add a
 certificate authority to your model. The charms consume the certificates
 through the `tls-certificates relation`_ and we do our validation using the
 `Vault charm`_.
-
-Vault
------
-
-See `Appendix C Vault <./app-vault.html>`__
-
 
 Enabling Vault Certificate Management
 -------------------------------------
