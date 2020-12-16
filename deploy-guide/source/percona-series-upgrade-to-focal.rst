@@ -1,24 +1,15 @@
 :orphan:
 
-.. _series_upgrade_specific_procedures:
+==============================================
+percona-cluster charm: series upgrade to focal
+==============================================
 
-==================================
-Specific series upgrade procedures
-==================================
+.. note::
 
-Overview
---------
-
-This page describes procedures that may be required when performing a series
-upgrade across a Charmed OpenStack cloud. They relate to specific cloud
-workloads. Please read the more general :doc:`Series upgrade
-<app-series-upgrade>` appendix before attempting any of the instructions given
-here.
-
-.. _percona_series_upgrade_to_focal:
-
-percona-cluster charm: series upgrade to Focal
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   This page describes a procedure that may be required when performing an
+   upgrade of an OpenStack cloud. Please read the more general :doc:`Upgrades
+   overview <upgrade-overview>` before attempting any of the instructions given
+   here.
 
 In Ubuntu 20.04 LTS (Focal) the percona-xtradb-cluster-server package will no
 longer be available. It has been replaced by mysql-server-8.0 and mysql-router

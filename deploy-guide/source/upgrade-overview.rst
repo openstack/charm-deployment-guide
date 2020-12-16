@@ -2,8 +2,9 @@
 Upgrades overview
 =================
 
-This page provides an overview of how various components of a Charmed OpenStack
-deployment are upgraded. The upgrade of each of these components are distinct
+The purpose of the Upgrades section is to show how to upgrade Charmed OpenStack
+as a whole. This page provides a summary of the involved components and how
+they relate to each other. The upgrade of each of the components are distinct
 operations and are referred to as separate upgrade types. They are defined in
 this way:
 
