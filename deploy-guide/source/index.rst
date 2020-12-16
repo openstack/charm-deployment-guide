@@ -43,9 +43,10 @@ contribution`_.
    :caption: Security
    :maxdepth: 1
 
-   security-overview
+   Overview <security-overview>
    keystone
    app-policy-overrides
+   app-certificate-management
 
 .. toctree::
    :caption: Compute
@@ -71,18 +72,27 @@ contribution`_.
    app-masakari
 
 .. toctree::
-   :caption: Appendices
+   :caption: Backup
    :maxdepth: 1
 
-   Managing TLS certificates with Vault <app-certificate-management>
-   Encryption at Rest <app-encryption-at-rest>
-   Ceph erasure coding <app-erasure-coding>
-   Ceph RADOS Gateway multisite replication <app-rgw-multisite>
-   Ceph RBD mirroring <app-ceph-rbd-mirror>
-   Managing power events <app-managing-power-events>
-   Manila Ganesha <app-manila-ganesha>
-   Swift usage <app-swift>
-   TrilioVault Data Protection <app-trilio-vault>
+   app-trilio-vault
+
+.. toctree::
+   :caption: Operations
+   :maxdepth: 1
+
+   app-managing-power-events
+
+.. toctree::
+   :caption: Storage
+   :maxdepth: 1
+
+   app-encryption-at-rest
+   app-erasure-coding
+   app-rgw-multisite
+   app-ceph-rbd-mirror
+   app-manila-ganesha
+   app-swift
 
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug

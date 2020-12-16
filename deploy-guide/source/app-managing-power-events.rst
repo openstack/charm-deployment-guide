@@ -1,7 +1,8 @@
 .. _managing_power_events:
 
-Appendix P: Managing Power Events
-=================================
+=====================
+Managing power events
+=====================
 
 Overview
 ++++++++

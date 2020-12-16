@@ -1,5 +1,6 @@
-Appendix D: Encryption at Rest
-==============================
+==================
+Encryption at Rest
+==================
 
 Overview
 ++++++++

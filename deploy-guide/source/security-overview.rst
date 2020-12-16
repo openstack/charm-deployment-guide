@@ -1,6 +1,6 @@
-========
-Overview
-========
+=================
+Security overview
+=================
 
 This Security section includes topics related to authentication and
 authorisation in Charmed OpenStack.

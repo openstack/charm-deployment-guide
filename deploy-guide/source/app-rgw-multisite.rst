@@ -1,5 +1,6 @@
-Appendix J: Ceph RADOS Gateway Multisite replication
-====================================================
+========================================
+Ceph RADOS Gateway multisite replication
+========================================
 
 Overview
 ++++++++
