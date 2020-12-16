@@ -182,6 +182,17 @@ have the series of its corresponding machines upgraded sequentially.
 
 The example procedure will be based on the percona-cluster application.
 
+.. warning::
+
+   The eoan series is the last series supported by the percona-cluster charm.
+   It is replaced by the `mysql-innodb-cluster`_ and `mysql-router`_ charms in the
+   focal series. The migration steps are documented in `percona-cluster charm
+   - series upgrade to focal`_.
+
+   Do not upgrade the machines hosting percona-cluster units to the focal
+   series. To be clear, if percona-cluster is containerised then it is the LXD
+   container that must not be upgraded.
+
 .. important::
 
    Unlike percona-cluster, the ceph-mon and rabbitmq-server applications do not
@@ -230,6 +241,14 @@ machine 1/lxd/0 (the principal leader machine).
 
    Permissions will need to be altered on the remote machine, and note that the
    last command transfers **all** existing backups.
+
+.. note::
+
+   These upstream resources may also be useful:
+
+   * `Upgrading Percona XtraDB Cluster`_
+   * `Percona XtraDB Cluster In-Place Upgrading Guide From 5.5 to 5.6`_
+   * `Galera replication - how to recover a PXC cluster`_
 
 #. Set the default series for both the model and the principal application:
 
@@ -797,3 +816,9 @@ and test the series upgrade primitives:
 .. _Series upgrade: upgrade-series.html
 .. _Parallel tests: https://github.com/openstack-charmers/zaza-openstack-tests/blob/c492ecdcac3b2724833c347e978de97ea2e626d7/zaza/openstack/charm_tests/series_upgrade/parallel_tests.py#L64
 .. _Upgrade helpers: https://github.com/openstack-charmers/zaza-openstack-tests/blob/9cec2efabe30fb0709bc098c48ec10bcb85cc9d4/zaza/openstack/utilities/parallel_series_upgrade.py
+.. _Upgrading Percona XtraDB Cluster: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/howtos/upgrade_guide.html
+.. _Percona XtraDB Cluster In-Place Upgrading Guide From 5.5 to 5.6: https://www.percona.com/doc/percona-xtradb-cluster/5.6/upgrading_guide_55_56.html
+.. _Galera replication - how to recover a PXC cluster: https://www.percona.com/blog/2014/09/01/galera-replication-how-to-recover-a-pxc-cluster
+.. _mysql-innodb-cluster: https://jaas.ai/mysql-innodb-cluster
+.. _mysql-router: https://jaas.ai/mysql-router
+.. _percona-cluster charm - series upgrade to focal: percona-series-upgrade-to-focal.html
