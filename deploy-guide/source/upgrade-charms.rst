@@ -107,4 +107,4 @@ Based on the above, the ceph-mon charm does not require an upgrade.
 .. LINKS
 .. _Upgrading applications: https://jaas.ai/docs/upgrading-applications
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
-.. _Series upgrade: app-series-upgrade
+.. _Series upgrade: upgrade-series.html

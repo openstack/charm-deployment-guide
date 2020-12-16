@@ -794,7 +794,6 @@ and test the series upgrade primitives:
    production cloud.
 
 .. LINKS
-.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
-.. _Series upgrade: app-series-upgrade.html
+.. _Series upgrade: upgrade-series.html
 .. _Parallel tests: https://github.com/openstack-charmers/zaza-openstack-tests/blob/c492ecdcac3b2724833c347e978de97ea2e626d7/zaza/openstack/charm_tests/series_upgrade/parallel_tests.py#L64
 .. _Upgrade helpers: https://github.com/openstack-charmers/zaza-openstack-tests/blob/9cec2efabe30fb0709bc098c48ec10bcb85cc9d4/zaza/openstack/utilities/parallel_series_upgrade.py

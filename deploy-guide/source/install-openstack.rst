@@ -26,7 +26,7 @@ bundle <install-openstack-bundle>` for method #2.
    #. The entire suite of charms used to manage the cloud should be upgraded to
       the latest stable charm revision before any major change is made to the
       cloud (e.g. migrating to new charms, upgrading cloud services, upgrading
-      machine series). See `Charm upgrades`_ for details.
+      machine series). See `Charms upgrade`_ for details.
 
    #. The Juju machines that comprise the cloud should all be running the same
       series (e.g. 'bionic' or 'focal', but not a mix of the two). See `Series
@@ -69,8 +69,8 @@ recent OpenStack release in this way will result in an Ussuri deployment (i.e.
 Ussuri is in the Ubuntu package archive for Focal).
 
 See :ref:`Perform the upgrade <perform_the_upgrade>` in the :doc:`OpenStack
-Upgrades <app-upgrade-openstack>` appendix for more details on cloud
-archive releases and how they are used when upgrading OpenStack.
+Upgrade <upgrade-openstack>` appendix for more details on cloud archive
+releases and how they are used when upgrading OpenStack.
 
 .. important::
 
@@ -753,8 +753,8 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 
 .. LINKS
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
-.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades.html
-.. _Series upgrade: app-series-upgrade.html
+.. _Charms upgrade: upgrade-charms.html
+.. _Series upgrade: upgrade-series.html
 .. _Charm store: https://jaas.ai/store
 .. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
 .. _Deploying applications: https://juju.is/docs/deploying-applications

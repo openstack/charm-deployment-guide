@@ -34,8 +34,8 @@ contribution`_.
 
    Overview <upgrade-overview>
    upgrade-charms
-   app-upgrade-openstack
-   app-series-upgrade
+   upgrade-openstack
+   upgrade-series
    upgrade-special
    upgrade-issues
 

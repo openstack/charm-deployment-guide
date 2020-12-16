@@ -29,7 +29,7 @@ Upgrade charms
 
 The entire suite of charms used to manage the cloud should be upgraded to the
 latest stable charm revision before any major change is made to the cloud such
-as the current migration to these new charms. See `Charm upgrades`_ for
+as the current migration to these new charms. See `Charms upgrade`_ for
 guidance.
 
 Deploy ceph-mon
@@ -135,5 +135,5 @@ processes running on the machine; any Ceph OSD processes remain untouched and
 are now owned by the ceph-osd units deployed alongside ceph.
 
 .. LINKS
-.. _Charm upgrades: app-upgrade-openstack#charm-upgrades
+.. _Charms upgrade: upgrade-charms.html
 .. _LP #1452641: https://bugs.launchpad.net/nova/+bug/1452641

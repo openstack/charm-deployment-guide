@@ -15,8 +15,8 @@ Please read the following before continuing:
 * the :doc:`Upgrade issues <upgrade-issues>` page
 
 Once this document has been studied the administrator will be ready to graduate
-to the :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>` guide
-that describes the process in more detail.
+to the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` guide that
+describes the process in more detail.
 
 Concerning the cloud being operated upon, the following is assumed:
 
@@ -107,12 +107,12 @@ making any changes.
 
 * The cloud should be running the latest OpenStack release supported by the
   current series. See `Ubuntu OpenStack release cycle`_ and `OpenStack
-  upgrades`_.
+  upgrade`_.
 
 * The cloud should be fully operational and error-free.
 
 * All currently deployed charms should be upgraded to the latest stable charm
-  revision. See `Charm upgrades`_.
+  revision. See `Charms upgrade`_.
 
 * The Juju model comprising the cloud should be error-free (e.g. there should
   be no charm hook errors).
@@ -312,13 +312,13 @@ Next steps
 ----------
 
 When you are ready to perform a series upgrade across your cloud proceed to
-appendix :doc:`Series upgrade OpenStack <app-series-upgrade-openstack>`.
+appendix :doc:`Series upgrade OpenStack <upgrade-series-openstack>`.
 
 .. LINKS
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
-.. _Charm upgrades: app-upgrade-openstack.html#charm-upgrades
-.. _OpenStack upgrades: app-series-upgrade-openstack.html
-.. _Known OpenStack upgrade issues: app-series-upgrade-openstack.html#known-openstack-upgrade-issues
+.. _Charms upgrade: upgrade-charms.html
+.. _OpenStack upgrade: upgrade-openstack.html
+.. _Known OpenStack upgrade issues: upgrade-issues.html
 .. _series upgrade: https://juju.is/docs/upgrading-series
 .. _automatic package updates: https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
