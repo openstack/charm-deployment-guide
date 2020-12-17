@@ -55,25 +55,30 @@ contribution`_.
    app-pci-passthrough-gpu
 
 .. toctree::
+   :caption: Networking
+   :maxdepth: 1
+
+   app-ovn
+   app-hardware-offload
+   app-octavia
+   app-bridge-interface-configuration
+
+.. toctree::
    :caption: Appendices
    :maxdepth: 1
 
    Managing TLS certificates with Vault <app-certificate-management>
    Encryption at Rest <app-encryption-at-rest>
-   Octavia LBaaS <app-octavia>
    Ceph erasure coding <app-erasure-coding>
    Ceph RADOS Gateway multisite replication <app-rgw-multisite>
    Ceph RBD mirroring <app-ceph-rbd-mirror>
    Ceph charm deprecation <app-ceph-migration>
    Masakari <app-masakari>
-   OVN <app-ovn>
    Managing power events <app-managing-power-events>
    Manila Ganesha <app-manila-ganesha>
    Swift usage <app-swift>
-   NIC hardware offload <app-hardware-offload>
    High availability <app-ha>
    TrilioVault Data Protection <app-trilio-vault>
-   Bridge interface configuration <app-bridge-interface-configuration>
 
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug

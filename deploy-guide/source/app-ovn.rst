@@ -1,6 +1,6 @@
-======================================
-Appendix O: Open Virtual Network (OVN)
-======================================
+==========================
+Open Virtual Network (OVN)
+==========================
 
 Overview
 --------
@@ -104,7 +104,7 @@ for use with hardware offloading and make them available to OpenStack.
 To use the feature you need to use supported network interface card (NIC)
 hardware. We have done feature validation using the Mellanox ConnectX-5 NICs.
 
-Please refer to the `NIC hardware offload`_ appendix for more background on the
+Please refer to `Network hardware offloading`_ for more background on the
 feature.
 
 Hardware offload support makes use of SR-IOV as an underlying mechanism to
@@ -121,8 +121,8 @@ with appropriate driver and firmware support.
 Prerequisites
 ^^^^^^^^^^^^^
 
-Please refer to the `SR-IOV for networking support`_ section and the `NIC
-hardware offload`_ appendix for information on hardware and kernel
+Please refer to the `SR-IOV for networking support`_ section and the `Network
+hardware offloading`_ page for information on hardware and kernel
 configuration.
 
 Charm configuration
@@ -1017,7 +1017,7 @@ Perform migration
 .. _DPDK supported hardware page: http://core.dpdk.org/supported/
 .. _MAAS: https://maas.io/
 .. _Customizing instance huge pages allocations: https://docs.openstack.org/nova/latest/admin/huge-pages.html#customizing-instance-huge-pages-allocations
-.. _NIC hardware offload: app-hardware-offload
+.. _Network hardware offloading: app-hardware-offload.html
 .. _SR-IOV for networking support: app-ovn.html#sr-iov-for-networking-support
 .. _traffic control monitor: http://manpages.ubuntu.com/manpages/focal/man8/tc.8.html#monitor
 .. _data path control tools: http://manpages.ubuntu.com/manpages/focal/man8/ovs-dpctl.8.html
