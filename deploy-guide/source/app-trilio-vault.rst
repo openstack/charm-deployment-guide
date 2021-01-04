@@ -5,64 +5,64 @@ TrilioVault Data Protection
 Overview
 --------
 
-As of the 20.05 release, the OpenStack charms support deployment of
-TrilioVault, a data protection solution that integrates with
-OpenStack.
-
-TrilioVault allows end-users to independently backup and restore
-point-in-time snapshots of their own workloads.
+`TrilioVault`_ is a data protection solution that integrates with OpenStack. It
+allows end-users to backup and restore point-in-time snapshots of their own
+workloads (cloud instances). TrilioVault is implemented via the `Trilio
+charms`_.
 
 .. note::
 
-   TrilioVault is not part of the OpenStack project and is a commercially
-   supported propriety product.  For more details visit `trilio.io`_.
+   TrilioVault is not part of the OpenStack project. It is a commercially
+   supported propriety product.
 
 Prerequisites
 -------------
 
- - Ubuntu 18.04 LTS
- - OpenStack Queens, Stein or Train
- - NFS server for storage of snapshots
-
-.. note::
-
-   TrilioVault requires a license for operation. For more details visit
-   `trilio.io`_.
-
-.. warning::
-
-   TrilioVault only supports Ubuntu 18.04 LTS.
+* Ubuntu 18.04 LTS (only)
+* OpenStack Queens, Stein, or Train
+* an NFS server for snapshot storage
+* a license (see the project's homepage)
 
 Deployment
 ----------
 
-.. warning::
-
-   Throughout this guide make sure ``openstack-origin`` matches the value you
-   used when `deploying OpenStack`_.
-
 The TrilioVault solution consists of three core services:
 
- - TrilioVault Workload Manager: this service provides the main API
-   for TrilioVault and is used to create and manage snapshots
-   and restores.
- - TrilioVault Data Mover API: this service provides the API for
-   managing the TrilioVault Data Mover services and is used
-   by the TrilioVault Workload Manager.
- - TrilioVault Data Mover: deployed alongside Nova Compute services
-   this service is responsible for managing the snapshot process for
-   instances running on the OpenStack Cloud.
+* TrilioVault Workload Manager: the main API - used to manage snapshots (e.g.
+  creation and restores). This is implemented with the trilio-wlm charm.
 
-TrilioVault also provides an OpenStack Dashboard plugin providing a Web UI
-for end users and cloud administrators.
+* TrilioVault Data Mover: deployed alongside OpenStack Nova - responsible for
+  managing the instance snapshot process at the cloud level. This is
+  implemented with the trilio-data-mover charm.
 
-TrilioVault may be added to an OpenStack cloud using the following example
-overlay bundle:
+* TrilioVault Data Mover API: the API for managing the TrilioVault Data Mover
+  services - used by the Workload Manager. This is implemented with the
+  trilio-dm-api charm.
+
+An OpenStack Dashboard plugin is also provided, allowing for snapshot
+management to take place via a Web UI. This is implemented with the
+trilio-horizon-plugin charm.
+
+An overlay bundle is used to deploy to an existing OpenStack cloud. An example
+is provided below.
+
+.. note::
+
+   Ensure that the value for ``openstack-origin`` matches the currently
+   deployed OpenStack release.
+
+   The ``ceph-mon:client`` relation is only needed if the cloud is already
+   configured to use Ceph-backed VM images (via either Cinder or Nova).
 
 .. code-block:: yaml
 
    series: bionic
    applications:
+     trilio-wlm:
+       charm: cs:~openstack-charmers/trilio-wlm
+       num_units: 1
+       options:
+         openstack-origin: cloud:bionic-train
      trilio-data-mover:
        charm: cs:~openstack-charmers/trilio-data-mover
      trilio-dm-api:
@@ -72,19 +72,13 @@ overlay bundle:
          openstack-origin: cloud:bionic-train
      trilio-horizon-plugin:
        charm: cs:~openstack-charmers/trilio-horizon-plugin
-       options:
-     trilio-wlm:
-       charm: cs:~openstack-charmers/trilio-wlm
-       num_units: 1
-       options:
-         openstack-origin: cloud:bionic-train
    relations:
      - - trilio-horizon-plugin:dashboard-plugin
        - openstack-dashboard:dashboard-plugin
      - - trilio-dm-api:identity-service
        - keystone:identity-service
      - - trilio-dm-api:shared-db
-       - mysql:shared-db
+       - percona-cluster:shared-db
      - - trilio-dm-api:amqp
        - rabbitmq-server:amqp
      - - trilio-data-mover:amqp
@@ -92,7 +86,7 @@ overlay bundle:
      - - trilio-data-mover:juju-info
        - nova-compute:juju-info
      - - trilio-wlm:shared-db
-       - mysql:shared-db
+       - percona-cluster:shared-db
      - - trilio-wlm:amqp
        - rabbitmq-server:amqp
      - - trilio-wlm:identity-service
@@ -103,18 +97,17 @@ overlay bundle:
 .. note::
 
    The trilio-wlm and trilio-dm-api charms must be deployed with
-   openstack-origin >= cloud:bionic-train - even for Queens deployments.
+   ``openstack-origin`` >= 'cloud:bionic-train' - even for Queens deployments.
    These parts of the TrilioVault deployment are Python 3 only and have
-   dependency version requirements that are only supported from Train
-   onwards.
+   dependency version requirements that are only supported from Train onwards.
 
 NFS
 ---
 
-After deployment completes the TrilioVault Data Mover and Workload Manager
-applications will be in a blocked state (see :command:`juju status`). Both
-must be configured with a valid NFS share on the NFS server used in the
-deployment via configuration:
+Once the deployment completes the trilio-wlm and trilio-data-mover applications
+will be in a blocked state (see :command:`juju status`). To rectify this, both
+applications must be configured with a valid NFS share (on the provided NFS
+server). For example:
 
 .. code-block:: none
 
@@ -127,8 +120,9 @@ Authorisation
 -------------
 
 The TrilioVault service account must be granted the authorisation to access
-resources from across users and projects to perform backups. This will require
-passing the cloud admin password (setup by the keystone application) to the
+resources from across users and projects to perform backups. This will involve
+providing it with the cloud's admin password (set up by the keystone
+application). This is done with the trilio-wlm charm's
 ``create-cloud-admin-trust`` action:
 
 .. code-block:: none
@@ -138,18 +132,18 @@ passing the cloud admin password (setup by the keystone application) to the
 Licensing
 ---------
 
-Finally, the TrilioVault deployment must be licensed. This is completed by
-uploading the license file from Trilio as a resource and then executing the
-``create-license`` action:
+The TrilioVault deployment must be licensed. This is done by uploading the
+license file (attaching it as a charm resource) and running the trilio-wlm
+charm's ``create-license`` action:
 
 .. code-block:: none
 
    juju attach trilio-wlm license=mycorp_tv.lic
    juju run-action trilio-wlm/leader create-license
 
-The trilio-wlm and trilio-data-mover applications should be in the 'active'
+The trilio-wlm and trilio-data-mover applications should now be in the 'active'
 state and ready for use.
 
 .. LINKS
-.. _deploying OpenStack: install-openstack
-.. _trilio.io: https://www.trilio.io/triliovault/openstack/
+.. _TrilioVault: https://www.trilio.io/triliovault-for-openstack-2/
+.. _Trilio charms: https://opendev.org/openstack?tab=&sort=recentupdate&q=charm-trilio
