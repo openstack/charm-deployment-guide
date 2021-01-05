@@ -728,8 +728,8 @@ are working nova-compute and vault applications.
 
 Finally, you will need to provide an SSL certificate. This can be done by
 having Vault use a self-signed certificate or by using a certificate chain.
-We'll do the former here for simplicity but see `Managing TLS certificates with
-Vault`_ for how to use a chain.
+We'll do the former here for simplicity but see `Managing TLS certificates`_
+for how to use a chain.
 
 .. code-block:: none
 
@@ -816,7 +816,7 @@ Charms`_ project group.
 .. _Clustered Database Service Model: http://docs.openvswitch.org/en/latest/ref/ovsdb.7/#clustered-database-service-model
 .. _Raft algorithm: https://raft.github.io/
 .. _Ceph bucket type: https://docs.ceph.com/docs/master/rados/operations/crush-map/#types-and-buckets
-.. _Managing TLS certificates with Vault: app-certificate-management.html
+.. _Managing TLS certificates: app-certificate-management.html
 
 .. BUGS
 .. _LP #1234561: https://bugs.launchpad.net/charm-ceph-osd/+bug/1234561

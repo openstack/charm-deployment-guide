@@ -2,7 +2,8 @@
 Known upgrade issues
 ====================
 
-This section documents known software upgrade issues.
+This section documents known issues that may apply to either of the three
+upgrade types (charms, OpenStack, series).
 
 DNS HA with the focal series
 ----------------------------
@@ -37,16 +38,16 @@ See bug `LP #1809190`_.
 cinder/ceph topology change: upgrading from Newton to Ocata
 -----------------------------------------------------------
 
-If ``cinder`` is directly related to ``ceph-mon`` rather than via
-``cinder-ceph`` then upgrading from Newton to Ocata will result in the loss of
-some block storage functionality, specifically live migration and snapshotting.
-To remedy this situation the deployment should migrate to using the cinder-ceph
-charm. This can be done after the upgrade to Ocata.
+If cinder is directly related to ceph-mon rather than via cinder-ceph then
+upgrading from Newton to Ocata will result in the loss of some block storage
+functionality, specifically live migration and snapshotting. To remedy this
+situation the deployment should migrate to using the cinder-ceph charm. This
+can be done after the upgrade to Ocata.
 
 .. warning::
 
    Do not attempt to migrate a deployment with existing volumes to use the
-   ``cinder-ceph`` charm prior to Ocata.
+   cinder-ceph charm prior to Ocata.
 
 The intervention is detailed in the below three steps.
 

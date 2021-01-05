@@ -5,10 +5,8 @@ Open Virtual Network (OVN)
 Overview
 --------
 
-As of the 19.10 OpenStack Charms release, with OpenStack Train or later,
-support for integration with Open Virtual Network (OVN) is available. As of
-the 20.05 OpenStack Charms release OVN is the preferred default for our
-`OpenStack Base bundle`_ reference implementation.
+Open Virtual Network (OVN) can be deployed to provide networking services as
+part of an OpenStack cloud.
 
 .. note::
 
@@ -25,6 +23,12 @@ OVN charms:
 
 * ovn-dedicated-chassis
 
+.. note::
+
+   OVN is supported by Charmed OpenStack starting with OpenStack Train. OVN is
+   the default configuration in the `OpenStack Base bundle`_ reference
+   implementation.
+
 Deployment
 ----------
 
@@ -36,8 +40,8 @@ Certificates must be managed by Vault.
 .. note::
 
    For Vault deployment instructions see the `vault charm`_. For certificate
-   management information read the `Managing TLS certificates with Vault`_
-   section of this guide.
+   management information read the `Managing TLS certificates`_ section of this
+   guide.
 
 To deploy OVN:
 
@@ -104,8 +108,7 @@ for use with hardware offloading and make them available to OpenStack.
 To use the feature you need to use supported network interface card (NIC)
 hardware. We have done feature validation using the Mellanox ConnectX-5 NICs.
 
-Please refer to `Network hardware offloading`_ for more background on the
-feature.
+Please refer to `Hardware offloading`_ for more background on the feature.
 
 Hardware offload support makes use of SR-IOV as an underlying mechanism to
 accelerate the data path between a virtual machine instance and the NIC
@@ -121,9 +124,8 @@ with appropriate driver and firmware support.
 Prerequisites
 ^^^^^^^^^^^^^
 
-Please refer to the `SR-IOV for networking support`_ section and the `Network
-hardware offloading`_ page for information on hardware and kernel
-configuration.
+Please refer to the `SR-IOV for networking support`_ section and the `Hardware
+offloading`_ page for information on hardware and kernel configuration.
 
 Charm configuration
 ^^^^^^^^^^^^^^^^^^^
@@ -814,9 +816,9 @@ of the actual migration.
       topology.
 
 5. Unseal Vault (see the `vault charm`_), set up TLS certificates (see
-   `Managing TLS certificates with Vault`_), and validate that the services on
-   ovn-central units are running as expected. Please refer to the `Usage`_
-   section for more information.
+   `Managing TLS certificates`_), and validate that the services on ovn-central
+   units are running as expected. Please refer to the `Usage`_ section for more
+   information.
 
 Perform migration
 ~~~~~~~~~~~~~~~~~
@@ -1002,7 +1004,7 @@ Perform migration
 
 .. LINKS
 .. _vault charm: https://jaas.ai/vault/
-.. _Managing TLS certificates with Vault: app-certificate-management.html
+.. _Managing TLS certificates: app-certificate-management.html
 .. _Toward Convergence of ML2+OVS+DVR and OVN: http://specs.openstack.org/openstack/neutron-specs/specs/ussuri/ml2ovs-ovn-convergence.html
 .. _ovn-dedicated-chassis charm: https://jaas.ai/u/openstack-charmers/ovn-dedicated-chassis/
 .. _networking-ovn plugin: https://docs.openstack.org/networking-ovn/latest/
@@ -1017,7 +1019,7 @@ Perform migration
 .. _DPDK supported hardware page: http://core.dpdk.org/supported/
 .. _MAAS: https://maas.io/
 .. _Customizing instance huge pages allocations: https://docs.openstack.org/nova/latest/admin/huge-pages.html#customizing-instance-huge-pages-allocations
-.. _Network hardware offloading: app-hardware-offload.html
+.. _Hardware offloading: app-hardware-offload.html
 .. _SR-IOV for networking support: app-ovn.html#sr-iov-for-networking-support
 .. _traffic control monitor: http://manpages.ubuntu.com/manpages/focal/man8/tc.8.html#monitor
 .. _data path control tools: http://manpages.ubuntu.com/manpages/focal/man8/ovs-dpctl.8.html

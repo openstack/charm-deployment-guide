@@ -1,6 +1,6 @@
-==========================
-Special upgrade procedures
-==========================
+================================
+Special charm upgrade procedures
+================================
 
 The OpenStack charms are designed to accommodate every supported series and
 OpenStack release wherever possible. However, upgrades may occasionally
