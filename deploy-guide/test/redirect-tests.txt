@@ -1,0 +1,16 @@
+# This file contains tests for redirects to handle existing URLs for
+# documentation that has been moved. See
+# https://docs.openstack.org/whereto/latest/ for details.
+
+# No redirects
+/ 200
+/project-deploy-guide 200
+/project-deploy-guide/charm-deployment-guide 200
+/some/other/project/config-openstack.html 200
+/project-deploy-guide/foo/config-openstack.html 200
+
+# Refactoring docs moved config-openstack to configure-openstack
+# Make sure new redirects work
+/project-deploy-guide/charm-deployment-guide/victoria/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/victoria/configure-openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-openstack.html
+
