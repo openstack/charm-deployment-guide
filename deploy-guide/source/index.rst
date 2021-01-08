@@ -3,15 +3,8 @@ OpenStack Charms Deployment Guide
 =================================
 
 The OpenStack Charms Deployment Guide is the main source of information for
-OpenStack Charms usage. A search facility is available as a separate
-:ref:`search`.
-
-Also included is a wealth of information in the form of appendices. These
-cover a wide variety of subjects, such as an elaboration of a specific charm
-feature or instructions for upgrading an OpenStack cloud.
-
-To help improve this guide you may `file an issue`_ or `submit a
-contribution`_.
+OpenStack Charms usage. To help improve it you can `file an issue`_ or
+`submit a contribution`_.
 
 .. note::
 
