@@ -165,9 +165,10 @@ this space, ensure that the range configured for the subnet in Neutron does not
 overlap with the MAAS subnets.
 
 If dedicating a network space is not desired, it is also possible to use
-Ganesha over a routed network. Manila's IP access restrictions will still be
-used to secure access to Ganesha even if the network is not a Neutron managed
-network.
+Ganesha over a routed network. Manila's IP access restrictions will continue to
+secure access to Ganesha even for a network that is not managed by Neutron. In
+order for the latter to apply, a provider network is required, and guests must
+be attached to that provider network.
 
 .. LINKS
 .. _deploying OpenStack: install-openstack
