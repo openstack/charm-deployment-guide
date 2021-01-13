@@ -14,6 +14,8 @@ based VM ports.
 See the Neutron documentation on `OVS hardware offload`_ for background
 information.
 
+For OVN-specific information on hardware offloading see the `OVN`_ page.
+
 .. warning::
 
    Hardware offloading cannot be used with either SR-IOV or DPDK networking
@@ -134,3 +136,4 @@ LTS (or later) cloud images include this driver by default.
 .. LINKS
 .. _OVS hardware offload: https://docs.openstack.org/neutron/stein/admin/config-ovs-offload.html
 .. _SR-IOV VF-LAG: https://www.mellanox.com/related-docs/prod_software/ASAP2_Hardware_Offloading_for_vSwitches_Release_Notes_v4.4.pdf
+.. _OVN: app-ovn.html#configuration
