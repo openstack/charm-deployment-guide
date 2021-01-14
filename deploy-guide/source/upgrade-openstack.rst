@@ -129,10 +129,11 @@ Upgrade order
 The charms are put into groups to indicate the order in which their
 corresponding OpenStack services should be upgraded. The order within a group
 is unimportant. What matters is that all the charms within the same group are
-acted on before those in the next group (i.e. upgrade all charms in group 2
-before moving on to group 3). Any `Release Notes`_ guidance overrides the
-information listed here. You may also consult the upstream documentation on the
-subject: `Update services`_.
+acted upon before those in the next group (e.g. upgrade all charm payloads in
+group 2 before moving on to group 3).
+
+Any `Release Notes`_ guidance overrides the information listed here. You may
+also consult the upstream documentation on the subject: `Update services`_.
 
 Each service represented by a charm in the below table will need to be upgraded
 individually.
@@ -140,19 +141,19 @@ individually.
 +-------+-----------------------+---------------+
 | Group | Charm Name            | Charm Type    |
 +=======+=======================+===============+
-| 1     | keystone              | Core Identity |
+| 1     | keystone              | Control Plane |
 +-------+-----------------------+---------------+
-| 1     | ceph-mon              | Storage       |
+| 1     | ceph-mon              | Data Plane    |
 +-------+-----------------------+---------------+
-| 2     | ceph-osd              | Storage       |
+| 2     | ceph-osd              | Data Plane    |
 +-------+-----------------------+---------------+
-| 2     | ceph-fs               | Storage       |
+| 2     | ceph-fs               | Data Plane    |
 +-------+-----------------------+---------------+
-| 2     | ceph-radosgw          | Storage       |
+| 2     | ceph-radosgw          | Data Plane    |
 +-------+-----------------------+---------------+
-| 2     | swift-proxy           | Storage       |
+| 2     | swift-proxy           | Data Plane    |
 +-------+-----------------------+---------------+
-| 2     | swift-storage         | Storage       |
+| 2     | swift-storage         | Data Plane    |
 +-------+-----------------------+---------------+
 | 3     | aodh                  | Control Plane |
 +-------+-----------------------+---------------+
@@ -186,7 +187,9 @@ individually.
 +-------+-----------------------+---------------+
 | 3     | openstack-dashboard   | Control Plane |
 +-------+-----------------------+---------------+
-| 4     | nova-compute          | Compute       |
+| 4     | nova-compute          | Data Plane    |
++-------+-----------------------+---------------+
+| 5     | octavia               | Control Plane |
 +-------+-----------------------+---------------+
 
 .. important::
@@ -196,6 +199,16 @@ individually.
    their major versions changed during a series (Ubuntu) upgrade on the
    associated unit. Common charms where this applies are ``ntp``,
    ``memcached``, ``percona-cluster``, and ``rabbitmq-server``.
+
+.. note::
+
+   An Octavia upgrade may entail an update of its load balancers (amphorae) as
+   a post-upgrade task. Reasons for doing this include:
+
+   * API incompatibility between the amphora agent and the new Octavia service
+   * the desire to use features available in the new amphora agent or haproxy
+
+   See the upstream documentation on `Rotating amphora images`_.
 
 .. _perform_the_upgrade:
 
@@ -393,6 +406,7 @@ Check for errors in :command:`juju status` output and any monitoring service.
 .. _Update services: https://docs.openstack.org/operations-guide/ops-upgrades.html#update-services
 .. _Keystone Fernet Token Implementation: https://specs.openstack.org/openstack/charm-specs/specs/rocky/implemented/keystone-fernet-tokens.html
 .. _Octavia LBaaS: app-octavia.html
+.. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
