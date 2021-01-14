@@ -803,7 +803,8 @@ document. They are provided solely to illustrate the methods used to develop
 and test the series upgrade primitives:
 
 * `Parallel tests`_: An example that is used as a functional verification of
-  a series upgrade in the OpenStack Charms project.
+  a series upgrade in the OpenStack Charms project. Search for function
+  ``test_200_run_series_upgrade``.
 * `Upgrade helpers`_: A set of helpers used in the above upgrade example.
 
 .. caution::
@@ -814,8 +815,8 @@ and test the series upgrade primitives:
 
 .. LINKS
 .. _Series upgrade: upgrade-series.html
-.. _Parallel tests: https://github.com/openstack-charmers/zaza-openstack-tests/blob/c492ecdcac3b2724833c347e978de97ea2e626d7/zaza/openstack/charm_tests/series_upgrade/parallel_tests.py#L64
-.. _Upgrade helpers: https://github.com/openstack-charmers/zaza-openstack-tests/blob/9cec2efabe30fb0709bc098c48ec10bcb85cc9d4/zaza/openstack/utilities/parallel_series_upgrade.py
+.. _Parallel tests: https://github.com/openstack-charmers/zaza-openstack-tests/blob/master/zaza/openstack/charm_tests/series_upgrade/parallel_tests.py
+.. _Upgrade helpers: https://github.com/openstack-charmers/zaza-openstack-tests/blob/master/zaza/openstack/utilities/parallel_series_upgrade.py
 .. _Upgrading Percona XtraDB Cluster: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/howtos/upgrade_guide.html
 .. _Percona XtraDB Cluster In-Place Upgrading Guide From 5.5 to 5.6: https://www.percona.com/doc/percona-xtradb-cluster/5.6/upgrading_guide_55_56.html
 .. _Galera replication - how to recover a PXC cluster: https://www.percona.com/blog/2014/09/01/galera-replication-how-to-recover-a-pxc-cluster
