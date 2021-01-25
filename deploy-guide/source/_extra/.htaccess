@@ -1,1 +1,2 @@
-Redirect 301 /config-openstack.html /configure-openstack.html
+# Redirects related to gerrit topic 'cdg-reorg'
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/config-openstack.html /project-deploy-guide/charm-deployment-guide/$1/configure-openstack.html
