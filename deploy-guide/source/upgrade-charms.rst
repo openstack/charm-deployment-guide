@@ -13,8 +13,8 @@ Please read the following before continuing:
 
 .. note::
 
-   A charm upgrade affects all corresponding units; per-unit upgrades is not
-   currently supported.
+   A charm upgrade affects all corresponding units; upgrading on a per-unit
+   basis is not currently supported.
 
 Although it may be possible to upgrade some charms in parallel it is
 recommended that the upgrades be performed sequentially (i.e. one at a time).
