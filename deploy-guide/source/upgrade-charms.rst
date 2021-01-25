@@ -20,6 +20,10 @@ Although it may be possible to upgrade some charms in parallel it is
 recommended that the upgrades be performed sequentially (i.e. one at a time).
 Verify a charm upgrade before moving on to the next.
 
+Subordinate charms are upgraded as normal, and, in theory, their upgrade order
+in relation to their principal charm is not important. Internal testing however
+does upgrade the principal charm first.
+
 In terms of the upgrade order, begin with 'keystone'. After that, the rest of
 the charms can be upgraded in any order.
 
