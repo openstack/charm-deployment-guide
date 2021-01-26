@@ -194,11 +194,12 @@ individually.
 
 .. important::
 
-   OpenStack services whose software is not a part of the Ubuntu Cloud Archive
-   are not represented in the above list. This type of software can only have
-   their major versions changed during a series (Ubuntu) upgrade on the
-   associated unit. Common charms where this applies are ``ntp``,
-   ``memcached``, ``percona-cluster``, and ``rabbitmq-server``.
+   Services whose software is not included in the Ubuntu Cloud Archive are not
+   represented in the above list. This software is upgraded by the
+   administrator (on the units) using traditional means (e.g. manually via
+   package tools or as part of a series upgrade). Common charms where this
+   applies are ``ntp``, ``memcached``, ``percona-cluster``,
+   ``rabbitmq-server``, ``mysql-innodb-cluster``, and ``mysql-router``.
 
 .. note::
 
