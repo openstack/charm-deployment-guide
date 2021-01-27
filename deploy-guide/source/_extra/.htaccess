@@ -1,2 +1,6 @@
 # Redirects related to gerrit topic 'cdg-reorg'
-RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/config-openstack.html /project-deploy-guide/charm-deployment-guide/$1/configure-openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/config-openstack.html$ /project-deploy-guide/charm-deployment-guide/$1/configure-openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-upgrade-openstack.html$ /project-deploy-guide/charm-deployment-guide/$1/upgrade-openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-series-upgrade-openstack.html$ /project-deploy-guide/charm-deployment-guide/$1/upgrade-series-openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-series-upgrade.html$ /project-deploy-guide/charm-deployment-guide/$1/upgrade-series.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-series-upgrade-specific-procedures.html$ /project-deploy-guide/charm-deployment-guide/$1/percona-series-upgrade-to-focal.html
