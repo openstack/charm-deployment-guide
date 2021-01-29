@@ -13,7 +13,7 @@ installed from the instructions given on the :doc:`Install OpenStack
 .. code-block:: console
 
    Model      Controller       Cloud/Region    Version  SLA          Timestamp
-   openstack  maas-controller  mymaas/default  2.8.6    unsupported  01:12:49Z
+   openstack  maas-controller  mymaas/default  2.8.7    unsupported  01:12:49Z
 
    App                       Version  Status  Scale  Charm                   Store       Rev  OS      Notes
    ceph-mon                  15.2.5   active      3  ceph-mon                jujucharms   50  ubuntu

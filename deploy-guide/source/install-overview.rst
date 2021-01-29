@@ -13,8 +13,8 @@ The software versions used in this guide are as follows:
 
 * **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, Juju
   controller, and all cloud nodes (including containers)
-* **MAAS 2.8.2**
-* **Juju 2.8.6**
+* **MAAS 2.9.1**
+* **Juju 2.8.7**
 * **OpenStack Victoria**
 
 Proceed to the :doc:`Install MAAS <install-maas>` page to begin your
