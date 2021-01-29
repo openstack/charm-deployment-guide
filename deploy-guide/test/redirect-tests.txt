@@ -13,4 +13,8 @@
 # Make sure new redirects work
 /project-deploy-guide/charm-deployment-guide/victoria/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/victoria/configure-openstack.html
 /project-deploy-guide/charm-deployment-guide/latest/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/app-upgrade-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/upgrade-openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/upgrade-series-openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade.html 301 /project-deploy-guide/charm-deployment-guide/latest/upgrade-series.html
+/project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade-specific-procedures.html 301 /project-deploy-guide/charm-deployment-guide/latest/percona-series-upgrade-to-focal.html
 
