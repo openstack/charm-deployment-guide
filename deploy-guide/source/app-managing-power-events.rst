@@ -1046,6 +1046,25 @@ start commands.
     The network partitioning handling mode configured by the
     ``rabbitmq-server`` charm is ``autoheal``.
 
+cluster startup problems
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+By design, the last cluster node to shut down is the first one to start up. It
+is therefore possible that abnormally shut down units (such as during a power
+loss) may result in an inactive cluster due to the nodes not attempting to
+start their brokers.
+
+The ``force-boot`` action can be used to forcibly start a unit's RabbitMQ
+broker:
+
+.. code-block:: none
+
+   juju run-action --wait rabbitmq-server/0 force-boot
+
+This action makes use of the RabbitMQ `force_boot`_ option. See the upstream
+documentation on `Restarting Cluster Nodes`_ for more details. Note that the
+above action may cause the loss of queue data.
+
 -------------------------------------------------------------------------------
 
 vault
@@ -1136,6 +1155,8 @@ Charms`_ project group.
 .. _actions: https://jaas.ai/docs/working-with-actions
 .. _Partitions: https://www.rabbitmq.com/partitions.html
 .. _Queues: https://www.rabbitmq.com/queues.html
+.. _force_boot: https://www.rabbitmq.com/rabbitmqctl.8.html#force_boot
+.. _Restarting Cluster Nodes: https://www.rabbitmq.com/clustering.html#restarting
 
 .. BUGS
 .. _LP #1804261: https://bugs.launchpad.net/charm-ceph-osd/+bug/1804261
