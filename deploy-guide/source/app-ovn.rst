@@ -408,11 +408,17 @@ Internal DNS resolution
 
 OVN supports Neutron internal DNS resolution. To configure this:
 
+.. caution::
+
+   At the time of this writing the internal DNS support does not include
+   reverse lookup (PTR-records) of instance IP addresses, only forward lookup
+   (A and AAAA-records) of instance names. This is tracked in `LP #1857026`_.
+
 .. code::
 
    juju config neutron-api enable-ml2-dns=true
    juju config neutron-api dns-domain=openstack.example.
-   juju config neutron-api-plugin-api dns-servers="1.1.1.1 8.8.8.8"
+   juju config neutron-api-plugin-ovn dns-servers="1.1.1.1 8.8.8.8"
 
 .. note::
 
@@ -1026,3 +1032,6 @@ Perform migration
 .. _Clustered Database Service Model: http://docs.openvswitch.org/en/latest/ref/ovsdb.7/#clustered-database-service-model
 .. _DPDK shared memory calculations: https://docs.openvswitch.org/en/latest/topics/dpdk/memory/#shared-memory-calculations
 .. _Usage: app-ovn#usage
+
+.. BUGS
+.. _LP #1857026: https://bugs.launchpad.net/ubuntu/+source/ovn/+bug/1857026
