@@ -5,179 +5,266 @@ Managing TLS certificates
 Overview
 --------
 
-The preferred way to provide your charmed OpenStack deployment with
-certificates for enabling transport layer security (TLS) is to add a
-certificate authority to your model. The charms consume the certificates
-through the `tls-certificates relation`_ and we do our validation using the
-`Vault charm`_.
+The encryption of API endpoints in an OpenStack cloud requires a method for the
+creation and distribution of TLS certificates, as well as the management of a
+certificate authority (CA). Charmed OpenStack supports two ways of doing this:
 
-Enabling Vault certificate management
--------------------------------------
+#. on a per-model basis (using the vault application)
+#. on a per-application basis (using charm configuration options)
 
-OpenStack charms providing an API service have a new 'certificates' relation.
-Adding this relation will trigger the OpenStack charm to request
-certificates and keys from vault. Once vault has provided these the charm
-will install them and switch to listening on https, the catalogue will also be
-updated.
+.. note::
 
-.. code-block:: none
+   The recommended way to manage TLS in Charmed OpenStack is with Vault. It is
+   a centrally managed encryption solution, it is designed for the task, and it
+   integrates well with charms.
 
-   juju add-relation keystone:certificates vault:certificates
-   juju add-relation glance:certificates vault:certificates
-   juju add-relation cinder:certificates vault:certificates
-   juju add-relation nova-cloud-controller:certificates vault:certificates
-   juju add-relation neutron-api:certificates vault:certificates
-   ...
+Certificate management with Vault
+---------------------------------
 
-Adding a Certificate Authority (CA) certificate to Vault
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First ensure that Vault is deployed to the model containing the cloud and the
+required post-deployment steps have been completed. See the `vault`_ charm
+README for instructions.
+
+The next step is to add a CA certificate to the model.
+
+Add a CA certificate
+~~~~~~~~~~~~~~~~~~~~
 
 For Vault to be able to issue certificates on your behalf you must equip it
-with a CA certificate.
+with a CA certificate. This is done in **one** of two ways:
 
-You can either add your own intermediate CA certificate to Vault or have Vault
-generate a self-signed root CA certificate for you.
+#. a Vault-generated self-signed root CA certificate
+#. a third-party intermediate CA certificate
 
-Generate self-signed root CA certifitcate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The Vault method is by far the simpler of the two.
 
-To have Vault generate a self-signed root CA certificate for you:
+Self-signed root CA certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To have Vault generate a self-signed root CA certificate:
 
 .. code-block:: none
 
    juju run-action --wait vault/leader generate-root-ca
 
-Add your own intermediate CA certificate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You're done.
 
-Currently, the only supported workflow is for Vault to generate a Certificate
-Signing Request (CSR) for an intermediate CA. This CSR then needs to be signed
-by an external CA. The resulting signed intermediate CA certificate is then
-uploaded to Vault along with any certificates to support the certificate chain.
+Third-party intermediate CA certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Retrieve CSR from Vault
-.......................
+The supported workflow for a third-party certificate involves three steps:
 
-Run the *get-csr* action against the lead unit of the vault application:
+#. retrieve a Certificate Signing Request (CSR) for an intermediate CA from
+   Vault
+#. transfer the CSR to an external CA to have a signed certificate created
+#. upload certificate information to Vault
+
+Retrieve a CSR from Vault
+.........................
+
+To retrieve a Vault-generated CSR run the ``get-csr`` action on the leader
+unit:
 
 .. code-block:: none
 
-   juju run-action vault/0 get-csr
-    Action queued with id: 0495b6ce-09d8-4e57-8d21-efa13794034a
-   juju show-action-output 0495b6ce-09d8-4e57-8d21-efa13794034a
-    results:
-      output: |-
-        -----BEGIN CERTIFICATE REQUEST-----
-        MIICijCCAXICAQAwRTFDMEEGA1UEAxM6VmF1bHQgSW50ZXJtZWRpYXRlIENlcnRp
-        ZmljYXRlIEF1dGhvcml0eSAoY2hhcm0tcGtpLWxvY2FsKTCCASIwDQYJKoZIhvcN
-        AQEBBQADggEPADCCAQoCggEBAKEkTFyX2SgzDDUMvJNnoptdAb9AAiDZzc3U/aaX
-        g55TmAQ5jIfYbXb/39O+81iWD8esWGzTkg9YyzfPUBwcF3FrsyyEPFjiFRhTEATl
-        6W2U5tA981hKiEScF2BvMm4PJZM/1ND12yoIsg45n1AGUfY8GShqtKKNXvAR3TEj
-        mYWQ35QhVFnsvh9hc5TUORRwlKy74FnCBDfuWuIGph/Ge4GRctAv0MUUsfqCv9DZ
-        +xMHeE8IdyqMakTJ2iUXktbl0khSwbb5KUT9NOzC1mDPZPBICqSmhXQ1In9FR5ic
-        VTsVOdHShaN4T4qjrvWI4+S5CJynDnSvDeUWPYu1lOM24H0CAwEAAaAAMA0GCSqG
-        SIb3DQEBCwUAA4IBAQCHZoVqKJ0TCaYimHT2VGqklomGuQymxqkKIrBHQD4oe/Ts
-        6nXXZaUWVPQF96o+Au4oz2R/l/UF4a89Z2xyCN95tys/QJv0Hw93MeN7cIGUZ8p+
-        nOpb7IX5ZqWEKu1g+2cTQ0mxa1hGb+rbO0LtArbhWVQjrkqKdY26O78Ct76eutfO
-        1uKYXMbbUlXH8Qb/MyfRt30nPqyLKz4bIqH0fm670s/MiK8zoJ8DwI3NpkzB0cfG
-        qzYxRu078uWcenueDBa8HqvBQNT6meZ68y+eesXrIM4EY3dk4YSb5A5QSeqUAWjK
-        Fp36v30jKNJ29rs8vduytRu6bz7bI+qZ1hCJbzQQ
-        -----END CERTIFICATE REQUEST-----
-    status: completed
-    timing:
-      completed: 2018-06-07 10:21:17 +0000 UTC
-      enqueued: 2018-06-07 10:21:13 +0000 UTC
-      started: 2018-06-07 10:21:13 +0000 UTC
+   juju run-action --wait vault/leader get-csr
 
-Retrieve the CSR from the action output and place it in a file, removing any
-leading whitespace.
+.. note::
 
-Sign CSR
-........
+   The CSR may be rejected by the signing CA due to incorrect values for
+   certain properties (e.g. common-name). It would be prudent therefore to
+   inquire before generating the CSR. Use command :command:`juju actions
+   --schema vault` for help on setting properties with action ``get-csr``.
 
-The exact command from signing the CSR will depend on the setup of the
-external CA. Below is an example:
+This will produce output similar to:
+
+.. code-block:: console
+
+   unit-vault-0:
+     UnitId: vault/0
+     id: "8"
+     results:
+       Stdout: |
+         lxc
+         lxc
+         active
+         lxc
+       output: |-
+         -----BEGIN CERTIFICATE REQUEST-----
+         MIICijCCAXICAQAwRTFDMEEGA1UEAxM6VmF1bHQgSW50ZXJtZWRpYXRlIENlcnRp
+         ZmljYXRlIEF1dGhvcml0eSAoY2hhcm0tcGtpLWxvY2FsKTCCASIwDQYJKoZIhvcN
+         AQEBBQADggEPADCCAQoCggEBAJvof3Gut71YY9Ke3TlAYT+AoVUu8w0q2DKGh7dL
+         5mUggcvThZuckbuj8IJZZ3pl5D114REcRRH9DIRxp4tH0TSmnb0PJLdjnuLyMQqy
+         /IEipmSQWiILBF8c/QjYqEkvUoprADeJ+9L9KGc/axwuIoLWHqaXLnkSFzypgyz+
+         9Qvxir4wSPvyygZVUDJvUoEekk/sMBidzpEaKuMF7U+aZAdlZvEPr39FilEwcUgQ
+         EY2m3bDDe5maNcD6+la95ENuo0kuHF6wkjXuLGkzDV5xYBMtSO8sqymwRA1CPLyr
+         WIA+ciDQ11Hy+1Q+YTurOoWzmr48QPlamCZEIz8BZeuf8vsCAwEAAaAAMA0GCSqG
+         SIb3DQEBCwUAA4IBAQAoPhk5k5nXpFSYfbsOvm8Rc0hHUTfEHgB4xcQfzMrMTDMX
+         fVmiJjGQhiM1q+eKNLLTDxuOGBBbyniQsveV6JZwpOlkOZ1YVdkw0EoaQndz6dEA
+         JNjjelV2z1FxppKT3504uX/YkASTDnpb63aknE4W3C5aZSvyx/qw/WdUauCNnYoV
+         NdFrzy0p2qm8kXwPsbjIwZTq/AqQ4t7UrNoXoONcxjAdq5UpuoBxgbRJJ7zr1RJp
+         NUhVk/1qi9EQSGeigkuzGGPeRdBXvw4NXAXwnQfCiIBHgLEfkE3PVHNbXfVYqtjC
+         3D2eeYPraKcSJIEts4DCJnbhj5FEzi1km9QgSZgA
+         -----END CERTIFICATE REQUEST-----
+     status: completed
+     timing:
+       completed: 2021-02-16 22:40:12 +0000 UTC
+       enqueued: 2021-02-16 22:40:08 +0000 UTC
+       started: 2021-02-16 22:40:09 +0000 UTC
+
+Place the CSR data (minus any leading whitespace) in a file, say
+``~/csr_file``. In this example, the file's contents would be:
+
+.. code-block:: console
+
+   -----BEGIN CERTIFICATE REQUEST-----
+   MIICijCCAXICAQAwRTFDMEEGA1UEAxM6VmF1bHQgSW50ZXJtZWRpYXRlIENlcnRp
+   ZmljYXRlIEF1dGhvcml0eSAoY2hhcm0tcGtpLWxvY2FsKTCCASIwDQYJKoZIhvcN
+   AQEBBQADggEPADCCAQoCggEBAJvof3Gut71YY9Ke3TlAYT+AoVUu8w0q2DKGh7dL
+   5mUggcvThZuckbuj8IJZZ3pl5D114REcRRH9DIRxp4tH0TSmnb0PJLdjnuLyMQqy
+   /IEipmSQWiILBF8c/QjYqEkvUoprADeJ+9L9KGc/axwuIoLWHqaXLnkSFzypgyz+
+   9Qvxir4wSPvyygZVUDJvUoEekk/sMBidzpEaKuMF7U+aZAdlZvEPr39FilEwcUgQ
+   EY2m3bDDe5maNcD6+la95ENuo0kuHF6wkjXuLGkzDV5xYBMtSO8sqymwRA1CPLyr
+   WIA+ciDQ11Hy+1Q+YTurOoWzmr48QPlamCZEIz8BZeuf8vsCAwEAAaAAMA0GCSqG
+   SIb3DQEBCwUAA4IBAQAoPhk5k5nXpFSYfbsOvm8Rc0hHUTfEHgB4xcQfzMrMTDMX
+   fVmiJjGQhiM1q+eKNLLTDxuOGBBbyniQsveV6JZwpOlkOZ1YVdkw0EoaQndz6dEA
+   JNjjelV2z1FxppKT3504uX/YkASTDnpb63aknE4W3C5aZSvyx/qw/WdUauCNnYoV
+   NdFrzy0p2qm8kXwPsbjIwZTq/AqQ4t7UrNoXoONcxjAdq5UpuoBxgbRJJ7zr1RJp
+   NUhVk/1qi9EQSGeigkuzGGPeRdBXvw4NXAXwnQfCiIBHgLEfkE3PVHNbXfVYqtjC
+   3D2eeYPraKcSJIEts4DCJnbhj5FEzi1km9QgSZgA
+   -----END CERTIFICATE REQUEST-----
+
+Have the CSR signed
+...................
+
+The procedure for obtaining a signed certificate from an external CA is
+particular to the given CA, but it always entails sending the CSR to the CA
+(typically from its website) and waiting for a reply.
+
+For informational purposes, an example CLI command is provided below. The exact
+command syntax is dependent upon the CA. Note the inclusion of the input file
+``~/csr_file``:
 
 .. code-block:: none
 
    openssl ca -config openssl.cnf -extensions v3_intermediate_ca -days 3650 \
-      -notext -md sha256 -in csr_file -out /tmp/vault-charm-int.pem -batch \
+      -notext -md sha256 -in ~/csr_file -out ~/vault-charm-int.pem -batch \
       -passin pass:secretpassword
 
-*If the signing is rejected due to mismatched O or OU or C etc then rerun the
-get-csr actions and specify the mismatched items.*
+The certificate is normally provided in PEM format, like the output file
+``~/vault-charm-int.pem`` in the above command. A root CA certificate should
+also be provided and placed in, say, file ``~/root-ca.pem``.
 
-Upload signed CSR and root CA cert to Vault
-...........................................
+Upload the signed certificate and the root CA certificate to Vault
+..................................................................
 
-(Where /tmp/root-ca.pem is the root ca cert)
+To upload certificate information to Vault run the ``upload-signed-csr``
+action on the leader unit:
 
 .. code-block:: none
 
-   juju run-action vault/0 upload-signed-csr \
-       pem="$(cat /tmp/vault-charm-int.pem | base64)" \
-       root-ca="$(cat /tmp/root-ca.pem | base64)" \
+   juju run-action --wait vault/leader upload-signed-csr \
+       pem="$(cat ~/vault-charm-int.pem | base64)" \
+       root-ca="$(cat ~/root-ca.pem | base64)" \
        allowed-domains='openstack.local'
 
-.. note::
+The file that the ``pem`` parameter refers to must contain a PEM bundle
+consisting of:
 
-   The certificates provided via the 'pem' parameter must be a PEM bundle
-   containing the signed certificate, any intermediate CA certs external to
-   Vault and the root CA cert.  Without this information Vault cannot verify
-   the trust chain and will reject the provided certificate - see `RFC5280`_
-   for more details about certificate paths and trust.
+#. the signed certificate
+#. any other intermediate CA certificates
+#. the root CA certificate
 
-   If external intermediate CAs are in use the root-ca PEM must also be a PEM
-   bundle including certs for all intermediate CAs and the root CA.
+The file that the ``root-ca`` parameter refers to must contain a PEM bundle
+consisting of:
 
-   For more details about the format of certificate PEM bundles see `RFC7468`_.
+#. any other intermediate CA certificates
+#. the root CA certificate
 
-Vault issues certificates
+.. important::
+
+   Omitting the (other) intermediate certificate information will result in the
+   new certificate being rejected (due to an incomplete trust chain).
+
+See the following resources:
+
+* `RFC5280`_: for details concerning certificate paths and trust
+* `RFC7468`_: for details on the format of certificate PEM bundles
+
+Issuing of certificates
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Now that Vault is in possession of a CA certificate it will be able to issue
+certificates to clients (API services). Client requests are made via the
+``vault:certificates`` relation. For example:
+
+.. code-block:: none
+
+   juju add-relation keystone:certificates vault:certificates
+   juju add-relation nova-cloud-controller:certificates vault:certificates
+   juju add-relation cinder:certificates vault:certificates
+   juju add-relation neutron-api:certificates vault:certificates
+   juju add-relation glance:certificates vault:certificates
+
+A request will result in the transfer of certificates and keys from Vault. The
+corresponding API endpoint will also be updated in Keystone's service catalogue
+list to reflect that it is now using HTTPS. The service is now TLS-enabled.
+
+.. important::
+
+   Once Keystone is TLS-enabled every application that talks to Keystone (i.e.
+   there exists a relation between the two) **must** be in possession of the
+   CA certificate. This is achieved as a side-effect when enabling TLS for that
+   application.
+
+Verification
+~~~~~~~~~~~~
+
+To verify the CA certificate begin by sourcing the cloud init file and
+inspecting the certificate's location and the Keystone API endpoint. The latter
+should be using HTTPS:
+
+.. code-block:: none
+
+   source novarc
+   env | grep -e OS_AUTH_URL -e OS_CACERT
+
+Sample output is:
+
+.. code-block:: console
+
+   OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
+   OS_AUTH_URL=https://10.0.0.215:5000/v3
+
+API services can now be queried by referring explicitly to the certificate. The
+below tests correspond to the clients mentioned in the previous section:
+
+.. code-block:: none
+
+   # Keystone
+   openstack --os-cacert $OS_CACERT catalog list
+   # Nova
+   openstack --os-cacert $OS_CACERT server list
+   # Cinder
+   openstack --os-cacert $OS_CACERT volume list
+   # Neutron
+   openstack --os-cacert $OS_CACERT network list
+   # Glance
+   openstack --os-cacert $OS_CACERT image list
+
+Reissuing of certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Vault will now issue certificates to all clients that have requested them. This
-process will trigger the api charms to request endpoint updates from keystone
-to reflect that they are now using https. This can be a lengthy process, so
-monitor keystone units and wait for them to become idle.
+To issue new certificates to all TLS-enabled clients run the
+``reissue-certificates`` action on the leader unit:
 
 .. code-block:: none
 
-   watch -d juju status keystone
+   juju run-action --wait vault/leader reissue-certificates
 
-Test
-~~~~
-
-Where /tmp/root-ca.pem is the root CA cert:
-
-.. code-block:: none
-
-   source novarc # make sure you have https in OS_AUTH_URL
-
-   echo "Testing: keystone"
-   openstack --os-cacert /tmp/root-ca.pem catalog list
-   echo "Testing: nova-cloud-controller"
-   openstack --os-cacert /tmp/root-ca.pem server list
-   echo "Testing: cinder"
-   openstack --os-cacert /tmp/root-ca.pem volume list
-   echo "Testing: neutron"
-   openstack --os-cacert /tmp/root-ca.pem network list
-   echo "Testing: image"
-   openstack --os-cacert /tmp/root-ca.pem image list
-   deactivate
-
-Reissuing certificates
-~~~~~~~~~~~~~~~~~~~~~~
-
-The vault charm has an *reissue-certificates* action. Running the action
-will cause vault to issue new certificates for all charm clients. The action
-must be run on the lead unit.
-
-.. code-block:: none
-
-   juju run-action vault/0 reissue-certificates
+One reason for doing so is in the advent of expired certificates.
 
 .. LINKS
 .. _RFC5280: https://tools.ietf.org/html/rfc5280#section-3.2
 .. _RFC7468: https://tools.ietf.org/html/rfc7468#section-5
-.. _tls-certificates relation: https://github.com/juju-solutions/interface-tls-certificates#readme
-.. _Vault charm: https://jaas.ai/vault/
+.. _vault: https://opendev.org/openstack/charm-vault/src/branch/master/src/README.md
