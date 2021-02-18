@@ -139,8 +139,8 @@ In the keystone charm, token expiration and the maximum number of active keys
 are specified, respectively, with the ``token-expiration`` and the
 ``fernet-max-active-keys`` configuration options.
 
-For example, given that an administrator desires a token expiration of 24 hours
-(3600 seconds) and a rotation frequency of 6 hours (900 seconds), the maximum
+For example, given that an administrator desires a token expiration of 1 hour
+(3600 seconds) and a rotation frequency of 15 minutes (900 seconds), the maximum
 number of active keys must be six:
 
 .. math::
@@ -183,9 +183,9 @@ Default values
 These are the default values for these keystone charm options and the resulting
 default rotation frequency:
 
-* ``token-expiration``: 3600 sec (24 hours)
+* ``token-expiration``: 3600 sec (1 hour)
 * ``fernet-max-active-keys``: 3
-* rotation frequency: 3600 sec (24 hours)
+* rotation frequency: 3600 sec (1 hour)
 
 Token validation breakage
 ~~~~~~~~~~~~~~~~~~~~~~~~~
