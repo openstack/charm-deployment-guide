@@ -2,8 +2,8 @@
 Known upgrade issues
 ====================
 
-This section documents known issues that may apply to either of the three
-upgrade types (charms, OpenStack, series).
+This section documents known issues (software limitations/bugs) that may apply
+to either of the three upgrade types (charms, OpenStack, series).
 
 DNS HA with the focal series
 ----------------------------
@@ -115,43 +115,6 @@ instances will remain unaffected.
 The ``token-provider`` option has no effect starting with Rocky, where the
 charm defaults to Fernet and where upstream removes support for UUID. See
 `Keystone Fernet Token Implementation`_ for more information.
-
-Placement charm and nova-cloud-controller: upgrading from Stein to Train
-------------------------------------------------------------------------
-
-As of Train, the placement API is managed by the new ``placement`` charm and is
-no longer managed by the ``nova-cloud-controller`` charm. The upgrade to Train
-therefore requires some coordination to transition to the new API endpoints.
-
-Prior to upgrading nova-cloud-controller to Train, the placement charm must be
-deployed for Train and related to the Stein-based nova-cloud-controller. It is
-important that the nova-cloud-controller unit leader is paused while the API
-transition occurs (paused prior to adding relations for the placement charm) as
-the placement charm will migrate existing placement tables from the nova_api
-database to a new placement database. Once the new placement endpoints are
-registered, nova-cloud-controller can be resumed.
-
-Here's an example of the steps just described where `nova-cloud-controller/0`
-is the leader:
-
-.. code-block:: none
-
-   juju deploy --series bionic --config openstack-origin=cloud:bionic-train cs:placement
-   juju run-action nova-cloud-controller/0 pause
-   juju add-relation placement mysql
-   juju add-relation placement keystone
-   juju add-relation placement nova-cloud-controller
-   openstack endpoint list # ensure placement endpoints are listening on new placment IP address
-   juju run-action nova-cloud-controller/0 resume
-
-Only after these steps have been completed can nova-cloud-controller be
-upgraded. Here we upgrade all units simultaneously but see the
-ref:`paused-single-unit <paused_single_unit>` service upgrade method for a more
-controlled approach:
-
-.. code-block:: none
-
-   juju config nova-cloud-controller openstack-origin=cloud:bionic-train
 
 Neutron LBaaS: upgrading from Stein to Train
 --------------------------------------------

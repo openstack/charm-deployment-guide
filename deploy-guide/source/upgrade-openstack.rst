@@ -14,6 +14,7 @@ Please read the following before continuing:
 * the :doc:`Upgrades overview <upgrade-overview>` page
 * the OpenStack charms `Release Notes`_ for the corresponding current and
   target versions of OpenStack
+* the :doc:`Special charm procedures <upgrade-special>` page
 * the :doc:`Upgrade issues <upgrade-issues>` page
 
 .. note::
