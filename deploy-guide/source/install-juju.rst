@@ -74,12 +74,12 @@ View the updated list of credentials known to the current Juju client with the
 Create the Juju controller
 --------------------------
 
-We can now create the controller for the 'mymaas' cloud, and have called it
-'maas-controller':
+Create the controller (using the 'focal' series) for the 'mymaas' cloud, and
+call it 'maas-controller':
 
 .. code-block:: none
 
-   juju bootstrap --constraints tags=juju mymaas maas-controller
+   juju bootstrap --bootstrap-series=focal --constraints tags=juju mymaas maas-controller
 
 The ``--constraints`` option allows us to effectively select a node in the MAAS
 cluster. Recall that we attached a tag of 'juju' to the lower-resourced MAAS
