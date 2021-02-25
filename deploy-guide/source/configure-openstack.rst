@@ -30,48 +30,50 @@ command line. Install them now:
 Create the admin user environment
 ---------------------------------
 
-Somehow we need to gain administrative control of OpenStack, the key piece of
-which is the Keystone administrator password. This is achieved using our
-default Juju administrative powers. Typically a script is used to generate this
-OpenStack admin environment. Let this script be placed in a file called
-``openrc`` whose contents is:
+To gain control of the cloud the Keystone administrator password and the root
+CA certificate are needed. This information can be most easily obtained by
+using files created and maintained for this purpose. They can be found in the
+`openstack-bundles`_ repository.
 
-.. code-block:: bash
-
-   OS_PARAMS=$(env | awk 'BEGIN {FS="="} /^OS_/ {print $1;}' | paste -sd ' ')
-   for param in $_OS_PARAMS; do
-       if [ "$param" = "OS_AUTH_PROTOCOL" ]; then continue; fi
-       if [ "$param" = "OS_CACERT" ]; then continue; fi
-       unset $param
-   done
-   unset _OS_PARAMS
-
-   _keystone_ip=$(juju run $_juju_model_arg --unit keystone/leader 'unit-get private-address')
-   _password=$(juju run $_juju_model_arg --unit keystone/leader 'leader-get admin_passwd')
-
-   export OS_AUTH_URL=${OS_AUTH_PROTOCOL:-http}://${_keystone_ip}:5000/v3
-   export OS_USERNAME=admin
-   export OS_PASSWORD=${_password}
-   export OS_USER_DOMAIN_NAME=admin_domain
-   export OS_PROJECT_DOMAIN_NAME=admin_domain
-   export OS_PROJECT_NAME=admin
-   export OS_REGION_NAME=RegionOne
-   export OS_IDENTITY_API_VERSION=3
-   # Swift needs this:
-   export OS_AUTH_VERSION=3
-   # Gnocchi needs this
-   export OS_AUTH_TYPE=password
-
-Note that the origin of this file is the `openstack-bundles`_ repository.
-
-Source the file to become the admin user:
+Download the repository and source the ``openrc`` file:
 
 .. code-block:: none
 
-   source openrc
-   echo $OS_USERNAME
+   git clone https://github.com/openstack-charmers/openstack-bundles ~/openstack-bundles
+   source ~/openstack-bundles/stable/openstack-base/openrc
 
-The output for the last command should be **admin**.
+.. note::
+
+   For informational purposes, sourcing the file will result in the execution
+   of these two commands (to obtain the CA certificate and password):
+
+   .. code-block:: none
+
+      juju run -m openstack --unit vault/leader 'leader-get root-ca'
+      juju run -m openstack --unit keystone/leader 'leader-get admin_passwd'
+
+The admin user environment should also now be set up. Verify this:
+
+.. code-block:: none
+
+   env | grep OS_
+
+Sample output:
+
+.. code-block:: console
+
+   OS_REGION_NAME=RegionOne
+   OS_AUTH_VERSION=3
+   OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
+   OS_AUTH_URL=https://10.0.0.29:5000/v3
+   OS_PROJECT_DOMAIN_NAME=admin_domain
+   OS_AUTH_PROTOCOL=https
+   OS_USERNAME=admin
+   OS_AUTH_TYPE=password
+   OS_USER_DOMAIN_NAME=admin_domain
+   OS_PROJECT_NAME=admin
+   OS_PASSWORD=kohy6shoh3diWav5
+   OS_IDENTITY_API_VERSION=3
 
 Perform actions as the admin user
 ---------------------------------
@@ -92,17 +94,17 @@ The output will look similar to this:
 
 .. code-block:: console
 
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
-   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                    |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
-   | 0515d09c36dd4fd991a1b2aa448eb3cb | RegionOne | neutron      | network      | True    | admin     | http://10.0.0.7:9696                   |
-   | 0abda66d8c414faea7e7485ea6e8ff80 | RegionOne | glance       | image        | True    | admin     | http://10.0.0.20:9292                  |
-   | 46599b147a2e4ff79513d8a4c6a37a83 | RegionOne | cinderv2     | volumev2     | True    | admin     | http://10.0.0.24:8776/v2/$(tenant_id)s |
-   | c046918276db46a7b9e0106d5102927f | RegionOne | cinderv3     | volumev3     | True    | admin     | http://10.0.0.24:8776/v3/$(tenant_id)s |
-   | c2a70ec99ec6417988e57f093ff4888d | RegionOne | keystone     | identity     | True    | admin     | http://10.0.0.29:35357/v3              |
-   | c79512b6f9774bb59f23b5b687ac286d | RegionOne | placement    | placement    | True    | admin     | http://10.0.0.11:8778                  |
-   | e8fbd499be904832b8ffa55fcb9c6efb | RegionOne | nova         | compute      | True    | admin     | http://10.0.0.10:8774/v2.1             |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+----------------------------------------+
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
+   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                     |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
+   | 0515d09c36dd4fd991a1b2aa448eb3cb | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.7:9696                   |
+   | 0abda66d8c414faea7e7485ea6e8ff80 | RegionOne | glance       | image        | True    | admin     | https://10.0.0.20:9292                  |
+   | 46599b147a2e4ff79513d8a4c6a37a83 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.24:8776/v2/$(tenant_id)s |
+   | c046918276db46a7b9e0106d5102927f | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.24:8776/v3/$(tenant_id)s |
+   | c2a70ec99ec6417988e57f093ff4888d | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.29:35357/v3              |
+   | c79512b6f9774bb59f23b5b687ac286d | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.11:8778                  |
+   | e8fbd499be904832b8ffa55fcb9c6efb | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.10:8774/v2.1             |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
 
 If the endpoints aren't visible, it's likely your environment variables aren't
 set correctly.
@@ -209,14 +211,14 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**http://10.0.0.23:5000/v3**.
+**https://10.0.0.29:5000/v3**.
 
 The contents of the file, say ``Project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
 .. code-block:: bash
 
-   export OS_AUTH_URL=http://10.0.0.23:5000/v3
+   export OS_AUTH_URL=https://10.0.0.29:5000/v3
    export OS_USER_DOMAIN_NAME=Domain1
    export OS_USERNAME=User1
    export OS_PROJECT_DOMAIN_NAME=Domain1
@@ -387,7 +389,7 @@ instances! See `Using OpenStack with Juju`_ in the Juju documentation for
 guidance.
 
 .. LINKS
-.. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles/blob/master/stable/shared/openrcv3_project
+.. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
 .. _Using OpenStack with Juju: https://juju.is/docs/openstack-cloud
 

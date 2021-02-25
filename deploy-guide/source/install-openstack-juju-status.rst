@@ -62,8 +62,8 @@ installed from the instructions given on the :doc:`Install OpenStack
      cinder-mysql-router/0*       active    idle            10.0.0.192                         Unit is ready
    glance/0*                      active    idle   3/lxd/3  10.0.0.188      9292/tcp           Unit is ready
      glance-mysql-router/0*       active    idle            10.0.0.188                         Unit is ready
-   keystone/0*                    active    idle   0/lxd/2  10.0.0.183      5000/tcp           Unit is ready
-     keystone-mysql-router/0*     active    idle            10.0.0.183                         Unit is ready
+   keystone/0*                    active    idle   0/lxd/2  10.0.0.29       5000/tcp           Unit is ready
+     keystone-mysql-router/0*     active    idle            10.0.0.29                          Unit is ready
    mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.175                         Unit is ready: Mode: R/W
    mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.176                         Unit is ready: Mode: R/O
    mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.177                         Unit is ready: Mode: R/O
@@ -93,7 +93,7 @@ installed from the instructions given on the :doc:`Install OpenStack
    0        started  10.0.0.171  node2                focal   default  Deployed
    0/lxd/0  started  10.0.0.175  juju-bdbf2c-0-lxd-0  focal   default  Container started
    0/lxd/1  started  10.0.0.181  juju-bdbf2c-0-lxd-1  focal   default  Container started
-   0/lxd/2  started  10.0.0.183  juju-bdbf2c-0-lxd-2  focal   default  Container started
+   0/lxd/2  started  10.0.0.29   juju-bdbf2c-0-lxd-2  focal   default  Container started
    0/lxd/3  started  10.0.0.191  juju-bdbf2c-0-lxd-3  focal   default  Container started
    0/lxd/4  started  10.0.0.193  juju-bdbf2c-0-lxd-4  focal   default  Container started
    1        started  10.0.0.172  node1                focal   default  Deployed
