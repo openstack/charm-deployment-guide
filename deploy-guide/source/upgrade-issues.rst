@@ -165,6 +165,16 @@ See bug `LP #1828534`_. This can be resolved by restarting the memcached service
 
    juju run --application=memcached 'sudo systemctl restart memcached'
 
+Ceph BlueStore mistakenly enabled at OpenStack upgrade
+------------------------------------------------------
+
+The Ceph BlueStore storage backend is enabled by default when Ceph Luminous is
+detected. Therefore it is possible for a non-BlueStore cloud to acquire
+BlueStore by default after an OpenStack upgrade (Luminous first appeared in
+Queens). Problems will occur if storage is scaled out without first disabling
+BlueStore (set ceph-osd charm option ``bluestore`` to 'False'). See bug `LP
+#1885516`_ for details.
+
 .. LINKS
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
@@ -179,3 +189,4 @@ See bug `LP #1828534`_. This can be resolved by restarting the memcached service
 .. _LP #1853173: https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1853173
 .. _LP #1828534: https://bugs.launchpad.net/charm-designate/+bug/1828534
 .. _LP #1882508: https://bugs.launchpad.net/charm-deployment-guide/+bug/1882508
+.. _LP #1885516: https://bugs.launchpad.net/charm-deployment-guide/+bug/1885516
