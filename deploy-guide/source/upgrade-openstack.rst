@@ -9,13 +9,8 @@ This document outlines how to upgrade a Juju-deployed OpenStack cloud.
    Upgrading an OpenStack cloud is not risk-free. The procedures outlined in
    this guide should first be tested in a pre-production environment.
 
-Please read the following before continuing:
-
-* the :doc:`Upgrades overview <upgrade-overview>` page
-* the OpenStack charms `Release Notes`_ for the corresponding current and
-  target versions of OpenStack
-* the :doc:`Special charm procedures <upgrade-special>` page
-* the :doc:`Upgrade issues <upgrade-issues>` page
+Please read the :doc:`Upgrades overview <upgrade-overview>` page before
+continuing.
 
 .. note::
 
@@ -29,7 +24,7 @@ Release Notes
 -------------
 
 The OpenStack charms `Release Notes`_ for the corresponding current and target
-versions of OpenStack **must** be consulted for any special instructions. In
+versions of OpenStack must be consulted for any special instructions. In
 particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
 
@@ -39,16 +34,15 @@ Manual intervention
 It is intended that the now upgraded charms are able to accommodate all
 software changes associated with the corresponding OpenStack services to be
 upgraded. A new charm will also strive to produce a service as similarly
-configured to the pre-upgraded service as possible. Nevertheless, there are
-still times when intervention on the part of the operator may be needed, such
-as when:
+configured to the pre-upgraded service as possible.
 
-* a service is removed, added, or replaced
-* a software bug affecting the OpenStack upgrade is present in the new charm
+However, there are still times when intervention on the part of the operator
+may be needed, such as when an OpenStack service is removed/added/replaced or
+when a software bug (in the charms or in upstream OpenStack) affecting the
+upgrade is present. The next two resources cover these topics:
 
-All known issues requiring manual intervention are documented on the
-:doc:`Known upgrade issues <upgrade-issues>` page. You **must** look these
-over.
+* the :doc:`Special charm procedures <upgrade-special>` page
+* the :doc:`Upgrade issues <upgrade-issues>` page
 
 Verify the current deployment
 -----------------------------
@@ -115,10 +109,10 @@ Disable unattended-upgrades
 ---------------------------
 
 When performing a service upgrade on a unit that hosts multiple principle
-charms (e.g. ``nova-compute`` and ``ceph-osd``), ensure that
-``unattended-upgrades`` is disabled on the underlying machine for the duration
-of the upgrade process. This is to prevent the other services from being
-upgraded outside of Juju's control. On a unit run:
+charms (e.g. nova-compute and ceph-osd), ensure that ``unattended-upgrades`` is
+disabled on the underlying machine for the duration of the upgrade process.
+This is to prevent the other services from being upgraded outside of Juju's
+control. On a unit run:
 
 .. code-block:: none
 
@@ -132,84 +126,116 @@ with their parent application. Subordinate charms do not support the
 ``openstack-origin`` configuration option which, as will be shown, is a
 pre-requisite for initiating an OpenStack charm payload upgrade.
 
+.. _openstack_upgrade_order:
+
 Upgrade order
 -------------
 
-The charms are put into groups to indicate the order in which their
-corresponding OpenStack services should be upgraded. The order within a group
-is unimportant. What matters is that all the charms within the same group are
-acted upon before those in the next group (e.g. upgrade all charm payloads in
-group 2 before moving on to group 3).
+Generally speaking, the order is determined by the idea of a dependency tree.
+Those services that have the most potential impact on other services are
+upgraded first and those services that have the least potential impact on other
+services are upgraded last.
 
-Any `Release Notes`_ guidance overrides the information listed here. You may
-also consult the upstream documentation on the subject: `Update services`_.
+In the below table charms are listed in the order in which their corresponding
+OpenStack services should be upgraded. Each service represented by a charm will
+need to be upgraded individually, and only the packages associated with a
+charm's OpenStack service will be updated.
 
-Each service represented by a charm in the below table will need to be upgraded
-individually. Only the packages associated with a charm's OpenStack service
-will be updated.
+The order provided below is the order used by internal testing.
 
-+-------+-----------------------+---------------+
-| Group | Charm Name            | Charm Type    |
-+=======+=======================+===============+
-| 1     | keystone              | Control Plane |
-+-------+-----------------------+---------------+
-| 1     | ceph-mon              | Data Plane    |
-+-------+-----------------------+---------------+
-| 2     | ceph-osd              | Data Plane    |
-+-------+-----------------------+---------------+
-| 2     | ceph-fs               | Data Plane    |
-+-------+-----------------------+---------------+
-| 2     | ceph-radosgw          | Data Plane    |
-+-------+-----------------------+---------------+
-| 2     | swift-proxy           | Data Plane    |
-+-------+-----------------------+---------------+
-| 2     | swift-storage         | Data Plane    |
-+-------+-----------------------+---------------+
-| 3     | aodh                  | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | barbican              | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | ceilometer            | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | cinder                | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | designate             | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | designate-bind        | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | glance                | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | gnocchi               | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | heat                  | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | manila                | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | manila-generic        | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | neutron-api           | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | neutron-gateway       | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | placement             | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | nova-cloud-controller | Control Plane |
-+-------+-----------------------+---------------+
-| 3     | openstack-dashboard   | Control Plane |
-+-------+-----------------------+---------------+
-| 4     | nova-compute          | Data Plane    |
-+-------+-----------------------+---------------+
-| 5     | octavia               | Control Plane |
-+-------+-----------------------+---------------+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Order
+     - Charm
+
+   * - 1
+     - `rabbitmq-server`_
+
+   * - 2
+     - `ceph-mon`_
+
+   * - 3
+     - `keystone`_
+
+   * - 4
+     - `aodh`_
+
+   * - 5
+     - `barbican`_
+
+   * - 6
+     - `ceilometer`_
+
+   * - 7
+     - `ceph-fs`_
+
+   * - 8
+     - `ceph-radosgw`_
+
+   * - 9
+     - `cinder`_
+
+   * - 10
+     - `designate`_
+
+   * - 11
+     - `designate-bind`_
+
+   * - 12
+     - `glance`_
+
+   * - 13
+     - `gnocchi`_
+
+   * - 14
+     - `heat`_
+
+   * - 15
+     - `manila`_
+
+   * - 16
+     - `manila-generic`_
+
+   * - 17
+     - `neutron-api`_
+
+   * - 18
+     - `neutron-gateway`_
+
+   * - 19
+     - `placement`_
+
+   * - 20
+     - `nova-cloud-controller`_
+
+   * - 21
+     - `openstack-dashboard`_
+
+   * - 22
+     - `nova-compute`_
+
+   * - 23
+     - `ceph-osd`_
+
+   * - 24
+     - `swift-proxy`_
+
+   * - 25
+     - `swift-storage`_
+
+   * - 26
+     - `octavia`_
 
 .. important::
 
-   Services whose software is not included in the Ubuntu Cloud Archive are not
-   represented in the above list. This software is upgraded by the
+   Services whose software is not included in the `Ubuntu Cloud Archive`_ are
+   not represented in the above list. This software is upgraded by the
    administrator (on the units) using traditional means (e.g. manually via
    package tools or as part of a series upgrade). Common charms where this
-   applies are ``ntp``, ``memcached``, ``percona-cluster``,
-   ``rabbitmq-server``, ``mysql-innodb-cluster``, and ``mysql-router``.
+   applies are ntp, memcached, percona-cluster, rabbitmq-server,
+   mysql-innodb-cluster, and mysql-router.
 
 .. note::
 
@@ -418,9 +444,6 @@ Check for errors in :command:`juju status` output and any monitoring service.
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
-.. _Update services: https://docs.openstack.org/operations-guide/ops-upgrades.html#update-services
-.. _Keystone Fernet Token Implementation: https://specs.openstack.org/openstack/charm-specs/specs/rocky/implemented/keystone-fernet-tokens.html
-.. _Octavia LBaaS: app-octavia.html
 .. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
 
 .. BUGS
@@ -428,3 +451,67 @@ Check for errors in :command:`juju status` output and any monitoring service.
 .. _LP #1809190: https://bugs.launchpad.net/charm-neutron-gateway/+bug/1809190
 .. _LP #1853173: https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1853173
 .. _LP #1828534: https://bugs.launchpad.net/charm-designate/+bug/1828534
+
+.. _aodh: https://opendev.org/openstack/charm-aodh/
+.. _barbican: https://opendev.org/openstack/charm-barbican/
+.. _barbican-vault: https://opendev.org/openstack/charm-barbican-vault/
+.. _ceilometer: https://opendev.org/openstack/charm-ceilometer/
+.. _ceilometer-agent: https://opendev.org/openstack/charm-ceilometer-agent/
+.. _cinder: https://opendev.org/openstack/charm-cinder/
+.. _cinder-backup: https://opendev.org/openstack/charm-cinder-backup/
+.. _cinder-backup-swift-proxy: https://opendev.org/openstack/charm-cinder-backup-swift-proxy/
+.. _cinder-ceph: https://opendev.org/openstack/charm-cinder-ceph/
+.. _designate: https://opendev.org/openstack/charm-designate/
+.. _glance: https://opendev.org/openstack/charm-glance/
+.. _heat: https://opendev.org/openstack/charm-heat/
+.. _keystone: https://opendev.org/openstack/charm-keystone/
+.. _keystone-ldap: https://opendev.org/openstack/charm-keystone-ldap/
+.. _keystone-saml-mellon: https://opendev.org/openstack/charm-keystone-saml-mellon/
+.. _manila: https://opendev.org/openstack/charm-manila/
+.. _manila-ganesha: https://opendev.org/openstack/charm-manila-ganesha/
+.. _masakari: https://opendev.org/openstack/charm-masakari/
+.. _masakari-monitors: https://opendev.org/openstack/charm-masakari-monitors/
+.. _mysql-innodb-cluster: https://opendev.org/openstack/charm-mysql-innodb-cluster
+.. _mysql-router: https://opendev.org/openstack/charm-mysql-router
+.. _neutron-api: https://opendev.org/openstack/charm-neutron-api/
+.. _neutron-api-plugin-arista: https://opendev.org/openstack/charm-neutron-api-plugin-arista
+.. _neutron-api-plugin-ovn: https://opendev.org/openstack/charm-neutron-api-plugin-ovn
+.. _neutron-dynamic-routing: https://opendev.org/openstack/charm-neutron-dynamic-routing/
+.. _neutron-gateway: https://opendev.org/openstack/charm-neutron-gateway/
+.. _neutron-openvswitch: https://opendev.org/openstack/charm-neutron-openvswitch/
+.. _nova-cell-controller: https://opendev.org/openstack/charm-nova-cell-controller/
+.. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/
+.. _nova-compute: https://opendev.org/openstack/charm-nova-compute/
+.. _octavia: https://opendev.org/openstack/charm-octavia/
+.. _octavia-dashboard: https://opendev.org/openstack/charm-octavia-dashboard/
+.. _octavia-diskimage-retrofit: https://opendev.org/openstack/charm-octavia-diskimage-retrofit/
+.. _openstack-dashboard: https://opendev.org/openstack/charm-openstack-dashboard/
+.. _placement: https://opendev.org/openstack/charm-placement
+.. _swift-proxy: https://opendev.org/openstack/charm-swift-proxy/
+.. _swift-storage: https://opendev.org/openstack/charm-swift-storage/
+
+.. _ceph-fs: https://opendev.org/openstack/charm-ceph-fs/
+.. _ceph-iscsi: https://opendev.org/openstack/charm-ceph-iscsi/
+.. _ceph-mon: https://opendev.org/openstack/charm-ceph-mon/
+.. _ceph-osd: https://opendev.org/openstack/charm-ceph-osd/
+.. _ceph-proxy: https://opendev.org/openstack/charm-ceph-proxy/
+.. _ceph-radosgw: https://opendev.org/openstack/charm-ceph-radosgw/
+.. _ceph-rbd-mirror: https://opendev.org/openstack/charm-ceph-rbd-mirror/
+.. _cinder-purestorage: https://opendev.org/openstack/charm-cinder-purestorage/
+.. _designate-bind: https://opendev.org/openstack/charm-designate-bind/
+.. _glance-simplestreams-sync: https://opendev.org/openstack/charm-glance-simplestreams-sync/
+.. _gnocchi: https://opendev.org/openstack/charm-gnocchi/
+.. _hacluster: https://opendev.org/openstack/charm-hacluster/
+.. _ovn-central: https://opendev.org/x/charm-ovn-central
+.. _ovn-chassis: https://opendev.org/x/charm-ovn-chassis
+.. _ovn-dedicated-chassis: https://opendev.org/x/charm-ovn-dedicated-chassis
+.. _pacemaker-remote: https://opendev.org/openstack/charm-pacemaker-remote/
+.. _percona-cluster: https://opendev.org/openstack/charm-percona-cluster/
+.. _rabbitmq-server: https://opendev.org/openstack/charm-rabbitmq-server/
+.. _trilio-data-mover: https://opendev.org/openstack/charm-trilio-data-mover/
+.. _trilio-dm-api: https://opendev.org/openstack/charm-trilio-dm-api/
+.. _trilio-horizon-plugin: https://opendev.org/openstack/charm-trilio-horizon-plugin/
+.. _trilio-wlm: https://opendev.org/openstack/charm-trilio-wlm/
+.. _vault: https://opendev.org/openstack/charm-vault/
+
+.. _manila-generic: https://opendev.org/openstack/charm-manila-generic/

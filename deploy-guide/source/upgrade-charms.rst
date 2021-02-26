@@ -18,24 +18,122 @@ Please read the following before continuing:
    A charm upgrade affects all corresponding units; upgrading on a per-unit
    basis is not currently supported.
 
-Although it may be possible to upgrade some charms in parallel it is
-recommended that the upgrades be performed sequentially (i.e. one at a time).
-Verify a charm upgrade before moving on to the next.
+Upgrade order
+-------------
 
-Subordinate charms are upgraded as normal, and, in theory, their upgrade order
-in relation to their principal charm is not important. Internal testing however
-does upgrade the principal charm first.
+There is no special order in which to upgrade the charms. The order described
+here is based on the upgrade order for :ref:`OpenStack upgrades
+<openstack_upgrade_order>`, which, in turn, is the order used by internal
+testing.
 
-In terms of the upgrade order, begin with 'keystone'. After that, the rest of
-the charms can be upgraded in any order.
+.. note::
 
-.. caution::
+   Although it may be possible to upgrade some charms concurrently it is
+   recommended that charm upgrades be performed sequentially (i.e. one at a
+   time). Verify a charm upgrade before moving on to the next.
 
-   Any software changes that may have (exceptionally) been made to a charm
-   currently running on a unit will be overwritten by the target charm during
-   the upgrade.
+The general order is:
 
-Before upgrading, a (partial) output to :command:`juju status` may look like:
+#. all principle charms
+#. all subordinate charms
+
+The precise order within the group of principle charms is shown in the below
+table.
+
+.. list-table:: Principle charms
+   :header-rows: 1
+   :widths: auto
+
+   * - Order
+     - Charm
+
+   * - 1
+     - `percona-cluster`_ or `mysql-innodb-cluster`_
+
+   * - 2
+     - `rabbitmq-server`_
+
+   * - 3
+     - `ceph-mon`_
+
+   * - 4
+     - `keystone`_
+
+   * - 5
+     - `aodh`_
+
+   * - 6
+     - `barbican`_
+
+   * - 7
+     - `ceilometer`_
+
+   * - 8
+     - `ceph-fs`_
+
+   * - 9
+     - `ceph-radosgw`_
+
+   * - 10
+     - `cinder`_
+
+   * - 11
+     - `designate`_
+
+   * - 12
+     - `designate-bind`_
+
+   * - 13
+     - `glance`_
+
+   * - 14
+     - `gnocchi`_
+
+   * - 15
+     - `heat`_
+
+   * - 16
+     - `manila`_
+
+   * - 17
+     - `manila-generic`_
+
+   * - 18
+     - `neutron-api`_
+
+   * - 19
+     - `neutron-gateway`_
+
+   * - 20
+     - `placement`_
+
+   * - 21
+     - `nova-cloud-controller`_
+
+   * - 22
+     - `openstack-dashboard`_
+
+   * - 23
+     - `nova-compute`_
+
+   * - 24
+     - `ceph-osd`_
+
+   * - 25
+     - `swift-proxy`_
+
+   * - 26
+     - `swift-storage`_
+
+Upgrade testing for subordinate charms does not follow a prescribed order. Once
+all the principle charms have been processed all the subordinate charms can
+then be upgraded in any order.
+
+Perform the upgrade
+-------------------
+
+Prior to upgrading a charm, say keystone, a (partial) output to :command:`juju
+status` may look like:
 
 .. code-block:: console
 
@@ -71,6 +169,12 @@ encountered problem will surface as a message in its output. This sample
 
 This shows that the charm now has a revision number of '309' but Keystone
 itself remains at '15.0.0'.
+
+.. caution::
+
+   Any software changes that may have (exceptionally) been made to a charm
+   currently running on a unit will be overwritten by the target charm during
+   the upgrade.
 
 Upgrade target revisions
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,4 +217,67 @@ Based on the above, the ceph-mon charm does not require an upgrade.
 .. LINKS
 .. _Upgrading applications: https://jaas.ai/docs/upgrading-applications
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
-.. _Series upgrade: upgrade-series.html
+
+.. _aodh: https://opendev.org/openstack/charm-aodh/
+.. _barbican: https://opendev.org/openstack/charm-barbican/
+.. _barbican-vault: https://opendev.org/openstack/charm-barbican-vault/
+.. _ceilometer: https://opendev.org/openstack/charm-ceilometer/
+.. _ceilometer-agent: https://opendev.org/openstack/charm-ceilometer-agent/
+.. _cinder: https://opendev.org/openstack/charm-cinder/
+.. _cinder-backup: https://opendev.org/openstack/charm-cinder-backup/
+.. _cinder-backup-swift-proxy: https://opendev.org/openstack/charm-cinder-backup-swift-proxy/
+.. _cinder-ceph: https://opendev.org/openstack/charm-cinder-ceph/
+.. _designate: https://opendev.org/openstack/charm-designate/
+.. _glance: https://opendev.org/openstack/charm-glance/
+.. _heat: https://opendev.org/openstack/charm-heat/
+.. _keystone: https://opendev.org/openstack/charm-keystone/
+.. _keystone-ldap: https://opendev.org/openstack/charm-keystone-ldap/
+.. _keystone-saml-mellon: https://opendev.org/openstack/charm-keystone-saml-mellon/
+.. _manila: https://opendev.org/openstack/charm-manila/
+.. _manila-ganesha: https://opendev.org/openstack/charm-manila-ganesha/
+.. _masakari: https://opendev.org/openstack/charm-masakari/
+.. _masakari-monitors: https://opendev.org/openstack/charm-masakari-monitors/
+.. _mysql-innodb-cluster: https://opendev.org/openstack/charm-mysql-innodb-cluster
+.. _mysql-router: https://opendev.org/openstack/charm-mysql-router
+.. _neutron-api: https://opendev.org/openstack/charm-neutron-api/
+.. _neutron-api-plugin-arista: https://opendev.org/openstack/charm-neutron-api-plugin-arista
+.. _neutron-api-plugin-ovn: https://opendev.org/openstack/charm-neutron-api-plugin-ovn
+.. _neutron-dynamic-routing: https://opendev.org/openstack/charm-neutron-dynamic-routing/
+.. _neutron-gateway: https://opendev.org/openstack/charm-neutron-gateway/
+.. _neutron-openvswitch: https://opendev.org/openstack/charm-neutron-openvswitch/
+.. _nova-cell-controller: https://opendev.org/openstack/charm-nova-cell-controller/
+.. _nova-cloud-controller: https://opendev.org/openstack/charm-nova-cloud-controller/
+.. _nova-compute: https://opendev.org/openstack/charm-nova-compute/
+.. _octavia: https://opendev.org/openstack/charm-octavia/
+.. _octavia-dashboard: https://opendev.org/openstack/charm-octavia-dashboard/
+.. _octavia-diskimage-retrofit: https://opendev.org/openstack/charm-octavia-diskimage-retrofit/
+.. _openstack-dashboard: https://opendev.org/openstack/charm-openstack-dashboard/
+.. _placement: https://opendev.org/openstack/charm-placement
+.. _swift-proxy: https://opendev.org/openstack/charm-swift-proxy/
+.. _swift-storage: https://opendev.org/openstack/charm-swift-storage/
+
+.. _ceph-fs: https://opendev.org/openstack/charm-ceph-fs/
+.. _ceph-iscsi: https://opendev.org/openstack/charm-ceph-iscsi/
+.. _ceph-mon: https://opendev.org/openstack/charm-ceph-mon/
+.. _ceph-osd: https://opendev.org/openstack/charm-ceph-osd/
+.. _ceph-proxy: https://opendev.org/openstack/charm-ceph-proxy/
+.. _ceph-radosgw: https://opendev.org/openstack/charm-ceph-radosgw/
+.. _ceph-rbd-mirror: https://opendev.org/openstack/charm-ceph-rbd-mirror/
+.. _cinder-purestorage: https://opendev.org/openstack/charm-cinder-purestorage/
+.. _designate-bind: https://opendev.org/openstack/charm-designate-bind/
+.. _glance-simplestreams-sync: https://opendev.org/openstack/charm-glance-simplestreams-sync/
+.. _gnocchi: https://opendev.org/openstack/charm-gnocchi/
+.. _hacluster: https://opendev.org/openstack/charm-hacluster/
+.. _ovn-central: https://opendev.org/x/charm-ovn-central
+.. _ovn-chassis: https://opendev.org/x/charm-ovn-chassis
+.. _ovn-dedicated-chassis: https://opendev.org/x/charm-ovn-dedicated-chassis
+.. _pacemaker-remote: https://opendev.org/openstack/charm-pacemaker-remote/
+.. _percona-cluster: https://opendev.org/openstack/charm-percona-cluster/
+.. _rabbitmq-server: https://opendev.org/openstack/charm-rabbitmq-server/
+.. _trilio-data-mover: https://opendev.org/openstack/charm-trilio-data-mover/
+.. _trilio-dm-api: https://opendev.org/openstack/charm-trilio-dm-api/
+.. _trilio-horizon-plugin: https://opendev.org/openstack/charm-trilio-horizon-plugin/
+.. _trilio-wlm: https://opendev.org/openstack/charm-trilio-wlm/
+.. _vault: https://opendev.org/openstack/charm-vault/
+
+.. _manila-generic: https://opendev.org/openstack/charm-manila-generic/
