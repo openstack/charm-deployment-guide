@@ -85,11 +85,6 @@ Usage
 Configuration
 ~~~~~~~~~~~~~
 
-.. warning::
-
-   Throughout this guide make sure ``openstack-origin`` matches the value you
-   used when `deploying OpenStack`_.
-
 The below overlay bundle can be used to deploy Masakari when using a bundle to
 deploy OpenStack.
 
@@ -109,17 +104,24 @@ Provide values for the ``binding`` (network spaces) masakari charm option
 according to your local environment. For simplicity (or for testing), the same
 network space can be used for all Masakari bindings.
 
+If the cloud is TLS-enabled via Vault then a relation is needed between the
+masakari and vault applications. Uncomment the relation in the overlay bundle
+to achieve this. See `Issuing of certificates`_ for background information.
+
+.. important::
+
+   The value for ``openstack-origin`` must match the series and OpenStack
+   release of the currently deployed cloud. The value for the global parameter
+   ``series`` must also be set accordingly.
+
 .. code-block:: yaml
 
    machines:
      '0':
-       series: bionic
      '1':
-       series: bionic
      '2':
-       series: bionic
      '3':
-       series: bionic
+
    relations:
    - - nova-compute:juju-info
      - masakari-monitors:container
@@ -137,7 +139,11 @@ network space can be used for all Masakari bindings.
      - mysql:shared-db
    - - masakari:amqp
      - rabbitmq-server:amqp
-   series: bionic
+   #- - vault:certificates
+   #  - masakari:certificates
+
+   series: focal
+
    applications:
      masakari-monitors:
        charm: cs:masakari-monitors
@@ -153,10 +159,9 @@ network space can be used for all Masakari bindings.
          enable-resources: False
      masakari:
        charm: cs:masakari
-       series: bionic
        num_units: 3
        options:
-         openstack-origin: cloud:bionic-stein
+         openstack-origin: cloud:focal-victoria
          vip: <INSERT VIP(S)>
        bindings:
          public: public
@@ -197,7 +202,7 @@ For the purposes of this document the below hypervisors are presumed:
    | virt-node-02.maas | enabled | up    |
    +-------------------+---------+-------+
 
-In addition let us assume that instance 'bionic-1' now resides on host
+In addition let us assume that instance 'focal-1' now resides on host
 'virt-node-02.maas':
 
 .. code-block:: console
@@ -214,7 +219,7 @@ respectively:
 .. code-block:: none
 
    openstack compute service list -c Host -c Status -c State --service nova-compute
-   openstack server show bionic-1 -c OS-EXT-SRV-ATTR:host
+   openstack server show focal-1 -c OS-EXT-SRV-ATTR:host
 
 Instance evacuation recovery methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -346,7 +351,7 @@ The segment's host list should show:
    | virt-node-02.maas | False    | True           |
    +-------------------+----------+----------------+
 
-The expectation is that instance 'bionic-1' has been moved from
+The expectation is that instance 'focal-1' has been moved from
 'virt-node-02.maas' to the reserved node, host 'virt-node-01.maas':
 
 .. code-block:: console
@@ -423,12 +428,12 @@ Instance restart
 
 The enabling of the instance restart feature is done on a per-instance basis.
 
-For example, tag instance 'bionic-1' as HA-enabled in order to have it
+For example, tag instance 'focal-1' as HA-enabled in order to have it
 restarted automatically on its hypervisor:
 
 .. code-block:: none
 
-   openstack server set --property HA_Enabled=True bionic-1
+   openstack server set --property HA_Enabled=True focal-1
 
 .. important::
 
@@ -441,7 +446,7 @@ its hypervisor and ``qemu`` guest name:
 
 .. code-block:: none
 
-   openstack server show bionic-1 -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name
+   openstack server show focal-1 -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name
 
 Output:
 
@@ -508,4 +513,4 @@ Masakari.
 .. _openstack-base: https://jaas.ai/openstack-base
 .. _Infrastructure high availability: app-ha.html#ha-applications
 .. _Configure OpenStack: configure-openstack.html
-.. _deploying OpenStack: install-openstack.html
+.. _Issuing of certificates: app-certificate-management.html#issuing-of-certificates
