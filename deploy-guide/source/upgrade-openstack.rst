@@ -124,6 +124,14 @@ upgraded outside of Juju's control. On a unit run:
 
    sudo dpkg-reconfigure -plow unattended-upgrades
 
+Subordinate charm applications
+------------------------------
+
+Applications that are associated with subordinate charms are upgraded along
+with their parent application. Subordinate charms do not support the
+``openstack-origin`` configuration option which, as will be shown, is a
+pre-requisite for initiating an OpenStack charm payload upgrade.
+
 Upgrade order
 -------------
 
@@ -342,17 +350,17 @@ Train where ``nova-compute/0`` is the leader:
    juju config nova-compute action-managed-upgrade=True
    juju config nova-compute openstack-origin=cloud:bionic-train
 
-   juju run-action nova-compute/0 --wait pause
-   juju run-action nova-compute/0 --wait openstack-upgrade
-   juju run-action nova-compute/0 --wait resume
+   juju run-action --wait nova-compute/0 pause
+   juju run-action --wait nova-compute/0 openstack-upgrade
+   juju run-action --wait nova-compute/0 resume
 
-   juju run-action nova-compute/1 --wait pause
-   juju run-action nova-compute/1 --wait openstack-upgrade
-   juju run-action nova-compute/1 --wait resume
+   juju run-action --wait nova-compute/1 pause
+   juju run-action --wait nova-compute/1 openstack-upgrade
+   juju run-action --wait nova-compute/1 resume
 
-   juju run-action nova-compute/2 --wait pause
-   juju run-action nova-compute/2 --wait openstack-upgrade
-   juju run-action nova-compute/2 --wait resume
+   juju run-action --wait nova-compute/2 pause
+   juju run-action --wait nova-compute/2 openstack-upgrade
+   juju run-action --wait nova-compute/2 resume
 
 In addition, this method also permits a possible hacluster subordinate unit,
 which typically manages a VIP, to be paused so that client traffic will not
@@ -372,23 +380,23 @@ where ``keystone/2`` is the leader:
    juju config keystone action-managed-upgrade=True
    juju config keystone openstack-origin=cloud:bionic-train
 
-   juju run-action keystone-hacluster/1 --wait pause
-   juju run-action keystone/2 --wait pause
-   juju run-action keystone/2 --wait openstack-upgrade
-   juju run-action keystone/2 --wait resume
-   juju run-action keystone-hacluster/1 --wait resume
+   juju run-action --wait keystone-hacluster/1 pause
+   juju run-action --wait keystone/2 pause
+   juju run-action --wait keystone/2 openstack-upgrade
+   juju run-action --wait keystone/2 resume
+   juju run-action --wait keystone-hacluster/1 resume
 
-   juju run-action keystone-hacluster/2 --wait pause
-   juju run-action keystone/1 --wait pause
-   juju run-action keystone/1 --wait openstack-upgrade
-   juju run-action keystone/1 --wait resume
-   juju run-action keystone-hacluster/2 --wait resume
+   juju run-action --wait keystone-hacluster/2 pause
+   juju run-action --wait keystone/1 pause
+   juju run-action --wait keystone/1 openstack-upgrade
+   juju run-action --wait keystone/1 resume
+   juju run-action --wait keystone-hacluster/2 resume
 
-   juju run-action keystone-hacluster/0 --wait pause
-   juju run-action keystone/0 --wait pause
-   juju run-action keystone/0 --wait openstack-upgrade
-   juju run-action keystone/0 --wait resume
-   juju run-action keystone-hacluster/0 --wait resume
+   juju run-action --wait keystone-hacluster/0 pause
+   juju run-action --wait keystone/0 pause
+   juju run-action --wait keystone/0 openstack-upgrade
+   juju run-action --wait keystone/0 resume
+   juju run-action --wait keystone-hacluster/0 resume
 
 .. warning::
 
