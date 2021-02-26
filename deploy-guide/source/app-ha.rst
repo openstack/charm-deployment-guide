@@ -432,6 +432,13 @@ scenario:
    mysql-innodb-cluster/7      active    idle   1/lxd/5  10.246.114.59             Unit is ready: Mode: R/O
    mysql-innodb-cluster/8      active    idle   2/lxd/5  10.246.114.60             Unit is ready: Mode: R/O
 
+Scaling out the database cluster can be done in the usual manner (new units
+will immediately appear as read-only nodes):
+
+.. code-block:: none
+
+   juju add-unit mysql-innodb-cluster
+
 Refer to the `mysql-router`_ and `mysql-innodb-cluster`_ charm READMEs for more
 information.
 
