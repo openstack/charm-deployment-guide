@@ -145,7 +145,8 @@ Any `Release Notes`_ guidance overrides the information listed here. You may
 also consult the upstream documentation on the subject: `Update services`_.
 
 Each service represented by a charm in the below table will need to be upgraded
-individually.
+individually. Only the packages associated with a charm's OpenStack service
+will be updated.
 
 +-------+-----------------------+---------------+
 | Group | Charm Name            | Charm Type    |
@@ -220,31 +221,35 @@ individually.
 
    See the upstream documentation on `Rotating amphora images`_.
 
+Software sources
+----------------
+
+The essence of an OpenStack upgrade is a change of a machine's software sources
+so that a more recent combination of Ubuntu release (series) and OpenStack
+release is used. This combination is based on the `Ubuntu Cloud Archive`_ and
+translates to a "cloud archive OpenStack release". It takes on the following
+syntax:
+
+``<ubuntu series>-<openstack-release>``
+
+This becomes the value given to a charm's ``openstack-origin`` configuration
+option. For example, to select the 'bionic-train' release:
+
+``openstack-origin=cloud:bionic-train``
+
+.. important::
+
+   The series must correspond to the series currently in use.
+
 .. _perform_the_upgrade:
 
 Perform the upgrade
 -------------------
 
-The essence of a charmed OpenStack service upgrade is a change of the
-corresponding machine software sources so that a more recent combination of
-Ubuntu release and OpenStack release is used. This combination is based on the
-`Ubuntu Cloud Archive`_ and translates to a "cloud archive OpenStack release".
-It takes on the following syntax:
-
-``<ubuntu series>-<openstack-release>``
-
-For example, the 'bionic-train' UCA release is expressed during configuration
-as:
-
-``cloud:bionic-train``
-
 There are three methods available for performing an OpenStack service upgrade.
 The appropriate method is chosen based on the actions supported by the charm.
-Actions for a charm can be listed in this way:
-
-.. code-block:: none
-
-   juju actions <charm-name>
+Actions for a charm can be listed with command :command:`juju actions
+<charm-name>`.
 
 All-in-one
 ~~~~~~~~~~
