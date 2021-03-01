@@ -224,22 +224,39 @@ will be updated.
 Software sources
 ----------------
 
-The essence of an OpenStack upgrade is a change of a machine's software sources
-so that a more recent combination of Ubuntu release (series) and OpenStack
-release is used. This combination is based on the `Ubuntu Cloud Archive`_ and
-translates to a "cloud archive OpenStack release". It takes on the following
-syntax:
+A key part of an OpenStack upgrade is the stipulation of a unit's software
+sources. For an upgrade, the latter will naturally reflect a more recent
+combination of Ubuntu release (series) and OpenStack release. This combination
+is based on the `Ubuntu Cloud Archive`_ and translates to a "cloud archive
+OpenStack release". It takes on the following syntax:
 
 ``<ubuntu series>-<openstack-release>``
 
-This becomes the value given to a charm's ``openstack-origin`` configuration
-option. For example, to select the 'bionic-train' release:
+The value is passed to a charm's ``openstack-origin`` configuration option. For
+example, to select the 'focal-victoria' release:
 
-``openstack-origin=cloud:bionic-train``
+``openstack-origin=cloud:focal-victoria``
 
-.. important::
+In this way the charm is informed on where to find updates for the packages
+that it is responsible for.
 
-   The series must correspond to the series currently in use.
+.. note::
+
+   A few charms use option ``source`` instead of ``openstack-origin``. See the
+   next section.
+
+Notes concerning the value of ``openstack-origin``:
+
+* The default is 'distro'. This denotes an Ubuntu release's default archive
+  (e.g. in the case of the focal series it corresponds to OpenStack Ussuri).
+  The value of 'distro' is therefore invalid in the context of an OpenStack
+  upgrade.
+
+* It should normally be the same across all charms.
+
+* Its series component must be that of the series currently in use (i.e. a
+  series upgrade and an OpenStack upgrade are two completely separate
+  procedures).
 
 .. _perform_the_upgrade:
 
@@ -262,8 +279,8 @@ application has a sole unit.
 
 .. attention::
 
-   The "all-in-one" method should only be used when the charm does not
-   support the ``openstack-upgrade`` action.
+   The "all-in-one" method should only be used when the charm does not support
+   the ``openstack-upgrade`` action.
 
 The syntax is:
 
@@ -276,19 +293,19 @@ use the ``source`` charm option instead. The Ceph charms are a classic example:
 
 .. code-block:: none
 
-   juju config ceph-mon source=cloud:bionic-train
+   juju config ceph-mon source=cloud:focal-victoria
 
 .. note::
 
    The ceph-osd and ceph-mon charms are able to maintain service availability
    during the upgrade.
 
-So to upgrade Cinder across all units (currently running Bionic) from Stein to
-Train:
+So to upgrade Cinder across all units (currently running Focal) from Ussuri to
+Victoria:
 
 .. code-block:: none
 
-   juju config cinder openstack-origin=cloud:bionic-train
+   juju config cinder openstack-origin=cloud:focal-victoria
 
 Single-unit
 ~~~~~~~~~~~
@@ -312,13 +329,13 @@ also be discovered via the CLI:
 
    juju run --application <application-name> is-leader
 
-For example, to upgrade a three-unit glance application from Stein to Train
+For example, to upgrade a three-unit glance application from Ussuri to Victoria
 where ``glance/1`` is the leader:
 
 .. code-block:: none
 
    juju config glance action-managed-upgrade=True
-   juju config glance openstack-origin=cloud:bionic-train
+   juju config glance openstack-origin=cloud:focal-victoria
 
    juju run-action --wait glance/1 openstack-upgrade
    juju run-action --wait glance/0 openstack-upgrade
@@ -347,13 +364,13 @@ by the operator.
    The "paused-single-unit" method is the recommended OpenStack service upgrade
    method.
 
-For example, to upgrade a three-unit nova-compute application from Stein to
-Train where ``nova-compute/0`` is the leader:
+For example, to upgrade a three-unit nova-compute application from Ussuri to
+Victoria where ``nova-compute/0`` is the leader:
 
 .. code-block:: none
 
    juju config nova-compute action-managed-upgrade=True
-   juju config nova-compute openstack-origin=cloud:bionic-train
+   juju config nova-compute openstack-origin=cloud:focal-victoria
 
    juju run-action --wait nova-compute/0 pause
    juju run-action --wait nova-compute/0 openstack-upgrade
@@ -377,13 +394,13 @@ flow to the associated parent unit while its upgrade is underway.
    take advantage of the "pause-single-unit" method's ability to pause it
    before upgrading the parent unit.
 
-For example, to upgrade a three-unit keystone application from Stein to Train
-where ``keystone/2`` is the leader:
+For example, to upgrade a three-unit keystone application from Ussuri to
+Victoria where ``keystone/2`` is the leader:
 
 .. code-block:: none
 
    juju config keystone action-managed-upgrade=True
-   juju config keystone openstack-origin=cloud:bionic-train
+   juju config keystone openstack-origin=cloud:focal-victoria
 
    juju run-action --wait keystone-hacluster/1 pause
    juju run-action --wait keystone/2 pause
