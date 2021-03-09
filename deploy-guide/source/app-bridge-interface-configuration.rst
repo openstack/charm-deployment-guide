@@ -22,6 +22,16 @@ Neutron:
   * ``ovn-chassis``;
   * ``ovn-dedicated-chassis``.
 
+.. important::
+
+    Any changes (subsequent to the initial setting) made to the value
+    of option ``data-port`` will merely add the new values along with
+    the existing ones. If removal of old values is desired, they have
+    to be done manually through the command ``ovs-vsctl`` in the
+    affected units. If the new values conflict with the previous
+    ones, it may cause a network outage as seen in bug `LP #1915967`_.
+
+
 Utilising one interface for multiple purposes
 ---------------------------------------------
 
@@ -104,3 +114,6 @@ segment ID other than 100 as bond1.100 is present:
 
    # --external is only needed for setups targeted at using floating IPs.
    openstack network create --external --provider-network-type vlan --provider-physical-network dcfabric --provider-segment 99
+
+
+.. _LP #1915967: https://bugs.launchpad.net/charm-neutron-gateway/+bug/1915967
