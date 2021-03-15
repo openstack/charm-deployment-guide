@@ -18,8 +18,8 @@ charms`_.
 Prerequisites
 -------------
 
-* Ubuntu 18.04 LTS (only)
-* OpenStack Queens, Stein, or Train
+* Ubuntu 18.04 LTS or 20.04 LTS
+* OpenStack Queens, Stein, Train or Ussuri
 * an NFS server for snapshot storage
 * a license (see the project's homepage)
 
@@ -63,15 +63,21 @@ is provided below.
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
+         triliovault-pkg-source: 'deb [trusted=yes] https://apt.fury.io/triliodata-4-1/ /'
      trilio-data-mover:
        charm: cs:~openstack-charmers/trilio-data-mover
+       options:
+         triliovault-pkg-source: 'deb [trusted=yes] https://apt.fury.io/triliodata-4-1/ /'
      trilio-dm-api:
        charm: cs:~openstack-charmers/trilio-dm-api
        num_units: 1
        options:
          openstack-origin: cloud:bionic-train
+         triliovault-pkg-source: 'deb [trusted=yes] https://apt.fury.io/triliodata-4-1/ /'
      trilio-horizon-plugin:
        charm: cs:~openstack-charmers/trilio-horizon-plugin
+       options:
+         triliovault-pkg-source: 'deb [trusted=yes] https://apt.fury.io/triliodata-4-1/ /'
    relations:
      - - trilio-horizon-plugin:dashboard-plugin
        - openstack-dashboard:dashboard-plugin
@@ -93,6 +99,8 @@ is provided below.
        - keystone:identity-service
      - - trilio-data-mover:ceph
        - ceph-mon:client
+     - - trilio-data-mover:shared-db
+       - percona-cluster:shared-db
 
 .. note::
 
