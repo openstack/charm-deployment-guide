@@ -210,6 +210,14 @@ A request will result in the transfer of certificates and keys from Vault. The
 corresponding API endpoint will also be updated in Keystone's service catalogue
 list to reflect that it is now using HTTPS. The service is now TLS-enabled.
 
+A special client is mysql-innodb-cluster, the cloud database. It has a
+self-signed certificate but it is recommended to use the one signed by Vault's
+CA:
+
+.. code-block:: none
+
+   juju add-relation mysql-innodb-cluster:certificates vault:certificates
+
 .. important::
 
    Once Keystone is TLS-enabled every application that talks to Keystone (i.e.

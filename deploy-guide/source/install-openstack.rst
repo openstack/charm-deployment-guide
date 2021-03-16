@@ -244,6 +244,14 @@ status` should look similar to this:
    vault/0*                 active    idle   3/lxd/0  10.0.0.178      8200/tcp  Unit is ready (active: true, mlock: disabled)
      vault-mysql-router/0*  active    idle            10.0.0.178                Unit is ready
 
+Cloud applications are TLS-enabled via the ``vault:certificates`` relation.
+Below we start with the cloud database. Although the latter has a self-signed
+certificate, it is recommended to use the one signed by Vault's CA:
+
+.. code-block:: none
+
+   juju add-relation mysql-innodb-cluster:certificates vault:certificates
+
 .. _neutron_networking:
 
 Neutron networking
