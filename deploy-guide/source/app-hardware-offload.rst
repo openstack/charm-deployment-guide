@@ -66,9 +66,7 @@ configured through MAAS.
 
 .. note::
 
-   Use of VF-LAG halfs the offloaded port capacity of the card and as such VF
-   representor port configuration should only be made on the first network port
-   on the card.
+   Use of VF-LAG reduces the offloaded port capacity of the card by 50%.
 
 Charm configuration
 ~~~~~~~~~~~~~~~~~~~
@@ -97,7 +95,7 @@ The following overlay may be used with the OpenStack base deployment bundle:
        charm: cs:neutron-openvswitch
        options:
          enable-hardware-offload: true
-         sriov-numvfs: "enp3s0f0:64 enp3s0f1:0"
+         sriov-numvfs: "enp3s0f0:32 enp3s0f1:32"
          firewall-driver: openvswitch
      neutron-api:
        charm: cs:neutron-api
@@ -116,6 +114,11 @@ networks of this type.
 The nova-compute charm is configured to use the VF functions provided by the
 network cards using the ``pci-passthrough-whitelist`` option. The above example
 demonstrates configuration for VXLAN overlay networking.
+
+.. caution::
+
+   After deploying the above example the machines hosting neutron-openvswitch
+   units must be rebooted for the changes to take effect.
 
 Creating hardware offloaded ports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

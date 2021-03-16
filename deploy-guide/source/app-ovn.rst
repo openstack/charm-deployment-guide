@@ -140,7 +140,7 @@ deployment.
        charm: cs:ovn-chassis
        options:
          enable-hardware-offload: true
-         sriov-numvfs:  "enp3s0f0:64 enp3s0f1:0"
+         sriov-numvfs:  "enp3s0f0:32 enp3s0f1:32"
      neutron-api:
        charm: cs:neutron-api
        options:
@@ -149,6 +149,11 @@ deployment.
        charm: cs:nova-compute
        options:
          pci-passthrough-whitelist: '{"address": "*:03:*", "physical_network": null}'
+
+.. caution::
+
+   After deploying the above example the machines hosting ovn-chassis
+   units must be rebooted for the changes to take effect.
 
 Boot an instance
 ^^^^^^^^^^^^^^^^
@@ -260,6 +265,11 @@ Enable SR-IOV, map physical network name 'physnet2' to the physical port named
    juju config ovn-chassis enable-sriov=true
    juju config ovn-chassis sriov-device-mappings=physnet2:enp3s0f0
    juju config ovn-chassis sriov-numvfs=enp3s0f0:4
+
+.. caution::
+
+   After deploying the above example the machines hosting ovn-chassis
+   units must be rebooted for the changes to take effect.
 
 After enabling the virtual functions you should take note of the ``vendor_id``
 and ``product_id`` of the virtual functions:
