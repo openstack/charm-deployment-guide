@@ -109,6 +109,13 @@ The output will look similar to this:
 If the endpoints aren't visible, it's likely your environment variables aren't
 set correctly.
 
+.. note::
+
+   The helper files will set the Keystone endpoint variable ``OS_AUTH_URL`` to
+   use HTTPS if TLS is detected anywhere in the cloud. This will always be the
+   case due to the OVN requirement for TLS. If Keystone is not TLS-enabled (for
+   some reason) you will need to manually reset the above variable to use HTTP.
+
 Create an image and flavor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
