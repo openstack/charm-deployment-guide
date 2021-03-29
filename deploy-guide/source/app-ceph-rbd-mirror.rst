@@ -10,7 +10,7 @@ Ceph block device images between two or more Ceph clusters. Mirroring ensures
 point-in-time consistent replicas of all changes to an image, including reads
 and writes, block device resizing, snapshots, clones, and flattening. RBD
 mirroring is mainly used for disaster recovery (i.e. having a secondary site as
-a failover). See `Upstream Ceph documentation on RBD mirroring`_ for complete
+a failover). See the Ceph documentation on `RBD mirroring`_ for complete
 information.
 
 This guide will show how to deploy two Ceph clusters with RBD mirroring between
@@ -21,12 +21,16 @@ RBD mirroring is only one aspect of datacentre redundancy. Refer to `Ceph RADOS
 Gateway Multisite Replication`_ and other work to arrive at a complete
 solution.
 
-.. note::
+Performance considerations
+--------------------------
 
-   RBD mirroring makes use of the journaling feature of Ceph. This incurs an
-   overhead for write activity on an RBD image that will adversely affect
-   performance. See Florian Haas' performance analysis of `RBD mirror`_ from
-   Cephalocon Barcelona 2019.
+RBD mirroring makes use of the journaling feature of Ceph. This incurs an
+overhead for write activity on an RBD image that will adversely affect
+performance.
+
+For more information on performance aspects see Florian Haas' talk
+`Geographical Redundancy with rbd-mirror`_ (video) given at Cephalocon
+Barcelona 2019.
 
 Requirements
 ------------
@@ -43,8 +47,8 @@ Deployment characteristics:
   * 3 x ceph-mon
   * 1 x ceph-rbd-mirror
 
-* application names will be used to distinguish between applications in site
-  'a' from those in site 'b' (e.g. ceph-mon-a and ceph-mon-b)
+* application names will be used to distinguish between the applications in
+  each site (e.g. site-a-ceph-mon and site-b-ceph-mon)
 
 * the ceph-osd units will use block device ``/dev/vdd`` for their OSD volumes
 
@@ -61,16 +65,16 @@ For site 'a' the following configuration is placed into file ``site-a.yaml``:
 
 .. code-block:: yaml
 
-   ceph-mon-a:
+   site-a-ceph-mon:
      monitor-count: 3
      expected-osd-count: 3
      source: distro
 
-   ceph-osd-a:
+   site-a-ceph-osd:
      osd-devices: /dev/vdd
      source: distro
 
-   ceph-rbd-mirror-a:
+   site-a-ceph-rbd-mirror:
      source: distro
 
 Create the model and deploy the software for each site:
@@ -80,9 +84,9 @@ Create the model and deploy the software for each site:
   .. code-block:: none
 
      juju add-model site-a
-     juju deploy -n 3 --config site-a.yaml ceph-osd ceph-osd-a
-     juju deploy -n 3 --config site-a.yaml ceph-mon ceph-mon-a
-     juju deploy --config site-a.yaml ceph-rbd-mirror ceph-rbd-mirror-a
+     juju deploy -n 3 --config site-a.yaml ceph-osd site-a-ceph-osd
+     juju deploy -n 3 --config site-a.yaml ceph-mon site-a-ceph-mon
+     juju deploy --config site-a.yaml ceph-rbd-mirror site-a-ceph-rbd-mirror
 
 * Site 'b'
 
@@ -91,9 +95,9 @@ Create the model and deploy the software for each site:
   .. code-block:: none
 
      juju add-model site-b
-     juju deploy -n 3 --config site-b.yaml ceph-osd ceph-osd-b
-     juju deploy -n 3 --config site-b.yaml ceph-mon ceph-mon-b
-     juju deploy --config site-b.yaml ceph-rbd-mirror ceph-rbd-mirror-b
+     juju deploy -n 3 --config site-b.yaml ceph-osd site-b-ceph-osd
+     juju deploy -n 3 --config site-b.yaml ceph-mon site-b-ceph-mon
+     juju deploy --config site-b.yaml ceph-rbd-mirror site-b-ceph-rbd-mirror
 
 Add two local relations for each site:
 
@@ -101,15 +105,15 @@ Add two local relations for each site:
 
   .. code-block:: none
 
-     juju add-relation -m site-a ceph-mon-a:osd ceph-osd-a:mon
-     juju add-relation -m site-a ceph-mon-a:rbd-mirror ceph-rbd-mirror-a:ceph-local
+     juju add-relation -m site-a site-a-ceph-mon:osd site-a-ceph-osd:mon
+     juju add-relation -m site-a site-a-ceph-mon:rbd-mirror site-a-ceph-rbd-mirror:ceph-local
 
 * Site 'b'
 
   .. code-block:: none
 
-     juju add-relation -m site-b ceph-mon-b:osd ceph-osd-b:mon
-     juju add-relation -m site-b ceph-mon-b:rbd-mirror ceph-rbd-mirror-b:ceph-local
+     juju add-relation -m site-b site-b-ceph-mon:osd site-b-ceph-osd:mon
+     juju add-relation -m site-b site-b-ceph-mon:rbd-mirror site-b-ceph-rbd-mirror:ceph-local
 
 Export a ceph-rbd-mirror endpoint (by means of an "offer") for each site. This
 will enable us to create the inter-site (cross model) relations:
@@ -119,116 +123,125 @@ will enable us to create the inter-site (cross model) relations:
   .. code-block:: none
 
      juju switch site-a
-     juju offer ceph-rbd-mirror-a:ceph-remote
+     juju offer site-a-ceph-rbd-mirror:ceph-remote
 
   Output:
 
   .. code-block:: console
 
-     Application "ceph-rbd-mirror-a" endpoints [ceph-remote] available at "admin/site-a.ceph-rbd-mirror-a"
+     Application "site-a-ceph-rbd-mirror" endpoints [ceph-remote] available at "admin/site-a.site-a-ceph-rbd-mirror"
 
 * Site 'b'
 
   .. code-block:: none
 
      juju switch site-b
-     juju offer ceph-rbd-mirror-b:ceph-remote
+     juju offer site-b-ceph-rbd-mirror:ceph-remote
 
   Output:
 
   .. code-block:: console
 
-     Application "ceph-rbd-mirror-b" endpoints [ceph-remote] available at "admin/site-b.ceph-rbd-mirror-b"
+     Application "site-b-ceph-rbd-mirror" endpoints [ceph-remote] available at "admin/site-b.site-b-ceph-rbd-mirror"
 
 Add the two inter-site relations by referring to the offer URLs (included in
 the output above) as if they were applications in the local model:
 
 .. code-block:: none
 
-   juju add-relation -m site-a ceph-mon-a admin/site-b.ceph-rbd-mirror-b
-   juju add-relation -m site-b ceph-mon-b admin/site-a.ceph-rbd-mirror-a
+   juju add-relation -m site-a site-a-ceph-mon admin/site-b.site-b-ceph-rbd-mirror
+   juju add-relation -m site-b site-b-ceph-mon admin/site-a.site-a-ceph-rbd-mirror
 
 Verify the output of :command:`juju status` for each model:
 
 .. code-block:: none
 
-   juju status -m site-a
+   juju status -m site-a --relations
 
 Output:
 
 .. code-block:: console
+
+   Model   Controller  Cloud/Region       Version  SLA          Timestamp
+   site-a  prod-1      openstack/default  2.8.9    unsupported  16:00:39Z
+
+   SAAS                    Status   Store        URL
+   site-b-ceph-rbd-mirror  waiting  serverstack  admin/site-b.site-b-ceph-rbd-mirror
+
+   App                     Version  Status   Scale  Charm            Store       Rev  OS      Notes
+   site-a-ceph-mon         15.2.8   active       3  ceph-mon         jujucharms   53  ubuntu
+   site-a-ceph-osd         15.2.8   active       3  ceph-osd         jujucharms  308  ubuntu
+   site-a-ceph-rbd-mirror  15.2.8   waiting      1  ceph-rbd-mirror  jujucharms   15  ubuntu
+
+   Unit                       Workload  Agent  Machine  Public address  Ports  Message
+   site-a-ceph-mon/0          active    idle   0        10.5.0.4               Unit is ready and clustered
+   site-a-ceph-mon/1          active    idle   1        10.5.0.14              Unit is ready and clustered
+   site-a-ceph-mon/2*         active    idle   2        10.5.0.7               Unit is ready and clustered
+   site-a-ceph-osd/0          active    idle   0        10.5.0.4               Unit is ready (1 OSD)
+   site-a-ceph-osd/1          active    idle   1        10.5.0.14              Unit is ready (1 OSD)
+   site-a-ceph-osd/2*         active    idle   2        10.5.0.7               Unit is ready (1 OSD)
+   site-a-ceph-rbd-mirror/0*  waiting   idle   3        10.5.0.11              Waiting for pools to be created
+
+   Machine  State    DNS        Inst id                               Series  AZ    Message
+   0        started  10.5.0.4   4f3e4d94-5003-4998-ab30-11fc3c845a7a  focal   nova  ACTIVE
+   1        started  10.5.0.14  7682822e-4469-41e1-b938-225c067f9f82  focal   nova  ACTIVE
+   2        started  10.5.0.7   786e7d84-3f94-4cd6-9493-72026d629fcf  focal   nova  ACTIVE
+   3        started  10.5.0.11  715c8738-e41e-4be2-8638-560206b2c434  focal   nova  ACTIVE
+
+   Offer                   Application             Charm            Rev  Connected  Endpoint     Interface        Role
+   site-a-ceph-rbd-mirror  site-a-ceph-rbd-mirror  ceph-rbd-mirror  15   1/1        ceph-remote  ceph-rbd-mirror  requirer
+
+   Relation provider           Requirer                            Interface        Type     Message
+   site-a-ceph-mon:mon         site-a-ceph-mon:mon                 ceph             peer
+   site-a-ceph-mon:osd         site-a-ceph-osd:mon                 ceph-osd         regular
+   site-a-ceph-mon:rbd-mirror  site-a-ceph-rbd-mirror:ceph-local   ceph-rbd-mirror  regular
+   site-a-ceph-mon:rbd-mirror  site-b-ceph-rbd-mirror:ceph-remote  ceph-rbd-mirror  regular
 
    Model   Controller   Cloud/Region    Version  SLA          Timestamp
    site-a  maas-prod-1  acme-1/default  2.8.1    unsupported  20:00:41Z
 
-   SAAS               Status   Store        URL
-   ceph-rbd-mirror-b  waiting  icarus-maas  admin/site-b.ceph-rbd-mirror-b
-
-   App                Version  Status   Scale  Charm            Store       Rev  OS      Notes
-   ceph-mon-a         15.2.3   active       3  ceph-mon         jujucharms   49  ubuntu
-   ceph-osd-a         15.2.3   active       3  ceph-osd         jujucharms  304  ubuntu
-   ceph-rbd-mirror-a  15.2.3   waiting      1  ceph-rbd-mirror  jujucharms   12  ubuntu
-
-   Unit                  Workload  Agent  Machine  Public address  Ports  Message
-   ceph-mon-a/0*         active    idle   0/lxd/0  10.0.0.57              Unit is ready and clustered
-   ceph-mon-a/1          active    idle   1/lxd/0  10.0.0.58              Unit is ready and clustered
-   ceph-mon-a/2          active    idle   2/lxd/0  10.0.0.59              Unit is ready and clustered
-   ceph-osd-a/0*         active    idle   0        10.0.0.69              Unit is ready (1 OSD)
-   ceph-osd-a/1          active    idle   1        10.0.0.19              Unit is ready (1 OSD)
-   ceph-osd-a/2          active    idle   2        10.0.0.20              Unit is ready (1 OSD)
-   ceph-rbd-mirror-a/0*  waiting   idle   3        10.0.0.22              Waiting for pools to be created
-
-   Machine  State    DNS        Inst id              Series  AZ       Message
-   0        started  10.0.0.69  virt-node-08         focal   default  Deployed
-   0/lxd/0  started  10.0.0.57  juju-bb0dc1-0-lxd-0  focal   default  Container started
-   1        started  10.0.0.19  virt-node-10         focal   default  Deployed
-   1/lxd/0  started  10.0.0.58  juju-bb0dc1-1-lxd-0  focal   default  Container started
-   2        started  10.0.0.20  virt-node-11         focal   default  Deployed
-   2/lxd/0  started  10.0.0.59  juju-bb0dc1-2-lxd-0  focal   default  Container started
-   3        started  10.0.0.22  virt-node-03         focal   default  Deployed
-
-   Offer              Application        Charm            Rev  Connected  Endpoint     Interface        Role
-   ceph-rbd-mirror-a  ceph-rbd-mirror-a  ceph-rbd-mirror  12   1/1        ceph-remote  ceph-rbd-mirror  requirer
-
 .. code-block:: none
 
-   juju status -m site-b
+   juju status -m site-b --relations
 
 Output:
 
 .. code-block:: console
 
-   Model   Controller   Cloud/Region    Version  SLA          Timestamp
-   site-b  maas-prod-1  acme-1/default  2.8.1    unsupported  20:02:58Z
+   Model   Controller  Cloud/Region       Version  SLA          Timestamp
+   site-b  prod-1      openstack/default  2.8.9    unsupported  16:05:39Z
 
-   SAAS               Status   Store        URL
-   ceph-rbd-mirror-a  waiting  icarus-maas  admin/site-a.ceph-rbd-mirror-a
+   SAAS                    Status   Store        URL
+   site-a-ceph-rbd-mirror  waiting  serverstack  admin/site-a.site-a-ceph-rbd-mirror
 
-   App                Version  Status   Scale  Charm            Store       Rev  OS      Notes
-   ceph-mon-b         15.2.3   active       3  ceph-mon         jujucharms   49  ubuntu
-   ceph-osd-b         15.2.3   active       3  ceph-osd         jujucharms  304  ubuntu
-   ceph-rbd-mirror-b  15.2.3   waiting      1  ceph-rbd-mirror  jujucharms   12  ubuntu
+   App                     Version  Status   Scale  Charm            Store       Rev  OS      Notes
+   site-b-ceph-mon         15.2.8   active       3  ceph-mon         jujucharms   53  ubuntu
+   site-b-ceph-osd         15.2.8   active       3  ceph-osd         jujucharms  308  ubuntu
+   site-b-ceph-rbd-mirror  15.2.8   waiting      1  ceph-rbd-mirror  jujucharms   15  ubuntu
 
-   Unit                  Workload  Agent  Machine  Public address  Ports  Message
-   ceph-mon-b/0*         active    idle   0/lxd/0  10.0.0.60              Unit is ready and clustered
-   ceph-mon-b/1          active    idle   1/lxd/0  10.0.0.61              Unit is ready and clustered
-   ceph-mon-b/2          active    idle   2/lxd/0  10.0.0.62              Unit is ready and clustered
-   ceph-osd-b/0*         active    idle   0        10.0.0.21              Unit is ready (1 OSD)
-   ceph-osd-b/1          active    idle   1        10.0.0.54              Unit is ready (1 OSD)
-   ceph-osd-b/2          active    idle   2        10.0.0.55              Unit is ready (1 OSD)
-   ceph-rbd-mirror-b/0*  waiting   idle   3        10.0.0.56              Waiting for pools to be created
+   Unit                       Workload  Agent  Machine  Public address  Ports  Message
+   site-b-ceph-mon/0          active    idle   0        10.5.0.3               Unit is ready and clustered
+   site-b-ceph-mon/1          active    idle   1        10.5.0.20              Unit is ready and clustered
+   site-b-ceph-mon/2*         active    idle   2        10.5.0.8               Unit is ready and clustered
+   site-b-ceph-osd/0          active    idle   0        10.5.0.3               Unit is ready (1 OSD)
+   site-b-ceph-osd/1          active    idle   1        10.5.0.20              Unit is ready (1 OSD)
+   site-b-ceph-osd/2*         active    idle   2        10.5.0.8               Unit is ready (1 OSD)
+   site-b-ceph-rbd-mirror/0*  waiting   idle   3        10.5.0.12              Waiting for pools to be created
 
-   Machine  State    DNS        Inst id              Series  AZ       Message
-   0        started  10.0.0.21  virt-node-02         focal   default  Deployed
-   0/lxd/0  started  10.0.0.60  juju-3ef7c5-0-lxd-0  focal   default  Container started
-   1        started  10.0.0.54  virt-node-04         focal   default  Deployed
-   1/lxd/0  started  10.0.0.61  juju-3ef7c5-1-lxd-0  focal   default  Container started
-   2        started  10.0.0.55  virt-node-05         focal   default  Deployed
-   2/lxd/0  started  10.0.0.62  juju-3ef7c5-2-lxd-0  focal   default  Container started
-   3        started  10.0.0.56  virt-node-06         focal   default  Deployed
+   Machine  State    DNS        Inst id                               Series  AZ    Message
+   0        started  10.5.0.3   2caf61f7-8675-4cd9-a3c4-cc68a0cb3f2d  focal   nova  ACTIVE
+   1        started  10.5.0.20  d1b3bd0b-1631-4bd3-abba-14a366b3d752  focal   nova  ACTIVE
+   2        started  10.5.0.8   84eb5db2-d673-4d36-82b4-902463362704  focal   nova  ACTIVE
+   3        started  10.5.0.12  c40e1247-7b7d-4b84-ab3a-8b72c22f096e  focal   nova  ACTIVE
 
-   Offer              Application        Charm            Rev  Connected  Endpoint     Interface        Role
-   ceph-rbd-mirror-b  ceph-rbd-mirror-b  ceph-rbd-mirror  12   1/1        ceph-remote  ceph-rbd-mirror  requirer
+   Offer                   Application             Charm            Rev  Connected  Endpoint     Interface        Role
+   site-b-ceph-rbd-mirror  site-b-ceph-rbd-mirror  ceph-rbd-mirror  15   1/1        ceph-remote  ceph-rbd-mirror  requirer
+
+   Relation provider           Requirer                            Interface        Type     Message
+   site-b-ceph-mon:mon         site-b-ceph-mon:mon                 ceph             peer
+   site-b-ceph-mon:osd         site-b-ceph-osd:mon                 ceph-osd         regular
+   site-b-ceph-mon:rbd-mirror  site-a-ceph-rbd-mirror:ceph-remote  ceph-rbd-mirror  regular
+   site-b-ceph-mon:rbd-mirror  site-b-ceph-rbd-mirror:ceph-local   ceph-rbd-mirror  regular
 
 There are no Ceph pools created by default. The next section ('Pool creation')
 provides guidance.
@@ -253,14 +266,14 @@ protocol) or manually by the operator:
 
    .. code-block:: none
 
-      juju run-action --wait -m site-a ceph-mon-a/leader create-pool name=mypool app-name=rbd
-      juju run-action --wait -m site-a ceph-rbd-mirror-a/leader refresh-pools
+      juju run-action --wait -m site-a site-a-ceph-mon/leader create-pool name=mypool app-name=rbd
+      juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader refresh-pools
 
    This can be verified by listing the pools in site 'b':
 
    .. code-block:: none
 
-      juju run-action --wait -m site-b ceph-mon-b/leader list-pools
+      juju run-action --wait -m site-b site-b-ceph-mon/leader list-pools
 
 .. note::
 
@@ -281,22 +294,22 @@ the latter is promoted. The rest of the commands are status checks:
 
 .. code-block:: none
 
-   juju run-action --wait -m site-a ceph-rbd-mirror-a/leader status verbose=true
-   juju run-action --wait -m site-b ceph-rbd-mirror-b/leader status verbose=true
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader status verbose=true
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader status verbose=true
 
-   juju run-action --wait -m site-a ceph-rbd-mirror-a/leader demote
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader demote
 
-   juju run-action --wait -m site-a ceph-rbd-mirror-a/leader status verbose=true
-   juju run-action --wait -m site-b ceph-rbd-mirror-b/leader status verbose=true
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader status verbose=true
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader status verbose=true
 
-   juju run-action --wait -m site-b ceph-rbd-mirror-b/leader promote
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader promote
 
 To fall back to site 'a' the actions are reversed:
 
 .. code-block:: none
 
-   juju run-action --wait -m site-b ceph-rbd-mirror-b/leader demote
-   juju run-action --wait -m site-a ceph-rbd-mirror-a/leader promote
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader demote
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader promote
 
 .. note::
 
@@ -323,13 +336,13 @@ Here, we make site 'a' be the primary by demoting site 'b' and promoting site
 
 .. code-block:: none
 
-   juju run-action --wait -m site-b ceph-rbd-mirror/leader demote
-   juju run-action --wait -m site-a ceph-rbd-mirror/leader promote force=true
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader demote
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader promote force=true
 
-   juju run-action --wait -m site-a ceph-rbd-mirror/leader status verbose=true
-   juju run-action --wait -m site-b ceph-rbd-mirror/leader status verbose=true
+   juju run-action --wait -m site-a site-a-ceph-rbd-mirror/leader status verbose=true
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader status verbose=true
 
-   juju run-action --wait -m site-b ceph-rbd-mirror/leader resync-pools i-really-mean-it=true
+   juju run-action --wait -m site-b site-b-ceph-rbd-mirror/leader resync-pools i-really-mean-it=true
 
 .. note::
 
@@ -341,6 +354,6 @@ Here, we make site 'a' be the primary by demoting site 'b' and promoting site
 .. LINKS
 .. _charm's documentation: https://opendev.org/openstack/charm-ceph-rbd-mirror/src/branch/master/src/README.md
 .. _Ceph RADOS Gateway Multisite replication: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-rgw-multisite.html
-.. _Upstream Ceph documentation on RBD mirroring: https://docs.ceph.com/docs/mimic/rbd/rbd-mirroring/
-.. _RBD mirror: https://fghaas.github.io/cephalocon2019-rbdmirror/#/7/6
+.. _RBD mirroring: https://docs.ceph.com/en/latest/rbd/rbd-mirroring
+.. _Geographical Redundancy with rbd-mirror: https://youtu.be/ZifNGprBUTA
 .. _Cross model relations: https://juju.is/docs/cross-model-relations
