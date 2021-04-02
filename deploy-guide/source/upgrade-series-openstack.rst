@@ -10,11 +10,10 @@ across the entirety of a Charmed OpenStack cloud.
 .. warning::
 
    This document is based upon the foundational knowledge and guidelines set
-   forth in the more general `Series upgrade`_ appendix. That reference must be
+   forth on the more general `Series upgrade`_ page. That reference must be
    studied in-depth prior to attempting the steps outlined here. In particular,
    ensure that the :ref:`Pre-upgrade requirements <pre-upgrade_requirements>`
-   are satisfied; the :doc:`Upgrade issues <upgrade-issues>` have been reviewed
-   and considered; and that :ref:`Workload specific preparations
+   are satisfied and that the :ref:`Workload specific preparations
    <workload_specific_preparations>` have been addressed during planning.
 
 Downtime
