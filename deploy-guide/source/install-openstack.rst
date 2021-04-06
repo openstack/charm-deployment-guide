@@ -225,6 +225,10 @@ Vault now needs to be initialised and unsealed. The vault charm will also need
 to be authorised to carry out certain tasks. These steps are covered in the
 `vault charm`_ documentation. Perform them now.
 
+Vault must now be provided with a CA certificate in order for it to issue
+certificates to cloud API services. This is covered on the :ref:`Managing TLS
+certificates <add_ca_certificate>` page. Do this now.
+
 Once the above is completed the Unit section output to command :command:`juju
 status` should look similar to this:
 

@@ -27,6 +27,8 @@ README for instructions.
 
 The next step is to add a CA certificate to the model.
 
+.. _add_ca_certificate:
+
 Add a CA certificate
 ~~~~~~~~~~~~~~~~~~~~
 
