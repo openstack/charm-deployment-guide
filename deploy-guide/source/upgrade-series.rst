@@ -10,10 +10,10 @@ entirely new version.
 Please read the following before continuing:
 
 * the :doc:`Upgrades overview <upgrade-overview>` page
-* the OpenStack charms `Release Notes`_ for the corresponding current and
-  target versions of OpenStack
+* the OpenStack Charms `Release Notes`_
 * the :doc:`Special charm procedures <upgrade-special>` page
 * the :doc:`Upgrade issues <upgrade-issues>` page
+* the :doc:`Various issues <various-issues>` page
 
 Once this document has been studied the administrator will be ready to graduate
 to the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` guide that

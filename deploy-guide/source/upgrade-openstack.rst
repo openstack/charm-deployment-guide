@@ -23,7 +23,7 @@ It may be worthwhile to read the upstream OpenStack `Upgrades`_ guide.
 Release Notes
 -------------
 
-The OpenStack charms `Release Notes`_ for the corresponding current and target
+The OpenStack Charms `Release Notes`_ for the corresponding current and target
 versions of OpenStack must be consulted for any special instructions. In
 particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
@@ -43,6 +43,7 @@ upgrade is present. The next two resources cover these topics:
 
 * the :doc:`Special charm procedures <upgrade-special>` page
 * the :doc:`Upgrade issues <upgrade-issues>` page
+* the :doc:`Various issues <various-issues>` page
 
 Verify the current deployment
 -----------------------------
