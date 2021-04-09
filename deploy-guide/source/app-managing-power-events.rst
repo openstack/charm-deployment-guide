@@ -1049,21 +1049,82 @@ start commands.
 cluster startup problems
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-By design, the last cluster node to shut down is the first one to start up. It
-is therefore possible that abnormally shut down units (such as during a power
-loss) may result in an inactive cluster due to the nodes not attempting to
-start their brokers.
+By design, the last cluster node to shut down (primary broker) needs
+to be the first one to start up. If the primary broker is not
+available when restarting RabbitMQ units after an abnormal shut down
+such as during a power loss or a scheduled cluster restart the
+secondary RabbitMQ units will try to contact the primary broker for 5
+minutes before giving up to start the cluster. This condition can be
+identified by log entries such as
 
-The ``force-boot`` action can be used to forcibly start a unit's RabbitMQ
-broker:
+.. code-block:: console
+
+   =WARNING REPORT==== 27-Apr-2021::19:50:45 ===
+   Error while waiting for Mnesia tables: {timeout_waiting_for_tables,
+                                           [rabbit_user,rabbit_user_permission,
+                                            rabbit_vhost,rabbit_durable_route,
+                                            rabbit_durable_exchange,
+                                            rabbit_runtime_parameters,
+                                            rabbit_durable_queue]}
+
+   =INFO REPORT==== 27-Apr-2021::19:50:45 ===
+   Waiting for Mnesia tables for 30000 ms, 0 retries left
+
+   =INFO REPORT==== 27-Apr-2021::19:51:21 ===
+   Timeout contacting cluster nodes: ['rabbit@juju-766a10-14',
+                                      'rabbit@juju-766a10-15'].
+
+Using the above log entries as an example, ``rabbit@juju-766a10-16``
+tried to synchronize its queues with ``rabbit@juju-766a10-14`` and
+``rabbit@juju-766a10-15`` but could not reach either. The cluster is
+not operational.
+
+In order to recover from this scenario both offline units,
+``rabbit@juju-766a10-14`` and ``rabbit@juju-766a10-15``, need be to
+started and unit ``rabbit@juju-766a10-16`` either rebooted or its
+``rabbitmq-server`` service restarted once the other 2 units are
+available.
+
+It should be verified with
+
+.. code-block:: none
+
+   sudo rabbitmqctl cluster_status
+
+on one of the running units that the RabbitMQ cluster is operational.
+In case a unit gets stuck in an ``error`` state the command
+
+.. code-block:: none
+
+   juju resolve rabbitmq-server/0
+
+can be used to clear this status.
+
+If the primary broker is not available the cluster can be forced to
+start by running the ``force-boot`` action on the remaining units,
+e.g.
 
 .. code-block:: none
 
    juju run-action --wait rabbitmq-server/0 force-boot
 
-This action makes use of the RabbitMQ `force_boot`_ option. See the upstream
-documentation on `Restarting Cluster Nodes`_ for more details. Note that the
-above action may cause the loss of queue data.
+which makes use of the RabbitMQ `force_boot`_ option. The cluster will
+become operational, however, it will be running on fewer units and
+will not offer the same high availability and scalability. Either add
+another unit or bring the missing primary broker online in order to
+restore the cluster.
+
+.. note::
+
+   The ``force-boot`` action may cause the loss of queue data. See the
+   upstream documentation on `Restarting Cluster Nodes`_ for more
+   details.
+
+.. note::
+
+   Every unit or broker in a RabbitMQ cluster is equivalent and the
+   term ``primary broker`` only applies in a shutdown scenario
+   referring to the last broker to go down.
 
 -------------------------------------------------------------------------------
 
