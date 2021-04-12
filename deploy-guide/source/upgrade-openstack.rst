@@ -39,19 +39,47 @@ configured to the pre-upgraded service as possible.
 However, there are still times when intervention on the part of the operator
 may be needed, such as when an OpenStack service is removed/added/replaced or
 when a software bug (in the charms or in upstream OpenStack) affecting the
-upgrade is present. The next two resources cover these topics:
+upgrade is present. The below resources cover these topics:
 
 * the :doc:`Special charm procedures <upgrade-special>` page
 * the :doc:`Upgrade issues <upgrade-issues>` page
 * the :doc:`Various issues <various-issues>` page
+
+Ensure cloud node software is up to date
+----------------------------------------
+
+Every machine in the cloud, including containers, should have their software
+packages updated to ensure that the latest SRUs have been applied. This is done
+in the usual manner:
+
+.. code-block:: none
+
+   sudo apt-get update
+   sudo apt-get dist-upgrade
 
 Verify the current deployment
 -----------------------------
 
 Confirm that the output for the :command:`juju status` command of the current
 deployment is error-free. In addition, if monitoring is in use (e.g. Nagios),
-ensure that all alerts have been resolved. This is to make certain that any
-issues that may appear after the upgrade are not for pre-existing problems.
+ensure that all alerts have been resolved. You may also consider running a
+battery of operational checks on the cloud.
+
+This step is to make certain that any issues that may appear after the upgrade
+are not due to pre-existing problems.
+
+Disable unattended-upgrades
+---------------------------
+
+When performing a service upgrade on a cloud node that hosts multiple principle
+charms (e.g. nova-compute and ceph-osd), ensure that ``unattended-upgrades`` is
+disabled on the underlying machine for the duration of the upgrade process.
+This is to prevent the other services from being upgraded outside of Juju's
+control. On a cloud node run:
+
+.. code-block:: none
+
+   sudo dpkg-reconfigure -plow unattended-upgrades
 
 Perform a database backup
 -------------------------
@@ -105,19 +133,6 @@ To remove a compute service:
 .. code-block:: none
 
    openstack compute service delete <service-id>
-
-Disable unattended-upgrades
----------------------------
-
-When performing a service upgrade on a unit that hosts multiple principle
-charms (e.g. nova-compute and ceph-osd), ensure that ``unattended-upgrades`` is
-disabled on the underlying machine for the duration of the upgrade process.
-This is to prevent the other services from being upgraded outside of Juju's
-control. On a unit run:
-
-.. code-block:: none
-
-   sudo dpkg-reconfigure -plow unattended-upgrades
 
 Subordinate charm applications
 ------------------------------
