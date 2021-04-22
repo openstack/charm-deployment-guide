@@ -76,6 +76,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
 
    app-managing-power-events
    ceph-operations
+   deferred-events
 
 .. toctree::
    :caption: Storage
