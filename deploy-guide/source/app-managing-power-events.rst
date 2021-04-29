@@ -31,9 +31,10 @@ the entire cloud.
 
 .. note::
 
-    This document may help influence a cloud's initial design. Once it is
-    understood how an application should be treated in the context of a power
-    event the cloud architect will be able to make better informed decisions.
+   This document may help influence a cloud's initial design. Once it
+   is understood how an application should be treated in the context
+   of a power event the cloud architect will be able to make better
+   informed decisions.
 
 Section `Notable applications`_ contains valuable information when stopping and
 starting services. It will be used in the context of power events but its
@@ -47,9 +48,10 @@ prepare for and manage power events in your cloud.
 
 .. important::
 
-    It is recommended that every deployed cloud have a list of detailed
-    procedures that cover the uniqueness of that cloud. The guidelines in this
-    current document can act as starting point for such a resource.
+   It is recommended that every deployed cloud have a list of detailed
+   procedures that cover the uniqueness of that cloud. The guidelines
+   in this current document can act as starting point for such a
+   resource.
 
 HA applications
 ~~~~~~~~~~~~~~~
@@ -164,9 +166,10 @@ unless the services were explicitly configured to *not* start automatically
 during the bootup of a node.
 
 .. QUESTION
-    pmatulis: It is possible to start (and stop) LXD containers in a certain
-    order. Is adding this element to bundles a viable response to the above for
-    LXD-based workloads?`
+
+   pmatulis: It is possible to start (and stop) LXD containers in a
+   certain order. Is adding this element to bundles a viable response
+   to the above for LXD-based workloads?`
 
 Regardless of whether a service is started with a Juju action, via SSH, or by
 booting the corresponding node, it is vital that you verify afterwards that the
@@ -400,8 +403,8 @@ cluster
 
 .. important::
 
-    Once the MON units have lost quorum you will lose the ability to query the
-    cluster.
+   Once the MON units have lost quorum you will lose the ability to
+   query the cluster.
 
 component
 """""""""
@@ -492,8 +495,8 @@ component
 
 .. important::
 
-    Individual OSDs on a unit cannot be started or stopped using actions. They
-    are managed as a collective.
+   Individual OSDs on a unit cannot be started or stopped using
+   actions. They are managed as a collective.
 
 -------------------------------------------------------------------------------
 
@@ -521,8 +524,8 @@ etcd
 
 .. note::
 
-    The ``etcd`` charm is lacking in actions. Some procedures will involve
-    direct intervention. See bug `LP #1846257`_.
+   The ``etcd`` charm is lacking in actions. Some procedures will
+   involve direct intervention. See bug `LP #1846257`_.
 
 shutdown
 ^^^^^^^^
@@ -591,8 +594,8 @@ To pause the Glance service::
 
 .. important::
 
-    If Glance is clustered using the 'hacluster' charm, first **pause**
-    hacluster and then **pause** Glance.
+   If Glance is clustered using the 'hacluster' charm, first **pause**
+   hacluster and then **pause** Glance.
 
 startup
 ^^^^^^^
@@ -603,8 +606,8 @@ To resume the Glance service::
 
 .. important::
 
-    If Glance is clustered using the 'hacluster' charm, first **resume**
-    Glance and then **resume** hacluster.
+   If Glance is clustered using the 'hacluster' charm, first
+   **resume** Glance and then **resume** hacluster.
 
 -------------------------------------------------------------------------------
 
@@ -620,8 +623,8 @@ To pause the Keystone service::
 
 .. important::
 
-    If Keystone is clustered using the 'hacluster' charm, first **pause**
-    hacluster and then **pause** Keystone.
+   If Keystone is clustered using the 'hacluster' charm, first
+   **pause** hacluster and then **pause** Keystone.
 
 startup
 ^^^^^^^
@@ -632,8 +635,8 @@ To resume the Keystone service::
 
 .. important::
 
-    If Keystone is clustered using the 'hacluster' charm, first **resume**
-    Keystone and then **resume** hacluster.
+   If Keystone is clustered using the 'hacluster' charm, first
+   **resume** Keystone and then **resume** hacluster.
 
 -------------------------------------------------------------------------------
 
@@ -642,8 +645,9 @@ landscape
 
 .. note::
 
-    The ``postgresql`` charm, needed by Landscape, is lacking in actions. Some
-    procedures will involve direct intervention. See bug `LP #1846279`_.
+   The ``postgresql`` charm, needed by Landscape, is lacking in
+   actions. Some procedures will involve direct intervention. See bug
+   `LP #1846279`_.
 
 shutdown
 ^^^^^^^^
@@ -662,8 +666,8 @@ shutdown
 
 .. caution::
 
-    Services other than Landscape may also be using either of the PostgreSQL or
-    RabbitMQ services.
+   Services other than Landscape may also be using either of the
+   PostgreSQL or RabbitMQ services.
 
 startup
 ^^^^^^^
@@ -703,29 +707,31 @@ node:
 
 .. code::
 
-    for i in `openstack network agent list | grep L3 | awk '/$NODE/ {print $2}'` ; \
-	do printf "\nAgent $i serves:" ; \
-	for f in `neutron router-list-on-l3-agent $i | awk '/network_id/ {print$2}'` ; \
-	do printf "\n Router $f served by these agents:\n" ; \
-	neutron l3-agent-list-hosting-router $f ; \
-	done ; done
+   for i in `openstack network agent list | grep L3 | awk '/$NODE/ {print $2}'` ; \
+   do printf "\nAgent $i serves:" ; \
+       for f in `neutron router-list-on-l3-agent $i | awk '/network_id/ {print$2}'` ; \
+       do printf "\n Router $f served by these agents:\n" ; \
+           neutron l3-agent-list-hosting-router $f ; \
+       done ; \
+   done
 
 To return the list of **DHCP agents** serving each of the networks connected to
 a node:
 
 .. code::
 
-    for i in `openstack network agent list| grep -i dhcp |  awk '/$NODE/ {print $2}'` ; \
-    	do printf "\nAgent $i serves:" ; \
-	for f in `neutron net-list-on-dhcp-agent $i | awk '!/+/ {print$2}'` ; \
-	do printf "\nNetwork $f served by these agents:\n" ; \
-	neutron dhcp-agent-list-hosting-net $f ; \
-    	done ; done
+   for i in `openstack network agent list| grep -i dhcp |  awk '/$NODE/ {print $2}'` ; \
+   do printf "\nAgent $i serves:" ; \
+       for f in `neutron net-list-on-dhcp-agent $i | awk '!/+/ {print$2}'` ; \
+       do printf "\nNetwork $f served by these agents:\n" ; \
+           neutron dhcp-agent-list-hosting-net $f ; \
+       done ; \
+   done
 
 .. note::
 
-    Replace ``$NODE`` with the node hostname as known to OpenStack (i.e.
-    ``openstack host list``).
+   Replace ``$NODE`` with the node hostname as known to OpenStack
+   (i.e. ``openstack host list``).
 
 shutdown
 ^^^^^^^^
@@ -813,9 +819,9 @@ To stop a Nova service:
 
 .. tip::
 
-    If shared storage is implemented, instead of shutting down instances you
-    may consider moving ("evacuating") them to another compute node. See
-    `Evacuate instances`_.
+   If shared storage is implemented, instead of shutting down
+   instances you may consider moving ("evacuating") them to another
+   compute node. See `Evacuate instances`_.
 
 startup
 ^^^^^^^
@@ -1120,10 +1126,10 @@ The unit will manually (and locally) need to be unsealed with its respective
 
 .. code::
 
-    export VAULT_ADDR="http://<IP of vault unit>:8200"
-    vault operator unseal <key>
-    vault operator unseal <key>
-    vault operator unseal <key>
+   export VAULT_ADDR="http://<IP of vault unit>:8200"
+   vault operator unseal <key>
+   vault operator unseal <key>
+   vault operator unseal <key>
 
 Once the model has settled, the :command:`juju status` command will return:
 ``active, Unit is ready...``
