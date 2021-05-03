@@ -65,14 +65,14 @@ Sample output:
    OS_REGION_NAME=RegionOne
    OS_AUTH_VERSION=3
    OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
-   OS_AUTH_URL=https://10.0.0.29:5000/v3
+   OS_AUTH_URL=https://10.0.0.162:5000/v3
    OS_PROJECT_DOMAIN_NAME=admin_domain
    OS_AUTH_PROTOCOL=https
    OS_USERNAME=admin
    OS_AUTH_TYPE=password
    OS_USER_DOMAIN_NAME=admin_domain
    OS_PROJECT_NAME=admin
-   OS_PASSWORD=kohy6shoh3diWav5
+   OS_PASSWORD=aegoaquoo1veZae6
    OS_IDENTITY_API_VERSION=3
 
 Perform actions as the admin user
@@ -94,17 +94,17 @@ The output will look similar to this:
 
 .. code-block:: console
 
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
-   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                     |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
-   | 0515d09c36dd4fd991a1b2aa448eb3cb | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.7:9696                   |
-   | 0abda66d8c414faea7e7485ea6e8ff80 | RegionOne | glance       | image        | True    | admin     | https://10.0.0.20:9292                  |
-   | 46599b147a2e4ff79513d8a4c6a37a83 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.24:8776/v2/$(tenant_id)s |
-   | c046918276db46a7b9e0106d5102927f | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.24:8776/v3/$(tenant_id)s |
-   | c2a70ec99ec6417988e57f093ff4888d | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.29:35357/v3              |
-   | c79512b6f9774bb59f23b5b687ac286d | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.11:8778                  |
-   | e8fbd499be904832b8ffa55fcb9c6efb | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.10:8774/v2.1             |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+-----------------------------------------+
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
+   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                      |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
+   | 172dc2610f2a46cbbf64919a7b414266 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.171:8776/v3/$(tenant_id)s |
+   | 60466514cde4401eaa810301bddb1d2c | RegionOne | glance       | image        | True    | admin     | https://10.0.0.167:9292                  |
+   | 70be9abb201748078b6d91ff803ede86 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.171:8776/v2/$(tenant_id)s |
+   | 835f368961744d3aa62b0b7ead24c5c4 | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.165:8778                  |
+   | 9478c33a71994f9daa4d79a5630f1784 | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.161:9696                  |
+   | bcff6b5d81474cb9884b8161865b1394 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.162:35357/v3              |
+   | cb4dcb58607448c7981ddae79e8ca92d | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.164:8774/v2.1             |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
 
 If the endpoints aren't visible, it's likely your environment variables aren't
 set correctly.
@@ -120,48 +120,56 @@ Create an image and flavor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Import a boot image into Glance to create server instances with. Here we import
-a Focal amd64 image and call it 'focal x86_64':
+a Focal amd64 image:
 
 .. code-block:: none
 
-   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img | \
-      openstack image create --public --container-format bare --disk-format qcow2 \
-      --property architecture=x86_64 --property hw_disk_bus=virtio \
-      --property hw_vif_model=virtio "focal x86_64"
+   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+      --output ~/cloud-images/focal-amd64.img
+
+Now import the image and call it 'focal-amd64':
+
+.. code-block:: none
+
+   openstack image create --public --container-format bare \
+      --disk-format qcow2 --file ~/cloud-images/focal-amd64.img \
+      focal-amd64
 
 Create at least one flavor to define a hardware profile for new instances. Here
-we create one called 'm1.micro':
+we create one called 'm1.small':
 
 .. code-block:: none
 
-   openstack flavor create --ram 512 --disk 4 m1.micro
+   openstack flavor create --ram 2048 --disk 20 --ephemeral 20 m1.small
 
-The above flavor is defined with minimum specifications for Ubuntu Server.
-Adjust according to your needs.
+Make sure that your MAAS nodes can accommodate the flavor's resources.
 
 .. _public_networking:
 
 Set up public networking
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create the external public network, here called 'Pub_Net'. We use the 'flat'
-network provider type and its provider 'physnet1' that were set up during the
-:ref:`Neutron networking <neutron_networking>` step on the previous page:
+Create an external public (shared) network, here called 'ext_net'. We use the
+'flat' network provider type and its provider 'physnet1' that were set up
+during the :ref:`Neutron networking <neutron_networking>` step on the previous
+page:
 
 .. code-block:: none
 
-   openstack network create Pub_Net --external --share --default \
-      --provider-network-type flat --provider-physical-network physnet1
+   openstack network create --external --share \
+      --provider-network-type flat --provider-physical-network physnet1 \
+      ext_net
 
-Create the subnet, here called 'Pub_Subnet', for the above network. The values
+Create the subnet, here called 'ext_subnet', for the above network. The values
 used are based on the local environment. For instance, recall that our MAAS
-subnet is '10.0.0.0/21':
+subnet is '10.0.0.0/24':
 
 .. code-block:: none
 
-   openstack subnet create Pub_Subnet --allocation-pool start=10.0.8.1,end=10.0.8.199 \
-      --subnet-range 10.0.0.0/21 --no-dhcp --gateway 10.0.0.1 \
-      --network Pub_Net
+   openstack subnet create --network ext_net --no-dhcp \
+      --gateway 10.0.0.1 --subnet-range 10.0.0.0/24 \
+      --allocation-pool start=10.0.0.10,end=10.0.0.200 \
+      ext_subnet
 
 .. important::
 
@@ -173,17 +181,17 @@ subnet is '10.0.0.0/21':
 Create the non-admin user environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a new domain, project, and user. Here we'll use 'Domain1', 'Project1',
-and 'User1' respectively. You will be prompted to provide the new user's
-password.
+Create a new domain, project, and user. Here we'll use 'domain1', 'project1',
+and 'user1' respectively. You will be prompted to provide the new user's
+password:
 
 .. code-block:: none
 
-   openstack domain create Domain1
-   openstack project create --domain Domain1 Project1
-   openstack user create --domain Domain1 --project Project1 --password-prompt User1
+   openstack domain create domain1
+   openstack project create --domain domain1 project1
+   openstack user create --domain domain1 --project project1 --password-prompt user1
 
-Sample results:
+Sample output from the last command:
 
 .. code-block:: console
 
@@ -192,24 +200,23 @@ Sample results:
    +---------------------+----------------------------------+
    | Field               | Value                            |
    +---------------------+----------------------------------+
-   | default_project_id  | 2962d44b73db4e1d884498b8ce000a69 |
-   | domain_id           | 5080f063d9f84290a8233e16a0ff39a2 |
+   | default_project_id  | 47c42bfc695c4efcba92ab2345336265 |
+   | domain_id           | 884c9966c24f4db291e2b89b27ce692b |
    | enabled             | True                             |
-   | id                  | 1ea06b07c73149ca9c6753e07c30383a |
+   | id                  | 8b16e5335976418e99bf0b798e83e413 |
    | name                | User1                            |
    | options             | {}                               |
    | password_expires_at | None                             |
    +---------------------+----------------------------------+
 
-Take note of the output. We'll need the user's ID in order to assign her the
-'Member' role:
+We'll use the user's ID to assign her the 'Member' role:
 
 .. code-block:: none
 
-   openstack role add --user 1ea06b07c73149ca9c6753e07c30383a \
-      --project Project1 Member
+   openstack role add --user 8b16e5335976418e99bf0b798e83e413 \
+      --project project1 Member
 
-Create an OpenStack user authentication file for user 'User1'. All we're
+Create an OpenStack user authentication file for user 'user1'. All we're
 missing is the Keystone URL, which we can get from the current user 'admin'
 environment:
 
@@ -218,33 +225,33 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**https://10.0.0.29:5000/v3**.
+**https://10.0.0.162:5000/v3**.
 
-The contents of the file, say ``Project1-rc``, will therefore look like this
+The contents of the file, say ``project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
-.. code-block:: bash
+.. code-block:: ini
 
-   export OS_AUTH_URL=https://10.0.0.29:5000/v3
-   export OS_USER_DOMAIN_NAME=Domain1
-   export OS_USERNAME=User1
-   export OS_PROJECT_DOMAIN_NAME=Domain1
-   export OS_PROJECT_NAME=Project1
+   export OS_AUTH_URL=https://10.0.0.162:5000/v3
+   export OS_USER_DOMAIN_NAME=domain1
+   export OS_USERNAME=user1
+   export OS_PROJECT_DOMAIN_NAME=domain1
+   export OS_PROJECT_NAME=project1
    export OS_PASSWORD=ubuntu
 
 Source the file to become the non-admin user:
 
 .. code-block:: none
 
-   source Project1-rc
+   source project1-rc
    echo $OS_USERNAME
 
-The output for the last command should be **User1**.
+The output for the last command should be **user1**.
 
 Perform actions as the non-admin user
 -------------------------------------
 
-The actions in this section should be performed as user 'User1'.
+The actions in this section should be performed as user 'user1'.
 
 Set the user environment
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -254,11 +261,11 @@ Perform a cloud query to ensure the user environment is functioning correctly:
 .. code-block:: none
 
    openstack image list
-   +--------------------------------------+--------------+--------+
-   | ID                                   | Name         | Status |
-   +--------------------------------------+--------------+--------+
-   | 429f79c7-9ed9-4873-b6da-41580acd2d5f | focal x86_64 | active |
-   +--------------------------------------+--------------+--------+
+   +--------------------------------------+-------------+--------+
+   | ID                                   | Name        | Status |
+   +--------------------------------------+-------------+--------+
+   | 82517c74-1226-4dab-8a6b-59b4fe07f681 | focal-amd64 | active |
+   +--------------------------------------+-------------+--------+
 
 The image that was previously imported by the admin user should be returned.
 
@@ -269,44 +276,50 @@ In order to get a fixed IP address to access any created instances we need a
 project-specific network with a private subnet. We'll also need a router to
 link this network to the public network created earlier.
 
-The non-admin user now creates a private internal network called 'Network1'
-and an accompanying subnet called 'Subnet1' (the DNS server is pointing to the
-MAAS server at 10.0.0.3):
+The non-admin user now creates a private internal network called 'user1-net'
+and an accompanying subnet called 'user1-subnet' (the DNS server is pointing to
+the MAAS server at 10.0.0.2):
 
 .. code-block:: none
 
-   openstack network create Network1 --internal
-   openstack subnet create Subnet1 \
-      --allocation-pool start=192.168.0.10,end=192.168.0.199 \
-      --subnet-range 192.168.0.0/24 \
-      --gateway 192.168.0.1 --dns-nameserver 10.0.0.3 \
-      --network Network1
+   openstack network create --internal user1_net
 
-Now a router called 'Router1' is created, added to the subnet, and told to use
-the public network as its external gateway network:
+   openstack subnet create --network user1_net --dns-nameserver 10.0.0.2 \
+      --gateway 192.168.0.1 --subnet-range 192.168.0/24 \
+      --allocation-pool start=192.168.0.10,end=192.168.0.200 \
+      int_subnet
+
+Now a router called 'user1_router' is created, added to the subnet, and told to
+use the public external network as its gateway network:
 
 .. code-block:: none
 
-   openstack router create Router1
-   openstack router add subnet Router1 Subnet1
-   openstack router set Router1 --external-gateway Pub_Net
+   openstack router create user1_router
+   openstack router set --external-gateway ext_net user1_router
+   openstack router add subnet user1_router user1_subnet
 
 Configure SSH and security groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instances are accessed via SSH. Import a public SSH key so that it can be
-referenced at instance creation time and then installed in the 'ubuntu' user
-account. An existing key can be used but here we first create a new keypair
-called 'User1-key':
+An SSH keypair needs to be imported into the cloud in order to access your
+instances.
+
+Generate one first if you do not yet have one. This command creates a
+passphraseless keypair (remove the `-N` option to avoid that):
 
 .. code-block:: none
 
-   ssh-keygen -q -N '' -f ~/.ssh/User1-key
-   openstack keypair create --public-key ~/.ssh/User1-key.pub User1-key
+   ssh-keygen -q -N '' -f ~/cloud-keys/user1-key
 
-Security groups will need to be configured to at least allow the passing of SSH
-traffic. You can alter the default group rules or create a new group with its
-own rules. We do the latter by creating a group called 'Allow_SSH':
+To import a keypair:
+
+.. code-block:: none
+
+   openstack keypair create --public-key ~/cloud-keys/user1-key.pub user1
+
+Security groups will need to be configured to allow the passing of SSH traffic.
+You can alter the default group rules or create a new group with its own rules.
+We do the latter by creating a group called 'Allow_SSH':
 
 .. code-block:: none
 
@@ -316,31 +329,23 @@ own rules. We do the latter by creating a group called 'Allow_SSH':
 Create and access an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Determine the network ID of private network 'Network1' and then create an
-instance called 'focal-1':
+Create a Focal amd64 instance called 'focal-1':
 
 .. code-block:: none
 
-   NET_ID=$(openstack network list | grep Network1 | awk '{ print $2 }')
-   openstack server create --image 'focal x86_64' --flavor m1.micro \
-      --key-name User1-key --security-group Allow_SSH --nic net-id=$NET_ID \
+   openstack server create --image focal-amd64 --flavor m1.small \
+      --key-name user1 --network user1_net --security-group Allow_SSH \
       focal-1
 
-Request a floating IP address from the public network 'Pub_Net' and assign it
-to a variable:
+Request and assign a floating IP address to the new instance:
 
 .. code-block:: none
 
-   FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address Pub_Net)
-
-Now add that floating IP address to the newly-created instance 'focal-1':
-
-.. code-block:: none
-
+   FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
    openstack server add floating ip focal-1 $FLOATING_IP
 
 Ask for a listing of all instances within the context of the current project
-('Project1'):
+('project1'):
 
 .. code-block:: none
 
@@ -350,11 +355,11 @@ Sample output:
 
 .. code-block:: console
 
-   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
-   | ID                                   | Name    | Status | Networks                          | Image         | Flavor   |
-   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
-   | 9167b3e9-c653-43fc-858a-2d6f6da36daa | focal-1 | ACTIVE | Network1=192.168.0.131, 10.0.8.10 | focal x86_64 | m1.micro |
-   +--------------------------------------+---------+--------+-----------------------------------+---------------+----------+
+   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
+   | ID                                   | Name    | Status | Networks                            | Image       | Flavor   |
+   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
+   | 687b96d0-ab22-459b-935b-a9d0b7e9964c | focal-1 | ACTIVE | user1_net=192.168.0.154, 10.0.0.187 | focal-amd64 | m1.small |
+   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
 
 The first address listed is in the private network and the second one is in the
 public network:
@@ -372,32 +377,25 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 20.04.1 LTS focal-1 ttyS0
+   Ubuntu 20.04.2 LTS focal-1 ttyS0
 
    focal-1 login:
 
-You can connect to the instance in this way:
+Connect to the instance in this way:
 
 .. code-block:: none
 
-   ssh -i ~/.ssh/User1-key ubuntu@$FLOATING_IP
+   ssh -i ~/cloud-keys/user1-key ubuntu@$FLOATING_IP
 
 Next steps
 ----------
 
-You now have a functional OpenStack cloud managed by MAAS-backed Juju and have
-reached the end of the Charms Deployment Guide.
+You now have a functional OpenStack cloud managed by MAAS-backed Juju.
 
-Just as we used MAAS as a backing cloud to Juju, an optional objective is to do
-the same with the new OpenStack cloud. That is, you would add the OpenStack
-cloud to Juju, add a set of credentials, create a Juju controller, and go on
-to deploy charms. The resulting Juju machines will be running as OpenStack
-instances! See `Using OpenStack with Juju`_ in the Juju documentation for
-guidance.
+Go on to read the many Charmed OpenStack topics in this guide or consider the
+`OpenStack Administrator Guides`_ for upstream OpenStack administrative help.
 
 .. LINKS
 .. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
-.. _Using OpenStack with Juju: https://juju.is/docs/openstack-cloud
-
-.. BUGS
+.. _OpenStack Administrator Guides: http://docs.openstack.org/user-guide-admin/content
