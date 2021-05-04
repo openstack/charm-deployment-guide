@@ -86,6 +86,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-erasure-coding
    app-rgw-multisite
    app-ceph-rbd-mirror
+   cinder-volume-replication
    app-manila-ganesha
    app-swift
 
