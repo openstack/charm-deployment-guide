@@ -35,9 +35,10 @@ The output to :command:`juju status vault` should show that Vault is sealed:
 
 Unseal **each** vault unit.
 
-.. COMMENT
-   If the Vault API is encrypted see operation :doc:`Configure TLS for the
-   Vault API <ops-config-tls-vault-api>` for extra information.
+.. note::
+
+   If the Vault API is encrypted see cloud operation :doc:`Configure TLS for
+   the Vault API <ops-config-tls-vault-api>`.
 
 For a single unit requiring three keys (``vault/0`` with IP address
 10.0.0.204):
@@ -62,7 +63,9 @@ The output to :command:`juju status vault` should eventually contain:
    It can take a few minutes for the "ready" status to appear. To expedite,
    force a status update: ``juju run -u vault/0 hooks/update-status``.
 
-For a Vault cluster the output should look similar to:
+For multiple vault units, repeat the procedure by using a different value each
+time for ``VAULT_ADDR``. For a three-member Vault cluster the output should
+look similar to:
 
 .. code-block:: console
 

@@ -9,3 +9,4 @@ having these operations applied to it.
 * :doc:`Change Keystone password <ops-change-keystone-password>`
 * :doc:`Scale down the nova-compute application <ops-scale-down-nova-compute>`
 * :doc:`Unseal Vault <ops-unseal-vault>`
+* :doc:`Configure TLS for the Vault API <ops-config-tls-vault-api>`
