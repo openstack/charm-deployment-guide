@@ -5,7 +5,7 @@ Managing power events
 =====================
 
 Overview
-++++++++
+--------
 
 Once your OpenStack cloud is deployed and in production you will need to
 consider how to manage applications in terms of shutting them down and starting
@@ -41,7 +41,7 @@ starting services. It will be used in the context of power events but its
 contents can also be used during the normal operation of a cloud.
 
 General guidelines
-++++++++++++++++++
+------------------
 
 As each cloud is unique this section will provide general guidelines on how to
 prepare for and manage power events in your cloud.
@@ -176,7 +176,7 @@ booting the corresponding node, it is vital that you verify afterwards that the
 service is actually running and functioning properly.
 
 Controlled power events
-+++++++++++++++++++++++
+-----------------------
 
 The heart of managing your cloud in terms of controlled power events is the
 power-cycling of an individual cloud node. Once you're able to make decisions
@@ -245,7 +245,7 @@ that are involved. An AZ or cloud would consist of all of the core services
 listed in section `Control plane, data plane, and shutdown order`_.
 
 Uncontrolled power events
-+++++++++++++++++++++++++
+-------------------------
 
 In the context of this document, an uncontrolled power event is an unintended
 power outage. The result of such an event is that one or many physical cloud
@@ -271,7 +271,7 @@ possible to the startup list, act on any verification steps found in section
    disable the auto-poweron BIOS setting on all cloud nodes.
 
 Notable applications
-++++++++++++++++++++
+--------------------
 
 This section contains application-specific shutdown/restart procedures,
 well-known caveats, or just valuable tips.
@@ -567,16 +567,16 @@ will not accept new cluster members/units. In that case, do the following:
        juju ssh etcd/0 sudo systemctl stop snap.etcd.etcd
 
    b. Connect to the unit via SSH and edit
-      `/var/snap/etcd/common/etcd.conf.yml` by setting `force-new-cluster` to
-      'true'.
+      ``/var/snap/etcd/common/etcd.conf.yml`` by setting ``force-new-cluster``
+      to 'true'.
 
    c. Start the service::
 
        juju ssh etcd/0 sudo systemctl start snap.etcd.etcd
 
    d. Connect to the unit via SSH and edit
-      `/var/snap/etcd/common/etcd.conf.yml` by setting `force-new-cluster` to
-      'false'.
+      ``/var/snap/etcd/common/etcd.conf.yml`` by setting ``force-new-cluster``
+      to 'false'.
 
 3. Scale up the cluster by adding new etcd units.
 
@@ -705,7 +705,7 @@ per **network**, in the case of DHCP agents.
 To return the list of **L3 agents** serving each of the routers connected to a
 node:
 
-.. code::
+.. code-block:: none
 
    for i in `openstack network agent list | grep L3 | awk '/$NODE/ {print $2}'` ; \
    do printf "\nAgent $i serves:" ; \
@@ -718,7 +718,7 @@ node:
 To return the list of **DHCP agents** serving each of the networks connected to
 a node:
 
-.. code::
+.. code-block:: none
 
    for i in `openstack network agent list| grep -i dhcp |  awk '/$NODE/ {print $2}'` ; \
    do printf "\nAgent $i serves:" ; \
@@ -1010,14 +1010,14 @@ status check::
 
 Example partial output is:
 
-.. code::
+.. code-block:: console
 
-    Cluster status of node 'rabbit@ip-172-31-13-243'
-     [{nodes,[{disc,['rabbit@ip-172-31-13-243']}]},
-      {running_nodes,['rabbit@ip-172-31-13-243']},
-      {cluster_name,<<"rabbit@ip-172-31-13-243.ec2.internal">>},
-      {partitions,[]},
-      {alarms,[{'rabbit@ip-172-31-13-243',[]}]}]
+   Cluster status of node 'rabbit@ip-172-31-13-243'
+    [{nodes,[{disc,['rabbit@ip-172-31-13-243']}]},
+     {running_nodes,['rabbit@ip-172-31-13-243']},
+     {cluster_name,<<"rabbit@ip-172-31-13-243.ec2.internal">>},
+     {partitions,[]},
+     {alarms,[{'rabbit@ip-172-31-13-243',[]}]}]
 
 It is expected that there are no objects listed on the partitions line (as
 above).
@@ -1035,12 +1035,12 @@ Any partitioned units will need to be attended to. Stop and start the
 rabbitmq-server service for each ``rabbitmq-server`` unit, checking for status
 along the way:
 
-.. code::
+.. code-block:: none
 
-    juju run-action --wait rabbitmq-server/0 pause
-    juju run-action --wait rabbitmq-server/1 cluster-status
-    juju run-action --wait rabbitmq-server/0 pause
-    juju run-action --wait rabbitmq-server/1 cluster-status
+   juju run-action --wait rabbitmq-server/0 pause
+   juju run-action --wait rabbitmq-server/1 cluster-status
+   juju run-action --wait rabbitmq-server/0 pause
+   juju run-action --wait rabbitmq-server/1 cluster-status
 
 If errors persist, the mnesia database will need to be removed from the
 affected unit so it can be resynced from the other units. Do this by removing
@@ -1185,7 +1185,7 @@ The unit will manually (and locally) need to be unsealed with its respective
 ``VAULT_ADDR`` environment variable and with the minimum number of unseal keys
 (three here):
 
-.. code::
+.. code-block:: none
 
    export VAULT_ADDR="http://<IP of vault unit>:8200"
    vault operator unseal <key>
@@ -1196,7 +1196,7 @@ Once the model has settled, the :command:`juju status` command will return:
 ``active, Unit is ready...``
 
 Known issues
-++++++++++++
+------------
 
 - `LP #1804261`_ : ceph-osds will need to be restarted if they start before Vault is ready and unsealed
 - `LP #1818260`_ : forget cluster node failed during cluster-relation-changed hook
