@@ -1,8 +1,8 @@
 :orphan:
 
-==============================
-Change Keystone admin password
-==============================
+==================================
+Change the Keystone admin password
+==================================
 
 Preamble
 --------
