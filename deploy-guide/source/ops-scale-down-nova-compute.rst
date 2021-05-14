@@ -11,11 +11,6 @@ Scaling down the nova-compute application implies the removal of one or more
 nova-compute units (i.e. compute nodes). This is easily done with generic Juju
 commands and actions available to the nova-compute charm.
 
-.. warning::
-
-   Make sure that all VMs hosted on the target compute node have been either
-   deleted or migrated to another node.
-
 Procedure
 ---------
 
@@ -48,11 +43,28 @@ This article will be based on the following output:
    You can use the :command:`openstack` client to map compute nodes to
    nova-compute units by IP address: ``openstack hypervisor list``.
 
+Disable the node
+~~~~~~~~~~~~~~~~
+
+Disable the compute node by referring to its corresponding unit, here
+``nova-compute/0``:
+
+.. code-block:: none
+
+   juju run-action --wait nova-compute/0 disable
+
+This will stop nova-compute services and inform nova-scheduler to no longer
+assign new VMs to the unit.
+
+.. warning::
+
+   Before continuing, make sure that all VMs hosted on the target compute node
+   have been either deleted or migrated to another node.
+
 Remove the node
 ~~~~~~~~~~~~~~~
 
-Remove the compute node from the cloud by referring to its corresponding unit,
-here ``nova-compute/0``:
+Now remove the compute node from the cloud:
 
 .. code-block:: none
 
