@@ -159,6 +159,12 @@ charm's OpenStack service will be updated.
 
 The order provided below is the order used by internal testing.
 
+.. warning::
+
+   Ceph may require one of its options to be set prior to upgrading, and
+   failure to consider this may result in a broken cluster. See the associated
+   :ref:`upgrade issue <ceph-require-osd-release>`.
+
 .. list-table::
    :header-rows: 1
    :widths: auto

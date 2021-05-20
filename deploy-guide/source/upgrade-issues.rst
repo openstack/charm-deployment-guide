@@ -212,6 +212,38 @@ described in :doc:`placement charm: OpenStack upgrade to Train
 updated accordingly. This issue is tracked in bug `LP #1928992`_, which also
 includes an explicit workaround (comment #4).
 
+.. _ceph-require-osd-release:
+
+Ceph: option ``require-osd-release``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before upgrading Ceph its ``require-osd-release`` option should be set to the
+current Ceph release (e.g. 'nautilus' if upgrading to Octopus). Failing to do
+so may cause the upgrade to fail, rendering the cluster inoperable.
+
+On any ceph-mon unit, the current value of the option can be queried with:
+
+.. code-block:: none
+
+   sudo ceph osd dump | grep require_osd_release
+
+If it needs changing, it can be done manually on any ceph-mon unit. Here the
+current release is Nautilus:
+
+.. code-block:: none
+
+   sudo ceph osd require-osd-release nautilus
+
+In addition, upon completion of the upgrade, the option should be set to the
+new release. Here the new release is Octopus:
+
+.. code-block:: none
+
+   sudo ceph osd require-osd-release octopus
+
+The charms should be able to respond intelligently to these two situations. Bug
+`LP #1929254`_ is for tracking this effort.
+
 Series upgrades
 ---------------
 
@@ -256,3 +288,4 @@ error can be resolved with:
 .. _LP #1890106: https://bugs.launchpad.net/vault-charm/+bug/1890106
 .. _LP #1912638: https://bugs.launchpad.net/charm-rabbitmq-server/+bug/1912638
 .. _LP #1928992: https://bugs.launchpad.net/charm-deployment-guide/+bug/1928992
+.. _LP #1929254: https://bugs.launchpad.net/charm-ceph-osd/+bug/1929254
