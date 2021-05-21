@@ -203,6 +203,15 @@ Queens). Problems will occur if storage is scaled out without first disabling
 BlueStore (set ceph-osd charm option ``bluestore`` to 'False'). See bug `LP
 #1885516`_ for details.
 
+Placement: endpoints not updated in Keystone service catalog
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When the placement charm is deployed during the upgrade to OpenStack Train (as
+described in :doc:`placement charm: OpenStack upgrade to Train
+<placement-charm-upgrade-to-train>`) the Keystone service catalog is not
+updated accordingly. This issue is tracked in bug `LP #1928992`_, which also
+includes an explicit workaround (comment #4).
+
 Series upgrades
 ---------------
 
@@ -246,3 +255,4 @@ error can be resolved with:
 .. _LP #1886083: https://bugs.launchpad.net/vault-charm/+bug/1886083
 .. _LP #1890106: https://bugs.launchpad.net/vault-charm/+bug/1890106
 .. _LP #1912638: https://bugs.launchpad.net/charm-rabbitmq-server/+bug/1912638
+.. _LP #1928992: https://bugs.launchpad.net/charm-deployment-guide/+bug/1928992

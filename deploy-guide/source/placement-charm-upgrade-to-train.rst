@@ -28,7 +28,7 @@ Here are example commands for the process just described:
    juju add-relation placement nova-cloud-controller
 
 List endpoints and ensure placement endpoints are now listening on the new
-placment IP address. Follow this up by resuming nova-cloud-controller:
+placement IP address. Follow this up by resuming nova-cloud-controller:
 
 .. code-block:: none
 
