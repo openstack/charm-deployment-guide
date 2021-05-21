@@ -165,6 +165,23 @@ Upgrade path:
 
 Final result: OpenStack Victoria on Ubuntu 20.04 LTS
 
+Disable automatic hook retries
+------------------------------
+
+For all upgrade types it is recommended to disable automatic hook retries
+within the model containing the cloud. This will prevent the charms from
+attempting to resolve any encountered problems, thus providing an early
+opportunity for the operator to respond accordingly.
+
+Assuming the cloud model is the current working model turn off hook retries in
+this way:
+
+.. code-block:: none
+
+   juju model-config automatically-retry-hooks=false
+
+This change should normally be reverted once the upgrade is completed.
+
 Next steps
 ----------
 

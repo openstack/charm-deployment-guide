@@ -116,13 +116,18 @@ The steps are as follows:
 
 #. Perform a series upgrade on the principal leader machine.
 
-   #. Perform any pre-upgrade workload maintenance tasks.
+   #. Disable :ref:`Unattended upgrades <unattended_upgrades>`.
+
+   #. Perform any pre-upgrade :ref:`workload maintenance tasks
+      <workload_maintenance>`.
 
    #. Invoke the :command:`prepare` sub-command.
 
    #. Upgrade the operating system (APT commands).
 
    #. Perform any post-upgrade workload maintenance tasks.
+
+   #. Re-enable Unattended upgrades.
 
    #. Reboot.
 

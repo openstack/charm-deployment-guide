@@ -118,8 +118,21 @@ making any changes.
 * The Juju model comprising the cloud should be error-free (e.g. there should
   be no charm hook errors).
 
-* `Automatic package updates`_ should be disabled on the nodes to avoid
-  potential conflicts with the manual (or scripted) APT steps.
+.. _unattended_upgrades:
+
+Unattended upgrades
+-------------------
+
+Automatic package updates should be disabled on a node that is about to undergo
+a series upgrade. This is to avoid potential conflicts with the manual (or
+scripted) APT steps. One way to achieve this is with:
+
+.. code-block:: none
+
+   sudo dpkg-reconfigure -plow unattended-upgrades
+
+Once the upgrade is complete it is advised to re-enable unattended upgrades for
+security reasons.
 
 .. _workload_specific_preparations:
 
@@ -137,6 +150,8 @@ charms. Some charms, especially third-party charms, may either not have
 implemented series upgrade yet or simply may not work with the target series.
 Pay particular attention to SDN (software defined networking) and storage
 charms as these play a crucial role in cloud operations.
+
+.. _workload_maintenance:
 
 Workload maintenance
 ~~~~~~~~~~~~~~~~~~~~
@@ -321,7 +336,6 @@ appendix :doc:`Series upgrade OpenStack <upgrade-series-openstack>`.
 .. _OpenStack upgrade: upgrade-openstack.html
 .. _Known OpenStack upgrade issues: upgrade-issues.html
 .. _series upgrade: https://juju.is/docs/upgrading-series
-.. _automatic package updates: https://help.ubuntu.com/lts/serverguide/automatic-updates.html.en
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
 .. _Application leadership: https://juju.is/docs/implementing-leadership
 .. _ubuntu: https://jaas.ai/ubuntu
