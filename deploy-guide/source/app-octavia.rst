@@ -69,6 +69,7 @@ Neutron ML2+OVS
    juju add-relation octavia keystone
    juju add-relation octavia neutron-openvswitch
    juju add-relation octavia neutron-api
+   juju config neutron-api enable-ml2-port-security=True
 
    juju deploy octavia-dashboard
    juju add-relation octavia-dashboard openstack-dashboard
@@ -84,6 +85,7 @@ Neutron ML2+OVN
    juju add-relation octavia keystone
    juju add-relation octavia ovn-chassis
    juju add-relation octavia neutron-api
+   juju config neutron-api enable-ml2-port-security=True
 
    juju deploy octavia-dashboard
    juju add-relation octavia-dashboard openstack-dashboard
