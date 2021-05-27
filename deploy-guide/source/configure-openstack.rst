@@ -276,8 +276,8 @@ In order to get a fixed IP address to access any created instances we need a
 project-specific network with a private subnet. We'll also need a router to
 link this network to the public network created earlier.
 
-The non-admin user now creates a private internal network called 'user1-net'
-and an accompanying subnet called 'user1-subnet' (the DNS server is pointing to
+The non-admin user now creates a private internal network called 'user1_net'
+and an accompanying subnet called 'user1_subnet' (the DNS server is pointing to
 the MAAS server at 10.0.0.2):
 
 .. code-block:: none
@@ -287,7 +287,7 @@ the MAAS server at 10.0.0.2):
    openstack subnet create --network user1_net --dns-nameserver 10.0.0.2 \
       --gateway 192.168.0.1 --subnet-range 192.168.0/24 \
       --allocation-pool start=192.168.0.10,end=192.168.0.200 \
-      int_subnet
+      user1_subnet
 
 Now a router called 'user1_router' is created, added to the subnet, and told to
 use the public external network as its gateway network:
