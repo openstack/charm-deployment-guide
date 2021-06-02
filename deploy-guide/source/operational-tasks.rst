@@ -16,3 +16,4 @@ having these operations applied to it.
 * :doc:`Start MySQL InnoDB Cluster from a complete outage <ops-start-innodb-from-outage>`
 * :doc:`Implement automatic Glance image updates <ops-auto-glance-image-updates>`
 * :doc:`Use OpenStack as a backing cloud for Juju <ops-use-openstack-to-back-juju>`
+* :doc:`Implement HA with a VIP <ops-implement-ha-with-vip>`
