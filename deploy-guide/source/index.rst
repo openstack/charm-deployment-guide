@@ -45,7 +45,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    :caption: Compute
    :maxdepth: 1
 
-   app-nova-cells
+   nova-cells
    app-pci-passthrough-gpu
 
 .. toctree::
