@@ -9,7 +9,6 @@
 /some/other/project/config-openstack.html 200
 /project-deploy-guide/foo/config-openstack.html 200
 
-# Refactoring docs moved config-openstack to configure-openstack
 # Make sure new redirects work
 /project-deploy-guide/charm-deployment-guide/victoria/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/victoria/configure-openstack.html
 /project-deploy-guide/charm-deployment-guide/latest/config-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-openstack.html
@@ -17,4 +16,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade-openstack.html 301 /project-deploy-guide/charm-deployment-guide/latest/upgrade-series-openstack.html
 /project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade.html 301 /project-deploy-guide/charm-deployment-guide/latest/upgrade-series.html
 /project-deploy-guide/charm-deployment-guide/latest/app-series-upgrade-specific-procedures.html 301 /project-deploy-guide/charm-deployment-guide/latest/percona-series-upgrade-to-focal.html
-
+/project-deploy-guide/charm-deployment-guide/latest/app-swift.html 301 /project-deploy-guide/charm-deployment-guide/latest/swift.html

@@ -89,7 +89,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-ceph-rbd-mirror
    cinder-volume-replication
    app-manila-ganesha
-   app-swift
+   swift
 
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug
