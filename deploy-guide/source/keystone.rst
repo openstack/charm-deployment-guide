@@ -59,6 +59,8 @@ The charm will enter a blocked state if the value of charm option
 ``password-security-compliance`` is not in valid YAML format and/or the
 individual service options do not conform to the proper value formats.
 
+.. _keyston_tokens:
+
 Token support
 -------------
 
@@ -185,7 +187,7 @@ default rotation frequency:
 
 * ``token-expiration``: 3600 sec (1 hour)
 * ``fernet-max-active-keys``: 3
-* rotation frequency: 3600 sec (1 hour)
+* ``rotation frequency``: 3600 sec (1 hour)
 
 Token validation breakage
 ~~~~~~~~~~~~~~~~~~~~~~~~~
