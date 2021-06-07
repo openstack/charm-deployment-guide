@@ -335,7 +335,7 @@ appendix :doc:`Series upgrade OpenStack <upgrade-series-openstack>`.
 .. _Charms upgrade: upgrade-charms.html
 .. _OpenStack upgrade: upgrade-openstack.html
 .. _Known OpenStack upgrade issues: upgrade-issues.html
-.. _series upgrade: https://juju.is/docs/upgrading-series
+.. _series upgrade: https://discourse.charmhub.io/t/upgrading-a-machines-series
 .. _Ubuntu OpenStack release cycle: https://ubuntu.com/about/release-cycle#ubuntu-openstack-release-cycle
-.. _Application leadership: https://juju.is/docs/implementing-leadership
+.. _Application leadership: https://discourse.charmhub.io/t/implementing-leadership
 .. _ubuntu: https://jaas.ai/ubuntu

@@ -801,9 +801,9 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _Series upgrade: upgrade-series.html
 .. _Charm store: https://jaas.ai/store
 .. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
-.. _Deploying applications: https://juju.is/docs/deploying-applications
-.. _Deploying to specific machines: https://juju.is/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
-.. _Managing relations: https://juju.is/docs/relations
+.. _Deploying applications: https://juju.is/docs/olm/deploying-applications
+.. _Deploying to specific machines: https://juju.is/docs/olm/advanced-application-deployment#heading--deploying-to-specific-machines
+.. _Managing relations: https://juju.is/docs/olm/relations
 .. _vault charm: https://jaas.ai/vault/
 
 .. CHARMS

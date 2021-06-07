@@ -215,7 +215,7 @@ Based on the above, the ceph-mon charm does not require an upgrade.
    single-step upgrades only (N+1).
 
 .. LINKS
-.. _Upgrading applications: https://jaas.ai/docs/upgrading-applications
+.. _Upgrading applications: https://discourse.charmhub.io/t/upgrading-applications
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 
 .. _aodh: https://opendev.org/openstack/charm-aodh/

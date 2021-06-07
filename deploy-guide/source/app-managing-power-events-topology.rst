@@ -330,5 +330,5 @@ along with their HA status and machine type:
 - ``rabbitmq-server`` (natively HA; metal)
 
 .. LINKS
-.. _Application groups: https://jaas.ai/docs/application-groups
+.. _Application groups: https://discourse.charmhub.io/t/application-groups
 .. _Landscape project: https://landscape.canonical.com
