@@ -52,10 +52,10 @@ Generate a 16-character password string with the :command:`pwgen` utility:
 
 .. code-block:: none
 
-   pwgen -s 16 1
+   PASSWD=$(pwgen -s 16 1)
 
 Change the password with the below command. When prompted, enter the current
-password and then the new password (i.e. the generated string).
+password and then the new password (i.e. the output to ``echo $PASSWD``).
 
 .. caution::
 
@@ -85,7 +85,7 @@ Inform the keystone charm of the new password:
 
 .. code-block:: none
 
-   juju run -u keystone/leader -- leader-set 'admin_passwd=<new-password>'
+   juju run -u keystone/leader -- leader-set 'admin_passwd=$PASSWD'
 
 Verification
 ~~~~~~~~~~~~

@@ -109,9 +109,9 @@ For a single unit requiring three keys:
    export VAULT_CACERT="/home/ubuntu/tls/ca.crt"
    export VAULT_ADDR="https://vault.example.com:8200"
 
-   vault operator unseal <unseal-key-1>
-   vault operator unseal <unseal-key-2>
-   vault operator unseal <unseal-key-3>
+   vault operator unseal
+   vault operator unseal
+   vault operator unseal
 
 For multiple vault units, repeat the procedure by using a different value each
 time for ``VAULT_ADDR``.
