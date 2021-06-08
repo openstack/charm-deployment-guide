@@ -5,8 +5,8 @@ Bridge interface configuration
 Overview
 --------
 
-This appendix explores physical interface configuration options available for
-OVS and OVN charms.
+This page explores physical interface configuration options available for OVS
+and OVN charms.
 
 Available configuration options
 -------------------------------

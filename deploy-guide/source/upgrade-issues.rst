@@ -180,7 +180,7 @@ Neutron LBaaS: upgrading from Stein to Train
 
 As of Train, support for Neutron LBaaS has been retired. The load-balancing
 services are now provided by `Octavia LBaaS`_. There is no automatic migration
-path, please review the `Octavia LBaaS`_ appendix for more information.
+path, please review the `Octavia LBaaS`_ page for more information.
 
 Designate: upgrading from Stein to Train
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
