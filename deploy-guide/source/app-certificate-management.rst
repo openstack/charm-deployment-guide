@@ -265,14 +265,9 @@ below tests correspond to the clients mentioned in the previous section:
 Reissuing of certificates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To issue new certificates to all TLS-enabled clients run the
-``reissue-certificates`` action on the leader unit:
-
-.. code-block:: none
-
-   juju run-action --wait vault/leader reissue-certificates
-
-One reason for doing so is in the advent of expired certificates.
+New certificates can be reissued to all TLS-enabled clients by means of the
+``reissue-certificates`` action. See cloud operation :doc:`Reissue TLS
+certificates across the cloud <ops-reissue-tls-certs>` for details.
 
 .. LINKS
 .. _RFC5280: https://tools.ietf.org/html/rfc5280#section-3.2
