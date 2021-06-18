@@ -53,19 +53,18 @@ Here is the current list of deferred event-aware charms:
 Enabling and disabling deferred service events
 ----------------------------------------------
 
-To enable deferred service events for a charm make a configuration change:
+Deferred service events are disabled by default for all charms. To enable them
+for a charm:
 
 .. code-block:: none
 
    juju config <charm-name> enable-auto-restarts=False
 
-By default the feature is disabled.
-
 .. important::
 
    The ``enable-auto-restarts`` option can only be set post-deployment.
 
-To disable deferred service events:
+To disable deferred service events for a charm:
 
 .. code-block:: none
 
