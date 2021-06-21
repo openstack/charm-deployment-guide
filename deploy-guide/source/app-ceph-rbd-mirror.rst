@@ -356,4 +356,4 @@ Here, we make site 'a' be the primary by demoting site 'b' and promoting site
 .. _Ceph RADOS Gateway Multisite replication: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-rgw-multisite.html
 .. _RBD mirroring: https://docs.ceph.com/en/latest/rbd/rbd-mirroring
 .. _Geographical Redundancy with rbd-mirror: https://youtu.be/ZifNGprBUTA
-.. _Cross model relations: https://juju.is/docs/cross-model-relations
+.. _Cross model relations: https://juju.is/docs/olm/cross-model-relations
