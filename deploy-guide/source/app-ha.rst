@@ -808,7 +808,7 @@ Charms`_ project group.
 .. _mysql-innodb-cluster: https://opendev.org/openstack/charm-mysql-innodb-cluster/src/branch/master/src/README.md
 .. _percona-cluster: https://opendev.org/openstack/charm-percona-cluster/src/branch/master/README.md
 .. _rabbitmq-server: https://opendev.org/openstack/charm-rabbitmq-server/src/branch/master/README.md
-.. _Deploying to specific machines: https://jaas.ai/docs/deploying-advanced-applications#heading--deploying-to-specific-machines
+.. _Deploying to specific machines: https://juju.is/docs/olm/advanced-application-deployment#heading--deploying-to-specific-machines
 .. _Bundle reference: https://jaas.ai/docs/bundle-reference
 .. _Nova availability zone: https://docs.openstack.org/nova/latest/admin/availability-zones.html
 .. _Neutron availability zone: https://docs.openstack.org/neutron/latest/admin/config-az.html
