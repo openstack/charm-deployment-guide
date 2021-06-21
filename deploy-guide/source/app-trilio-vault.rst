@@ -23,6 +23,46 @@ Prerequisites
 * an NFS server for snapshot storage
 * a license (see the project's homepage)
 
+Supported combinations
+----------------------
+
+The below table shows the support status for versions of TrilioVault for each
+version of Ubuntu and OpenStack.
+
+.. list-table:: **Supported combinations**
+   :header-rows: 1
+   :widths: 12 12 20 20
+
+   * - Ubuntu
+     - OpenStack
+     - TrilioVault 4.0
+     - TrilioVault 4.1
+
+   * - Bionic
+     - Queens
+     - ✔
+     - ✔
+
+   * - Bionic
+     - Stein
+     - ✔
+     - ✔
+
+   * - Bionic
+     - Train
+     - ✔
+     - ✔
+
+   * - Bionic
+     - Ussuri
+     - X
+     - ✔
+
+   * - Focal
+     - Ussuri
+     - X
+     - ✔
+
 Deployment
 ----------
 
