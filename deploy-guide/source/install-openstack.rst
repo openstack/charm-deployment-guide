@@ -68,9 +68,9 @@ apply (exceptionally, Ceph applications do use this method). Not using a more
 recent OpenStack release in this way will result in an Ussuri deployment (i.e.
 Ussuri is in the Ubuntu package archive for Focal).
 
-See :ref:`Perform the upgrade <perform_the_upgrade>` in the :doc:`OpenStack
-Upgrade <upgrade-openstack>` appendix for more details on cloud archive
-releases and how they are used when upgrading OpenStack.
+See :ref:`Perform the upgrade <perform_the_upgrade>` on the :doc:`OpenStack
+Upgrade <upgrade-openstack>` page for more details on cloud archive releases
+and how they are used when upgrading OpenStack.
 
 .. important::
 

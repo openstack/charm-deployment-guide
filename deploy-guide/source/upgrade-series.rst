@@ -328,7 +328,7 @@ Next steps
 ----------
 
 When you are ready to perform a series upgrade across your cloud proceed to
-appendix :doc:`Series upgrade OpenStack <upgrade-series-openstack>`.
+the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` page.
 
 .. LINKS
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html

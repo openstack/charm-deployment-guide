@@ -197,7 +197,7 @@ requests to the application and the application itself.
 
    Highly available applications may require attention if subjected to a power
    event (see the :doc:`Managing power events <app-managing-power-events>`
-   appendix).
+   page).
 
 Cloud applications are typically made highly available through the use of
 techniques applied externally to the application itself (e.g. using a
@@ -762,7 +762,7 @@ deployment of OVN with MySQL 8:
    vault/0*                       active    idle   3/lxd/2  10.246.114.74   8200/tcp           Unit is ready (active: true, mlock: disabled)
      vault-mysql-router/0*        active    idle            10.246.114.74                      Unit is ready
 
-Refer to appendix :doc:`Open Virtual Network <app-ovn>` for more information on
+Refer to the :doc:`Open Virtual Network <app-ovn>` page for more information on
 how to deploy OVN.
 
 Other items of interest
