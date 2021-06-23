@@ -5,25 +5,18 @@ Ceph RADOS Gateway multisite replication
 Overview
 ++++++++
 
-The ceph-radosgw charm supports deployment of the Ceph RADOS Gateway (RGW)
-with native replication between ceph-radosgw applications.
-
-This is supported both within a single model and between different models
-using cross-model relations.
-
-.. warning::
-
-    Replication between ceph-radosgw applications is only supported in
-    Ceph Luminous or later.
-
-.. warning::
-
-    Switching from a standalone deployment to a multi-site replicated
-    deployment is not supported.
+Ceph RADOS Gateway (RGW) native replication between ceph-radosgw applications
+is supported both within a single model and between different models. By
+default, each application will accept write operations.
 
 .. note::
 
-    By default each ceph-radosgw application will accept write operations.
+   Multisite replication is supported starting with Ceph Luminous.
+
+.. warning::
+
+   Converting from a standalone deployment to a replicated deployment is not
+   supported.
 
 Deployment
 ++++++++++
