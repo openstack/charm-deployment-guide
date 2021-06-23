@@ -47,9 +47,12 @@ For a single unit requiring three keys (``vault/0`` with IP address
 
    export VAULT_ADDR="http://10.0.0.204:8200"
 
-   vault operator unseal <unseal-key-1>
-   vault operator unseal <unseal-key-2>
-   vault operator unseal <unseal-key-3>
+   vault operator unseal
+   vault operator unseal
+   vault operator unseal
+
+You will be prompted for the unseal keys. The information will not be echoed
+back to the screen nor captured in the shell's history.
 
 The output to :command:`juju status vault` should eventually contain:
 
