@@ -1,13 +1,13 @@
 :orphan:
 
-=======================================
-Scale down the nova-compute application
-=======================================
+=====================================
+Scale in the nova-compute application
+=====================================
 
 Preamble
 --------
 
-Scaling down the nova-compute application implies the removal of one or more
+Scaling in the nova-compute application implies the removal of one or more
 nova-compute units (i.e. compute nodes). This is easily done with generic Juju
 commands and actions available to the nova-compute charm.
 
