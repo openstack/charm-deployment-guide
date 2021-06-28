@@ -35,6 +35,13 @@ It is assumed that all six systems are physical in nature. Although not a
 requirement, the Juju and cloud nodes used here are of the AMD64 architecture
 type.
 
+.. note::
+
+   A full MAAS deployed OpenStack environment can be deployed for test
+   environments using virtual machines. In such a case, nested virtualisation
+   should be enabled on the hosts running the virtual machines which make up
+   the infrastructure.
+
 MAAS is also considered to be the sole provider of DHCP and DNS for the network
 hosting the MAAS cluster.
 
