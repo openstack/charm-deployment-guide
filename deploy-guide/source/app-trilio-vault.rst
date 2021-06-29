@@ -20,7 +20,7 @@ Prerequisites
 
 * Ubuntu 18.04 LTS or 20.04 LTS
 * OpenStack Queens, Stein, Train or Ussuri
-* an NFS server for snapshot storage
+* an NFS server for snapshot storage or S3 compatible storage
 * a license (see the project's homepage)
 
 Supported combinations
@@ -149,20 +149,91 @@ is provided below.
    These parts of the TrilioVault deployment are Python 3 only and have
    dependency version requirements that are only supported from Train onwards.
 
-NFS
----
+Configure storage
+-----------------
 
 Once the deployment completes the trilio-wlm and trilio-data-mover applications
 will be in a blocked state (see :command:`juju status`). To rectify this, both
-applications must be configured with a valid NFS share (on the provided NFS
-server). For example:
+applications must be have their workload backup storage configured.
+
+TrilioVault supports NFS and S3 backends for storing workload backups. The
+storage type used by TrilioVault is determined by the ``backup-target-type``
+configuration option in the trilio-data-mover and trilio-wlm charms.
+
+.. warning::
+
+   Switching between S3 and NFS backups types is not supported or tested.
+
+NFS
+~~~
+
+To configure for an NFS backend:
 
 .. code-block:: none
 
-   juju config trilio-wlm nfs-shares=10.40.3.20:/srv/triliovault
-   juju config trilio-data-mover nfs-shares=10.40.3.20:/srv/triliovault
+   juju config trilio-data-mover backup-target-type=nfs
+   juju config trilio-wlm backup-target-type=nfs
 
-Both services must be configured with the same NFS share.
+Secondly, point both the trilio-wlm and trilio-data-mover
+applications to the same NFS share(s):
+
+.. code-block:: none
+
+   juju config trilio-data-mover nfs-shares=10.40.3.20:/srv/triliovault
+   juju config trilio-wlm nfs-shares=10.40.3.20:/srv/triliovault
+
+Multiple NFS shares can be specified by using a comma seperated list:
+
+.. code-block:: none
+
+   juju config trilio-data-mover nfs-shares="10.40.3.20:/srv/triliovault,10.40.3.30:/srv/triliovault2"
+   juju config trilio-wlm nfs-shares="10.40.3.20:/srv/triliovault,10.40.3.30:/srv/triliovault2"
+
+Mount settings for the NFS shares can be passed via the `nfs-options`
+config option in the trilio-wlm and trilio-data-mover charms.
+
+.. code-block:: none
+
+   juju config trilio-data-mover nfs-options="nolock,soft,timeo=180,intr,lookupcache=none"
+   juju config trilio-wlm nfs-options="nolock,soft,timeo=180,intr,lookupcache=none"
+
+S3
+~~
+
+To configure for an S3 backend:
+
+.. code-block:: none
+
+   juju config trilio-data-mover backup-target-type=s3
+   juju config trilio-wlm backup-target-type=s3
+
+Parameters that describe the S3 service are passed with configuration
+options available to both the trilio-wlm and trilio-data-mover charms:
+
+* ``tv-s3-endpoint-url`` the URL of the S3 storage (can be omitted if using AWS)
+* ``tv-s3-secret-key`` the secret key for accessing the S3 storage
+* ``tv-s3-access-key`` the access key for accessing the S3 storage
+* ``tv-s3-region-name`` the region for accessing the S3 storage
+* ``tv-s3-bucket`` the S3 bucket to use to storage backups in
+* ``tv-s3-ssl-cert`` the SSL CA to use when connecting to the S3 service
+
+Options are set to the same value for both applications. For example:
+
+.. code-block:: none
+
+   juju config trilio-data-mover tv-s3-endpoint-url=http://s3.example.com/
+   juju config trilio-data-mover tv-s3-secret-key=superSecretKey
+   juju config trilio-data-mover tv-s3-access-key=secretAccessKey
+   juju config trilio-data-mover tv-s3-region-name=RegionOne
+   juju config trilio-data-mover tv-s3-bucket=backups
+   juju config trilio-wlm tv-s3-endpoint-url=http://s3.example.com/
+   juju config trilio-wlm tv-s3-secret-key=superSecretKey
+   juju config trilio-wlm tv-s3-access-key=secretAccessKey
+   juju config trilio-wlm tv-s3-region-name=RegionOne
+   juju config trilio-wlm tv-s3-bucket=backups
+
+The required parameters are dependent upon the given S3 service,
+making the setting of some charm options unnecessary.
 
 Authorisation
 -------------
