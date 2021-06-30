@@ -20,3 +20,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-rgw-multisite.html 301 /project-deploy-guide/charm-deployment-guide/latest/rgw-multisite.html
 /project-deploy-guide/charm-deployment-guide/latest/app-nova-cells.html 301 /project-deploy-guide/charm-deployment-guide/latest/nova-cells.html
 /project-deploy-guide/charm-deployment-guide/latest/app-bridge-interface-configuration.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html
+/project-deploy-guide/charm-deployment-guide/latest/app-encryption-at-rest.html 301 /project-deploy-guide/charm-deployment-guide/latest/encryption-at-rest.html
