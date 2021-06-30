@@ -7,3 +7,4 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-seri
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-swift.html$ /project-deploy-guide/charm-deployment-guide/$1/swift.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-rgw-multisite.html$ /project-deploy-guide/charm-deployment-guide/$1/rgw-multisite.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-nova-cells.html$ /project-deploy-guide/charm-deployment-guide/$1/nova-cells.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-bridge-interface-configuration.html$ /project-deploy-guide/charm-deployment-guide/$1/configure-bridge.html

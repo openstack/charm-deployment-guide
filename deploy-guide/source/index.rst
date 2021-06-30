@@ -55,7 +55,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-ovn
    app-hardware-offload
    app-octavia
-   app-bridge-interface-configuration
+   configure-bridge
 
 .. toctree::
    :caption: High availability

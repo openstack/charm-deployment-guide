@@ -13,14 +13,17 @@ Available configuration options
 
 For both OVS and OVN charms there is a need to provide physical interfaces for
 vSwitch bridges in order to be able to use VLAN and flat provider networks in
-Neutron:
+Neutron.
 
-* OVS charms with ``data-port`` config:
-  * ``neutron-openvswitch``;
-  * ``neutron-gateway``;
-* OVN charms with ``bridge-interface-mappings`` config:
-  * ``ovn-chassis``;
-  * ``ovn-dedicated-chassis``.
+These OVS charms use the ``data-port`` configuration option:
+
+* neutron-openvswitch
+* neutron-gateway
+
+These OVN charms use the ``bridge-interface-mappings`` configuration option:
+
+* ovn-chassis
+* ovn-dedicated-chassis
 
 .. important::
 

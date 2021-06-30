@@ -19,3 +19,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-swift.html 301 /project-deploy-guide/charm-deployment-guide/latest/swift.html
 /project-deploy-guide/charm-deployment-guide/latest/app-rgw-multisite.html 301 /project-deploy-guide/charm-deployment-guide/latest/rgw-multisite.html
 /project-deploy-guide/charm-deployment-guide/latest/app-nova-cells.html 301 /project-deploy-guide/charm-deployment-guide/latest/nova-cells.html
+/project-deploy-guide/charm-deployment-guide/latest/app-bridge-interface-configuration.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html
