@@ -389,8 +389,40 @@ configuration option. See config.yaml for more details.
    Changing dpdk related configuration options will trigger a restart of
    Open vSwitch, and subsequently interrupt instance connectivity.
 
+Charm configuration
+^^^^^^^^^^^^^^^^^^^
+
+The below example bundle excerpt will enable the use of DPDK for an OVN
+deployment.
+
+.. code-block:: yaml
+
+   ovn-chassis-dpdk:
+     options:
+       enable-dpdk: True
+       bridge-interface-mappings: br-ex:00:53:00:00:00:42
+   ovn-chassis:
+     options:
+       enable-dpdk: False
+       bridge-interface-mappings: br-ex:bond0
+       prefer-chassis-as-gw: True
+
+.. caution::
+
+   As configured by the charms, the units configured to use DPDK will not
+   participate in the overlay network and will also not be able to provide
+   services such as external DHCP to SR-IOV enabled units in the same
+   deployment.
+
+   As such it is important to have at least one other named ovn-chassis
+   application in the deployment with ``enable-dpdk`` set to 'False' and the
+   ``prefer-chassis-as-gw`` configuration option set to 'True'. Doing so will
+   inform the CMS (Cloud Management System) that shared services such as
+   gateways and external DHCP services should not be scheduled to the
+   DPDK-enabled nodes.
+
 DPDK bonding
-^^^^^^^^^^^^
+............
 
 Once Network interface cards are bound to DPDK they will be invisible to the
 standard Linux kernel network stack and subsequently it is not possible to use
@@ -402,12 +434,17 @@ This is accomplished through the ``dpdk-bond-mappings`` and
 
 .. code:: yaml
 
-   ovn-chassis:
+   ovn-chassis-dpdk:
      options:
        enable-dpdk: True
        bridge-interface-mappings: br-ex:dpdk-bond0
        dpdk-bond-mappings: "dpdk-bond0:00:53:00:00:00:42 dpdk-bond0:00:53:00:00:00:51"
        dpdk-bond-config: ":balance-slb:off:fast"
+   ovn-chassis:
+     options:
+       enable-dpdk: False
+       bridge-interface-mappings: br-ex:bond0
+       prefer-chassis-as-gw: True
 
 In this example, the network interface cards associated with the two MAC
 addresses provided will be used to build a bond identified by a port named
@@ -488,6 +525,9 @@ Chassis without direct external mapping to a external Layer3 network will
 forward traffic through a tunnel to one of the chassis acting as a gateway for
 that network.
 
+Networks for use with external Layer2 connectivity should have mappings present
+on all chassis with potential to host the consuming payload.
+
 .. note::
 
    It is not necessary nor recommended to add mapping for external
@@ -496,7 +536,7 @@ that network.
    Layer2 (does not scale) or tunneling at the top-of-rack switch layer (adds
    complexity) and is generally not a recommended configuration.
 
-Example configuration:
+Example configuration with explicit bridge-interface-mappings:
 
 .. code:: bash
 
@@ -512,8 +552,24 @@ Example configuration:
                            --no-dhcp --gateway 192.0.2.1 \
                            ext
 
-Networks for use with external Layer2 connectivity should have mappings present
-on all chassis with potential to host the consuming payload.
+It is also possible to influence the scheduling of routers on a per named
+ovn-chassis application basis. The benefit of this method is that you do not
+need to provide MAC addresses when configuring Layer3 connectivity in the
+charm. For example:
+
+.. code-block:: none
+
+   juju config ovn-chassis-border \
+      ovn-bridge-mappings=physnet1:br-provider \
+      bridge-interface-mappings=br-provider:bond0 \
+      prefer-chassis-as-gw=true
+
+   juju config ovn-chassis \
+      ovn-bridge-mappings=physnet1:br-provider \
+      bridge-interface-mappings=br-provider:bond0 \
+
+In the above example units of the ovn-chassis-border application with
+appropriate bridge mappings will be eligible for router scheduling.
 
 Usage
 -----
