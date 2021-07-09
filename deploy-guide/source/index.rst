@@ -45,6 +45,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    :caption: Compute
    :maxdepth: 1
 
+   ironic
    nova-cells
    app-pci-passthrough-gpu
 
