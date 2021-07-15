@@ -57,10 +57,11 @@ HA applications
 ~~~~~~~~~~~~~~~
 
 Theoretically, an application with high availability is resilient to a power
-event, meaning that one would have no impact on both client requests to the
-application and the application itself. However, depending on the situation,
-some such applications may still require attention when starting back up. The
-`percona-cluster`_ application is a good example of this.
+event, meaning that such an event would have no impact on both client requests
+to the application and the application itself. However, depending on the
+situation, some such applications may still require attention when starting
+back up. The `percona-cluster`_ and `mysql-innodb-cluster`_ applications are
+good examples of this.
 
 Cloud applications are typically made highly available through the use of the
 `hacluster`_ subordinate charm. Some applications, though, achieve HA at the
@@ -106,7 +107,7 @@ turned off in any order.
 
 In the below list, the most notable aspects are the extremes: nova-compute and
 Ceph should be stopped first and keystone, rabbitmq-server, and percona-cluster
-should be stopped last:
+(or mysql-innodb-cluster) should be stopped last:
 
 #. ``nova-compute`` (DP)
 #. ``ceph-osd`` (DP)
@@ -122,7 +123,7 @@ should be stopped last:
 #. ``nova-cloud-controller`` (CP)
 #. ``keystone`` (CP)
 #. ``rabbitmq-server`` (CP)
-#. ``percona-cluster`` (CP)
+#. ``percona-cluster`` or ``mysql-innodb-cluster`` (CP)
 
 Each node can now be analysed to see what applications it hosts and in what
 order they should be stopped.
@@ -288,13 +289,15 @@ cloud.
 For convenience, the applications are listed here (you can also use the table
 of contents in the upper left-hand-side):
 
-+-----------------+-----------+--------------------+--------------------------+--------------------+
-| `ceph-osd`_     | `cinder`_ | `keystone`_        | `neutron-openvswitch`_   | `percona-cluster`_ |
-+-----------------+-----------+--------------------+--------------------------+--------------------+
-| `ceph-mon`_     | `etcd`_   | `landscape`_       | `nova-compute`_          | `rabbitmq-server`_ |
-+-----------------+-----------+--------------------+--------------------------+--------------------+
-| `ceph-radosgw`_ | `glance`_ | `neutron-gateway`_ | `nova-cloud-controller`_ | `vault`_           |
-+-----------------+-----------+--------------------+--------------------------+--------------------+
++-----------------+--------------+-------------------------+--------------------------+
+| `ceph-osd`_     | `etcd`_      | `mysql-innodb-cluster`_ | `nova-cloud-controller`_ |
++-----------------+--------------+-------------------------+--------------------------+
+| `ceph-mon`_     | `glance`_    | `neutron-gateway`_      | `percona-cluster`_       |
++-----------------+--------------+-------------------------+--------------------------+
+| `ceph-radosgw`_ | `keystone`_  | `neutron-openvswitch`_  | `rabbitmq-server`_       |
++-----------------+--------------+-------------------------+--------------------------+
+| `cinder`_       | `landscape`_ | `nova-compute`_         | `vault`_                 |
++-----------------+-----------+----------------------------+--------------------------+
 
 -------------------------------------------------------------------------------
 
@@ -685,6 +688,104 @@ The startup of Landscape should be done in the reverse order.
 3. Resume the Landscape service::
 
     juju run-action --wait landscape-server/0 pause
+
+-------------------------------------------------------------------------------
+
+mysql-innodb-cluster
+~~~~~~~~~~~~~~~~~~~~
+
+shutdown
+^^^^^^^^
+
+To pause the MySQL InnoDB Cluster for a mysql-innodb-cluster unit:
+
+.. code-block:: none
+
+   juju run-action --wait mysql-innodb-cluster/0 pause
+
+To gracefully shut down the cluster repeat the above for every unit.
+
+startup
+^^^^^^^
+
+A special startup procedure is necessary regardless of how services were shut
+down (gracefully, hard shutdown, or power outage).
+
+Upon startup the cluster will need to be initialised. It is recommended to read
+the upstream document `Rebooting a Cluster from a Major Outage`_ before
+proceeding.
+
+At this time the output to command :command:`juju status mysql-innodb-cluster`
+should look similar to:
+
+.. code-block:: console
+
+   App                   Version  Status   Scale  Charm                 Store       Channel  Rev  OS      Message
+   mysql-innodb-cluster  8.0.25   blocked      3  mysql-innodb-cluster  charmstore  stable     7  ubuntu  Cluster is inaccessible from this instance. Please check logs for details.
+
+   Unit                     Workload  Agent  Machine  Public address  Ports  Message
+   mysql-innodb-cluster/0   blocked   idle   0/lxd/2  10.0.0.240             Cluster is inaccessible from this instance. Please check logs for details.
+   mysql-innodb-cluster/1   blocked   idle   1/lxd/2  10.0.0.208             Cluster is inaccessible from this instance. Please check logs for details.
+   mysql-innodb-cluster/2*  blocked   idle   2/lxd/2  10.0.0.218             Cluster is inaccessible from this instance. Please check logs for details.
+
+Determine the GTID node
+"""""""""""""""""""""""
+
+A Juju action needs to be run on the mysql-innodb-cluster unit that corresponds
+to the cluster member that possesses the GTID superset (of transactions). This
+is the unit that is most up-to-date in terms of cluster activity. The GTID node
+therefore needs to be determined. In practice however, it is much easier to
+simply run the action on any unit and, if it is the incorrect unit, have it
+report which unit does have the GTID. This is the method that will be used
+here.
+
+Initialise the cluster
+""""""""""""""""""""""
+
+Initialise the cluster by running the ``reboot-cluster-from-complete-outage``
+action on any unit:
+
+.. code-block:: none
+
+   juju run-action --wait mysql-innodb-cluster/1 reboot-cluster-from-complete-outage
+
+Here we see, in the command's partial output, that the chosen unit does not
+correspond to the GTID node:
+
+.. code-block:: console
+
+   RuntimeError: Dba.reboot_cluster_from_complete_outage: The active session instance (10.0.0.208:3306)
+   isn't the most updated in comparison with the ONLINE instances of the Cluster's metadata.
+   Please use the most up to date instance: '10.0.0.218:3306'.
+
+This says that the GTID node has an IP address of 10.0.0.218. For us, this
+corresponds to unit ``mysql-innodb-cluster/2``. Therefore:
+
+.. code-block:: none
+
+   juju run-action --wait mysql-innodb-cluster/2 reboot-cluster-from-complete-outage
+
+This time, the output should include:
+
+.. code-block:: console
+
+   results:
+     outcome: Success
+     output: ""
+   status: completed
+
+The mysql-innodb-cluster application should now be back to a clustered and
+healthy state:
+
+.. code-block:: console
+
+   App                   Version  Status  Scale  Charm                 Store       Channel  Rev  OS      Message
+   mysql-innodb-cluster  8.0.25   active      3  mysql-innodb-cluster  charmstore  stable     7  ubuntu  Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+
+   Unit                     Workload  Agent  Machine  Public address  Ports  Message
+   mysql-innodb-cluster/0   active    idle   0/lxd/2  10.0.0.240             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/1   active    idle   1/lxd/2  10.0.0.208             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/2*  active    idle   2/lxd/2  10.0.0.218             Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
 
 -------------------------------------------------------------------------------
 
@@ -1224,6 +1325,7 @@ Charms`_ project group.
 .. _Queues: https://www.rabbitmq.com/queues.html
 .. _force_boot: https://www.rabbitmq.com/rabbitmqctl.8.html#force_boot
 .. _Restarting Cluster Nodes: https://www.rabbitmq.com/clustering.html#restarting
+.. _Rebooting a Cluster from a Major Outage: https://dev.mysql.com/doc/mysql-shell/8.0/en/troubleshooting-innodb-cluster.html#reboot-outage
 
 .. BUGS
 .. _LP #1804261: https://bugs.launchpad.net/charm-ceph-osd/+bug/1804261
