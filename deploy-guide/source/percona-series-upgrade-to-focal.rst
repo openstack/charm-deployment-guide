@@ -93,14 +93,54 @@ On a per-application basis:
 
        juju run-action --wait percona-cluster/0 set-pxc-strict-mode mode=MASTER
 
+  * Here is a non-exhaustive example that lists databases using the :command:`mysql` client:
+
+    .. code-block:: none
+
+       mysql> SHOW DATABASES;
+       +--------------------+
+       | Database           |
+       +--------------------+
+       | information_schema |
+       | aodh               |
+       | cinder             |
+       | designate          |
+       | dpm                |
+       | glance             |
+       | gnocchi            |
+       | horizon            |
+       | keystone           |
+       | mysql              |
+       | neutron            |
+       | nova               |
+       | nova_api           |
+       | nova_cell0         |
+       | performance_schema |
+       | placement          |
+       | sys                |
+       +--------------------+
+       17 rows in set (0.10 sec)
+
   * Dump the specific application's database(s).
 
     .. note::
 
-       Depending on downtime restrictions it is possible to dump all databases at
-       one time: run the ``mysqldump`` action without setting the ``databases``
-       parameter.  Similarly, it is possible to import all the databases into
+       Depending on downtime restrictions it is possible to dump all OpenStack
+       databases at one time: run the ``mysqldump`` action and select them via
+       the ``databases`` parameter. For example: 
+       ``databases=keystone,cinder,glance,nova,nova_api,nova_cell0,horizon``
+
+       Similarly, it is possible to import all the databases into
        mysql-innodb-clulster from that single dump file.
+
+    .. warning::
+
+       Do not (back up and) restore the Percona Cluster version of the 'mysql',
+       'performance_schema', 'dpm', 'sys' or any other system specific
+       databases into the MySQL Innodb Cluster. Doing so will corrupt the DB
+       and necessitate the destruction and re-creation of the
+       mysql-innodb-cluster application. For more information see bug `LP
+       #1936210`_.
 
     .. note::
 
@@ -117,7 +157,8 @@ On a per-application basis:
        juju run-action --wait percona-cluster/0 mysqldump databases=keystone
 
        # Multiple DBs
-       juju run-action --wait percona-cluster/0 mysqldump databases=nova,nova_api,nova_cell0
+       juju run-action --wait percona-cluster/0 mysqldump \
+       databases=aodh,cinder,designate,glance,gnochii,horizon,keystone,neutron,nova,nova_api,nova_cell0,placement
 
   * Return Percona enforcing strict mode. See `Percona strict mode`_ to
     understand the implications of this setting.
@@ -172,3 +213,4 @@ its probable hacluster subordinates) may be removed.
 .. _Zaza migration code: https://github.com/openstack-charmers/zaza-openstack-tests/blob/master/zaza/openstack/charm_tests/mysql/tests.py#L556
 .. _Percona strict mode: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/features/pxc-strict-mode.html
 .. _Series upgrade OpenStack: upgrade-series-openstack.html
+.. _`LP #1936210`: https://bugs.launchpad.net/charm-deployment-guide/+bug/1936210
