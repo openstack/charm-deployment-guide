@@ -507,6 +507,6 @@ contains the Juju "offers" that ``swift-sf.yaml`` will consume:
 .. LINKS
 .. _deploying OpenStack: install-openstack
 .. _Global clusters: https://docs.openstack.org/swift/latest/overview_global_cluster.html
-.. _Cross model relations: https://jaas.ai/docs/cross-model-relations
+.. _Cross model relations: https://juju.is/docs/olm/cross-model-relations
 .. _swift-proxy: https://jaas.ai/swift-proxy
 .. _swift-storage: https://jaas.ai/swift-storage
