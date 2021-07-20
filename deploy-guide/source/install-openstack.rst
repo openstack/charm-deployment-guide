@@ -425,7 +425,7 @@ Nova cloud controller
 ~~~~~~~~~~~~~~~~~~~~~
 
 The nova-cloud-controller application, which includes nova-scheduler, nova-api,
-and nova-conductor services, will be containerised on machine 0 with the
+and nova-conductor services, will be containerised on machine 3 with the
 `nova-cloud-controller`_ charm. File ``nova-cloud-controller.yaml`` contains
 the configuration:
 
