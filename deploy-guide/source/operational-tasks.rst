@@ -15,3 +15,4 @@ having these operations applied to it.
 * :doc:`Scale out the nova-compute application <ops-scale-out-nova-compute>`
 * :doc:`Start MySQL InnoDB Cluster from a complete outage <ops-start-innodb-from-outage>`
 * :doc:`Implement automatic Glance image updates <ops-auto-glance-image-updates>`
+* :doc:`Use OpenStack as a backing cloud for Juju <ops-use-openstack-to-back-juju>`
