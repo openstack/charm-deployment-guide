@@ -262,6 +262,7 @@ Enable SR-IOV, map physical network name 'physnet2' to the physical port named
 
 .. code-block:: none
 
+   juju config neutron-api enable-sriov=true
    juju config ovn-chassis enable-sriov=true
    juju config ovn-chassis sriov-device-mappings=physnet2:enp3s0f0
    juju config ovn-chassis sriov-numvfs=enp3s0f0:4
