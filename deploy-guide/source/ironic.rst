@@ -34,8 +34,30 @@ There are three Ironic charms:
 Deployment considerations
 -------------------------
 
-See `Example Bundle`_ for a known working configuration.
+See `Example Bundle`_ for a known working configuration. The bundle deploys an
+instantiation of nova-compute dedicated to Ironic. The ``virt-type`` is set to
+'ironic' in order to indicate to Nova that bare metal deployments are available.
 
+.. note::
+
+   The Ironic instantiation of nova-compute does not require compute or network
+   resources and can therefore be deployed in a LXD container.
+
+.. code-block:: yaml
+
+   nova-ironic:
+     charm: cs:~openstack-charmers-next/nova-compute
+     series: focal
+     num_units: 1
+     bindings:
+       "": *oam-space
+     options:
+       enable-live-migration: false
+       enable-resize: false
+       openstack-origin: *openstack-origin
+       virt-type: ironic
+     to:
+       - "lxd:3"
 
 Network topology
 ~~~~~~~~~~~~~~~~
@@ -85,9 +107,14 @@ The view from inside OpenStack will look something like:
 
 .. note::
 
-   Ironic conductor (in the control plane cloud above) requires routed network
-   access to the power management interfaces for the bare metal nodes (not
+   Ironic conductor (in the control plane cloud above) requires network
+   connectivity both to the bare metal nodes on the bare metal deployment
+   network and to the power management interfaces for the bare metal nodes (not
    shown in the diagram above).
+
+   In addition, the baremetal nodes themselves require network connectivity to
+   the ironic-api to acquire metadata and the object-store (Swift or RadosGW)
+   to acquire images.
 
 Swift backend for Glance
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -233,33 +260,33 @@ backend if we plan to use direct deploy mode:
 
    for release in bionic focal
    do
-     openstack image create \
+     glance image-create \
         --store swift \
+        --name baremetal-${release} \
         --disk-format raw \
         --container-format bare \
-        --file $IMAGE_DIR/baremetal-ubuntu-${release}.img \
-        baremetal-$release
+        --file $IMAGE_DIR/baremetal-ubuntu-${release}.img
    done
 
 Upload IPA images:
 
 .. code-block:: none
 
-   openstack image create \
-     --store swift \
-     --disk-format aki \
-     --container-format aki \
-     --public \
-     --file $IMAGE_DIR/ironic-python-agent.kernel \
-     deploy-vmlinuz
+   glance image-create \
+       --store swift \
+       --name deploy-vmlinuz \
+       --disk-format aki \
+       --container-format aki \
+       --visibility public \
+       --file $IMAGE_DIR/ironic-python-agent.kernel
 
-   openstack image create \
-     --store swift \
-     --disk-format ari \
-     --container-format ari \
-     --public \
-     --file $IMAGE_DIR/ironic-python-agent.initramfs \
-     deploy-initrd
+   glance image-create \
+       --store swift \
+       --name deploy-initrd \
+       --disk-format ari \
+       --container-format ari \
+       --visibility public \
+       --file $IMAGE_DIR/ironic-python-agent.initramfs
 
 Save the image IDs as variables for later:
 
@@ -382,6 +409,14 @@ Make the nodes available for deployment
 
    openstack baremetal node manage $NODE_UUID02
    openstack baremetal node provide $NODE_UUID02
+
+
+At this point, a bare metal node list will show the bare metal machines going into a cleaning phase. If that is successful, they bare metal nodes will become ``available``.
+
+.. code-block:: none
+
+   openstack baremetal node list
+
 
 Boot a bare metal machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~
