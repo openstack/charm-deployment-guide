@@ -33,6 +33,14 @@ subordinate on the applications that use MySQL as a data store.
    the rest of the cloud migrates to Ubuntu 20.04 LTS. In fact, this state
    will be one step of the migration process.
 
+.. caution::
+
+   It is recommended that all machines touched by the migration have their
+   system software packages updated prior to the migration. There are reports
+   indicating that MySQL authentication problems may arise later if this is not
+   done.
+
+
 Procedure
 ^^^^^^^^^
 
@@ -41,9 +49,46 @@ Procedure
 
 * Deploy a mysql-innodb-cluster on Focal.
 
+  .. warning::
+
+     If multiple network spaces are used in the deployment, due to the way
+     MySQL Innodb clustering promulgates cluster addresses via metadata, the
+     following space bindings must be bound to the same network space:
+
+     * Primary application (i.e. keystone)
+
+       * shared-db
+
+     * Application's mysql-router (i.e. keystone-mysql-router)
+
+       * shared-db
+       * db-rotuer
+
+     * mysql-innodb-cluster
+
+       * db-router
+       * cluster
+
+     Space bindings are configured at application deploy time. Failure to
+     ensure this may lead to authentication errors if the client connection
+     uses the wrong interface to connect to the cluster. In the example below
+     we use space "db-space."
+
   .. code-block:: none
 
-     juju deploy -n 3 mysql-innodb-cluster --series focal
+     juju deploy -n 3 mysql-innodb-cluster --series focal --bind "cluster=db-space db-router=db-space"
+
+  .. note::
+
+     Any existing percona-cluster configuration related to performance tuning
+     should be configured on the mysql-innodb-cluster charm also.  Although
+     there is not a one-to-one parity of options between the charms, there are
+     still several identical ones such as ``max-connections`` and
+     ``innodb-buffer-pool-size``.
+
+     .. code-block:: none
+
+        juju config mysql-innodb-cluster max-connections=<value> innodb-buffer-pool-size=<value>
 
 * Deploy (but do not yet relate) an instance of mysql-router for every
   application that requires a data store (i.e. every application that was
@@ -51,9 +96,9 @@ Procedure
 
   .. code-block:: none
 
-     juju deploy mysql-router cinder-mysql-router
-     juju deploy mysql-router glance-mysql-router
-     juju deploy mysql-router keystone-mysql-router
+     juju deploy mysql-router cinder-mysql-router --bind "shared-db=db-space db-router=db-space"
+     juju deploy mysql-router glance-mysql-router --bind "shared-db=db-space db-router=db-space"
+     juju deploy mysql-router keystone-mysql-router --bind "shared-db=db-space db-router=db-space"
      ...
 
 * Add relations between the mysql-router instances and the
@@ -127,7 +172,7 @@ On a per-application basis:
 
        Depending on downtime restrictions it is possible to dump all OpenStack
        databases at one time: run the ``mysqldump`` action and select them via
-       the ``databases`` parameter. For example: 
+       the ``databases`` parameter. For example:
        ``databases=keystone,cinder,glance,nova,nova_api,nova_cell0,horizon``
 
        Similarly, it is possible to import all the databases into
@@ -136,11 +181,10 @@ On a per-application basis:
     .. warning::
 
        Do not (back up and) restore the Percona Cluster version of the 'mysql',
-       'performance_schema', 'dpm', 'sys' or any other system specific
-       databases into the MySQL Innodb Cluster. Doing so will corrupt the DB
-       and necessitate the destruction and re-creation of the
-       mysql-innodb-cluster application. For more information see bug `LP
-       #1936210`_.
+       'performance_schema', 'sys' or any other system specific databases into
+       the MySQL Innodb Cluster. Doing so will corrupt the DB and necessitate
+       the destruction and re-creation of the mysql-innodb-cluster application.
+       For more information see bug `LP #1936210`_.
 
     .. note::
 
