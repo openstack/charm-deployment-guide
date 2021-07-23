@@ -14,3 +14,4 @@ having these operations applied to it.
 * :doc:`Scale back an application with the hacluster charm <ops-scale-back-with-hacluster>`
 * :doc:`Scale out the nova-compute application <ops-scale-out-nova-compute>`
 * :doc:`Start MySQL InnoDB Cluster from a complete outage <ops-start-innodb-from-outage>`
+* :doc:`Implement automatic Glance image updates <ops-auto-glance-image-updates>`
