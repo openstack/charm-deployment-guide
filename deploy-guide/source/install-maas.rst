@@ -216,7 +216,7 @@ Ubuntu and Juju software onto the designated node. Go to :doc:`Install Juju
 .. _CLI: https://maas.io/docs/maas-cli
 .. _API: https://maas.io/docs/api
 .. _MAAS: https://maas.io
-.. _MAAS requirements: https://maas.io/docs/maas-requirements
+.. _MAAS requirements: https://maas.io/docs/snap/2.9/cli/maas-requirements
 .. _MAAS installation instructions: https://maas.io/docs/install-from-a-snap
 .. _Concepts and terms: https://maas.io/docs/concepts-and-terms
 .. _Handling DHCP: https://maas.io/docs/dhcp

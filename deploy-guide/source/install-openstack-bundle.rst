@@ -40,7 +40,7 @@ Administrator Guides`_ for long-term guidance.
 .. LINKS
 .. _Install OpenStack: install-openstack
 .. _Configure OpenStack: configure-openstack.html
-.. _Charm bundles: https://jaas.ai/docs/charm-bundles
+.. _Charm bundles: https://juju.is/docs/sdk/bundles
 .. _MAAS: https://maas.io
 .. _openstack-base: https://github.com/openstack-charmers/openstack-bundles/tree/master/stable/openstack-base
 .. _openstack-base README: https://github.com/openstack-charmers/openstack-bundles/blob/master/stable/openstack-base/README.md
