@@ -67,6 +67,14 @@ not set explicitly the number of workers will be capped at four regardless of
 whether the unit is containerised or not. Previously, the cap applied only to
 containerised units.
 
+manila-ganesha charm: package updates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To fix long-standing issues in the manila-ganesha charm related to `Manila
+exporting shares after restart`_, the nfs-ganesha Ubuntu package must be
+updated on all affected units prior to the upgrading of the manila-ganesha
+charm in OpenStack Charms 21.10.
+
 OpenStack upgrades
 ------------------
 
@@ -276,6 +284,7 @@ error can be resolved with:
 .. _Various issues: various-issues.html
 .. _Special charm procedures: upgrade-special.html
 .. _vault charm: https://opendev.org/openstack/charm-vault/src/branch/master/src/README.md#unseal-vault
+.. _manila exporting shares after restart: https://bugs.launchpad.net/charm-manila-ganesha/+bug/1889287
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
