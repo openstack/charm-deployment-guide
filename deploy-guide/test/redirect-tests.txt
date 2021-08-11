@@ -22,3 +22,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-bridge-interface-configuration.html 301 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html
 /project-deploy-guide/charm-deployment-guide/latest/app-encryption-at-rest.html 301 /project-deploy-guide/charm-deployment-guide/latest/encryption-at-rest.html
 /project-deploy-guide/charm-deployment-guide/latest/app-ceph-migration.html 301 /project-deploy-guide/charm-deployment-guide/latest/ceph-charm-migration.html
+/project-deploy-guide/charm-deployment-guide/latest/app-pci-passthrough-gpu.html 301 /project-deploy-guide/charm-deployment-guide/latest/pci-passthrough.html

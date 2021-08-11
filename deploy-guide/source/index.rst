@@ -47,7 +47,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
 
    ironic
    nova-cells
-   app-pci-passthrough-gpu
+   pci-passthrough
 
 .. toctree::
    :caption: Networking

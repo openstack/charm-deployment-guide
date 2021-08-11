@@ -10,3 +10,5 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-nova
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-bridge-interface-configuration.html$ /project-deploy-guide/charm-deployment-guide/$1/configure-bridge.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-encryption-at-rest.html$ /project-deploy-guide/charm-deployment-guide/$1/encryption-at-rest.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ceph-migration.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-charm-migration.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-pci-passthrough-gpu.html$ /project-deploy-guide/charm-deployment-guide/$1/pci-passthrough.html
+
