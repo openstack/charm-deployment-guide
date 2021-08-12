@@ -705,6 +705,8 @@ To pause the MySQL InnoDB Cluster for a mysql-innodb-cluster unit:
 
 To gracefully shut down the cluster repeat the above for every unit.
 
+.. _mysql_innodb_cluster_startup:
+
 startup
 ^^^^^^^
 

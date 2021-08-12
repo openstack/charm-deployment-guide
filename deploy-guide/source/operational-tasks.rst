@@ -13,3 +13,4 @@ having these operations applied to it.
 * :doc:`Live migrate VMs from a running compute node <ops-live-migrate-vms>`
 * :doc:`Scale back an application with the hacluster charm <ops-scale-back-with-hacluster>`
 * :doc:`Scale out the nova-compute application <ops-scale-out-nova-compute>`
+* :doc:`Start MySQL InnoDB Cluster from a complete outage <ops-start-innodb-from-outage>`
