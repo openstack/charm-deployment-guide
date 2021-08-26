@@ -17,3 +17,4 @@ having these operations applied to it.
 * :doc:`Implement automatic Glance image updates <ops-auto-glance-image-updates>`
 * :doc:`Use OpenStack as a backing cloud for Juju <ops-use-openstack-to-back-juju>`
 * :doc:`Implement HA with a VIP <ops-implement-ha-with-vip>`
+* :doc:`Set up admin access to a cloud <ops-cloud-admin-access>`
