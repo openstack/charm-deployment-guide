@@ -252,6 +252,18 @@ new release. Here the new release is Octopus:
 The charms should be able to respond intelligently to these two situations. Bug
 `LP #1929254`_ is for tracking this effort.
 
+FWaaS: upgrading from Ussuri to Victoria
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Firewall-as-a-Service (`FWaaS v2`_) OpenStack project is retired starting
+with OpenStack Victoria. Consequently, the neutron-api charm will no longer
+make this service available starting with that OpenStack release. See the
+`21.10 Release Notes`_ on this topic.
+
+Prior to upgrading to Victoria users of FWaaS should remove any existing
+firewall groups to avoid the possibility of orphaning active firewalls (see the
+`FWaaS v2 CLI documentation`_).
+
 Series upgrades
 ---------------
 
@@ -285,6 +297,9 @@ error can be resolved with:
 .. _Special charm procedures: upgrade-special.html
 .. _vault charm: https://opendev.org/openstack/charm-vault/src/branch/master/src/README.md#unseal-vault
 .. _manila exporting shares after restart: https://bugs.launchpad.net/charm-manila-ganesha/+bug/1889287
+.. _21.10 Release Notes: https://docs.openstack.org/charm-guide/latest/2110.html
+.. _FWaaS v2: https://docs.openstack.org/neutron/ussuri/admin/fwaas.html
+.. _FWaaS v2 CLI documentation: https://docs.openstack.org/python-neutronclient/ussuri/cli/osc/v2/firewall-group.html
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
