@@ -86,7 +86,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    :maxdepth: 1
 
    encryption-at-rest
-   app-erasure-coding
+   ceph-erasure-coding
    rgw-multisite
    app-ceph-rbd-mirror
    cinder-volume-replication

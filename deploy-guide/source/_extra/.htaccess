@@ -11,4 +11,4 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-brid
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-encryption-at-rest.html$ /project-deploy-guide/charm-deployment-guide/$1/encryption-at-rest.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ceph-migration.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-charm-migration.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-pci-passthrough-gpu.html$ /project-deploy-guide/charm-deployment-guide/$1/pci-passthrough.html
-
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-erasure-coding.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-erasure-coding.html
