@@ -77,7 +77,7 @@ the corresponding MAAS node's zone (AZ column).
    make extensive use of the placement directive in combination with bundles
    (and possibly bundle overlays).
 
-Availability zones
+Availability Zones
 ~~~~~~~~~~~~~~~~~~
 
 The term "availability zone" can take on different meanings depending on the
@@ -104,9 +104,8 @@ zone awareness to a unit, however both the backing cloud and the charm need to
 support it. For the purposes of this document, this variable associates a MAAS
 zone with a unit at deploy time.
 
-This feature is available to the `neutron-gateway`_, `nova-compute`_, and
-`ceph-osd`_ charms and is enabled via configuration option
-``customize-failure-domain`` (details below).
+This feature is enabled via configuration option ``customize-failure-domain``
+for the charms that support it.
 
 Neutron AZ
 ^^^^^^^^^^
@@ -123,6 +122,14 @@ zones will become available as Neutron availability zones. In the absence of a
 client-specified AZ during router/network creation, the Neutron agents will be
 distributed amongst the zones. When 'true', and MAAS is the backing cloud, this
 option overrides option ``default-availability-zone``.
+
+These options also affect the `neutron-openvswitch`_ subordinate charm as AZ
+information is passed over the relation it forms with the nova-compute charm.
+This is useful for Neutron agent scheduling.
+
+.. note::
+
+   The OVN charms do not currently support the configuration of Neutron AZs.
 
 Nova AZ
 ^^^^^^^
@@ -799,6 +806,7 @@ Charms`_ project group.
 .. _ceph-osd charm README: https://opendev.org/openstack/charm-ceph-osd/src/branch/master/README.md
 .. _ceph-mon: https://jaas.ai/ceph-mon
 .. _ceph-osd: https://jaas.ai/ceph-osd
+.. _neutron-openvswitch: https://jaas.ai/neutron-openvswitch
 .. _nova-compute: https://jaas.ai/nova-compute
 .. _neutron-gateway: https://jaas.ai/neutron-gateway
 .. _swift-proxy: https://jaas.ai/swift-proxy
