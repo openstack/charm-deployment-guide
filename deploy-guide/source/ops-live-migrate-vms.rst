@@ -75,7 +75,8 @@ Enable the functionality if the command returns 'false':
    juju config nova-compute enable-live-migration=true
 
 See the `nova-compute charm`_ for information on all migration-related
-configuration options.
+configuration options. Also see section `SSH keys and VM migration`_ for
+information on how multiple application groups can affect migrations.
 
 Gather relevant information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -377,3 +378,4 @@ A failed migration will result in log messages being appended to the
 
 .. LINKS
 .. _nova-compute charm: https://jaas.ai/nova-compute
+.. _SSH keys and VM migration: https://opendev.org/openstack/charm-nova-compute/src/branch/master/README.md#ssh-keys-and-vm-migration
