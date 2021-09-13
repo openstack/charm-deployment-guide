@@ -90,7 +90,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    rgw-multisite
    app-ceph-rbd-mirror
    cinder-volume-replication
-   app-manila-ganesha
+   manila-ganesha
    swift
 
 .. LINKS
