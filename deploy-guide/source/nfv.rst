@@ -77,4 +77,4 @@ whitelist configuration and how to create instances with Neutron ports wired to
 SR-IOV devices.
 
 .. LINKS
-.. _OpenStack advanced networking documentation: http://docs.openstack.org/mitaka/networking-guide/adv-config-sriov.html
+.. _OpenStack advanced networking documentation: https://docs.openstack.org/neutron/wallaby/admin/config-sriov.html
