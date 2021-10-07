@@ -73,7 +73,7 @@ instructions`_ for details:
 .. code-block:: none
 
    sudo snap install maas-test-db
-   sudo snap install maas --channel=2.9/stable
+   sudo snap install maas --channel=3.0/stable
    sudo maas init region+rack --maas-url http://10.0.0.2:5240/MAAS --database-uri maas-test-db:///
    sudo maas createadmin --username admin --password ubuntu --email admin@example.com --ssh-import lp:<unsername>
    sudo maas apikey --username admin > ~ubuntu/admin-api-key
@@ -200,8 +200,27 @@ Create OVS bridge
 ~~~~~~~~~~~~~~~~~
 
 Create an Open vSwitch bridge from a network bond or a single interface. Here
-we will do the latter with interface 'enp1s0'. The bridge will be named
-'br-ex'.
+we will do the latter with interface 'enp1s0':
+
+.. figure:: ./media/ovs-bridge-1.png
+   :scale: 70%
+   :alt: Select interface to use for OVS bridge
+
+.. role:: raw-html(raw)
+    :format: html
+
+:raw-html:`<br />`
+
+The bridge will be named 'br-ex':
+
+.. figure:: ./media/ovs-bridge-2.png
+   :scale: 70%
+   :alt: OVS bridge configuration
+
+.. role:: raw-html(raw)
+    :format: html
+
+:raw-html:`<br />`
 
 Multiple VLANs can be added to the bridge but in this example cloud a single
 untagged VLAN is used.

@@ -65,7 +65,7 @@ Sample output:
    OS_REGION_NAME=RegionOne
    OS_AUTH_VERSION=3
    OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
-   OS_AUTH_URL=https://10.0.0.162:5000/v3
+   OS_AUTH_URL=https://10.0.0.170:5000/v3
    OS_PROJECT_DOMAIN_NAME=admin_domain
    OS_AUTH_PROTOCOL=https
    OS_USERNAME=admin
@@ -97,13 +97,13 @@ The output will look similar to this:
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
    | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                      |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
-   | 172dc2610f2a46cbbf64919a7b414266 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.171:8776/v3/$(tenant_id)s |
-   | 60466514cde4401eaa810301bddb1d2c | RegionOne | glance       | image        | True    | admin     | https://10.0.0.167:9292                  |
-   | 70be9abb201748078b6d91ff803ede86 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.171:8776/v2/$(tenant_id)s |
-   | 835f368961744d3aa62b0b7ead24c5c4 | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.165:8778                  |
-   | 9478c33a71994f9daa4d79a5630f1784 | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.161:9696                  |
-   | bcff6b5d81474cb9884b8161865b1394 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.162:35357/v3              |
-   | cb4dcb58607448c7981ddae79e8ca92d | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.164:8774/v2.1             |
+   | 12011a63a8e24e2290986cf7d8c285db | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.179:8776/v3/$(tenant_id)s |
+   | 17a66b67744c42beb20135dca647a9a4 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.170:35357/v3              |
+   | 296755b4627641379fd43095c5fab3ba | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.172:8774/v2.1             |
+   | 682fd715c05f492fb0abc08f56e25439 | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.173:8778                  |
+   | 7b20063d208c40aa9d3e3d1152259868 | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.169:9696                  |
+   | a613af1a0d8349ee9329e1230e76b764 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.179:8776/v2/$(tenant_id)s |
+   | b4fe417933704e8b86cfbca91811fcbf | RegionOne | glance       | image        | True    | admin     | https://10.0.0.175:9292                  |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
 
 If the endpoints aren't visible, it's likely your environment variables aren't
@@ -124,7 +124,7 @@ a Focal amd64 image:
 
 .. code-block:: none
 
-   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img \
       --output ~/cloud-images/focal-amd64.img
 
 Now import the image and call it 'focal-amd64':
@@ -168,7 +168,7 @@ subnet is '10.0.0.0/24':
 
    openstack subnet create --network ext_net --no-dhcp \
       --gateway 10.0.0.1 --subnet-range 10.0.0.0/24 \
-      --allocation-pool start=10.0.0.10,end=10.0.0.200 \
+      --allocation-pool start=10.0.0.40,end=10.0.0.99 \
       ext_subnet
 
 .. important::
@@ -225,14 +225,14 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**https://10.0.0.162:5000/v3**.
+**https://10.0.0.170:5000/v3**.
 
 The contents of the file, say ``project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
 .. code-block:: ini
 
-   export OS_AUTH_URL=https://10.0.0.162:5000/v3
+   export OS_AUTH_URL=https://10.0.0.170:5000/v3
    export OS_USER_DOMAIN_NAME=domain1
    export OS_USERNAME=user1
    export OS_PROJECT_DOMAIN_NAME=domain1
@@ -277,8 +277,8 @@ project-specific network with a private subnet. We'll also need a router to
 link this network to the public network created earlier.
 
 The non-admin user now creates a private internal network called 'user1_net'
-and an accompanying subnet called 'user1_subnet' (the DNS server is pointing to
-the MAAS server at 10.0.0.2):
+and an accompanying subnet called 'user1_subnet' (the DNS server is the MAAS
+server at 10.0.0.2):
 
 .. code-block:: none
 
@@ -286,7 +286,7 @@ the MAAS server at 10.0.0.2):
 
    openstack subnet create --network user1_net --dns-nameserver 10.0.0.2 \
       --gateway 192.168.0.1 --subnet-range 192.168.0/24 \
-      --allocation-pool start=192.168.0.10,end=192.168.0.200 \
+      --allocation-pool start=192.168.0.10,end=192.168.0.199 \
       user1_subnet
 
 Now a router called 'user1_router' is created, added to the subnet, and told to
@@ -295,8 +295,8 @@ use the public external network as its gateway network:
 .. code-block:: none
 
    openstack router create user1_router
-   openstack router set --external-gateway ext_net user1_router
    openstack router add subnet user1_router user1_subnet
+   openstack router set user1_router --external-gateway ext_net
 
 Configure SSH and security groups
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -305,7 +305,7 @@ An SSH keypair needs to be imported into the cloud in order to access your
 instances.
 
 Generate one first if you do not yet have one. This command creates a
-passphraseless keypair (remove the `-N` option to avoid that):
+passphraseless keypair (remove the ``-N`` option to avoid that):
 
 .. code-block:: none
 
@@ -377,7 +377,7 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 20.04.2 LTS focal-1 ttyS0
+   Ubuntu 20.04.3 LTS focal-1 ttyS0
 
    focal-1 login:
 
