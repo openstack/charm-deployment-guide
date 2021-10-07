@@ -26,7 +26,15 @@ Here are the hardware requirements:
 
 * 1 x MAAS system: 8GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage
 * 1 x Juju controller node: 4GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage
-* 4 x cloud nodes: 8GiB RAM, 2 CPUs, 2 NICs, 3 x 80GiB storage
+* 4 x cloud nodes: 8GiB RAM, 2 CPUs, 1 NIC, 3 x 80GiB storage
+
+.. note::
+
+   The legacy requirement for two network interfaces on each of the four cloud
+   nodes has been dropped since MAAS (v.2.9.2) added support for `Open
+   vSwitch`_ bridges. This bridge type supports more sophisticated network
+   topologies than the Linux Bridge, and for Charmed OpenStack in particular,
+   the ovn-chassis unit no longer needs a dedicated network device.
 
 See `MAAS requirements`_ in the MAAS documentation for more detailed
 information on what a MAAS system may require.
@@ -186,6 +194,25 @@ to the Juju controller node.
 
 See `MAAS tags`_ in the MAAS documentation for a full understanding of tags.
 
+.. _ovs_bridge:
+
+Create OVS bridge
+~~~~~~~~~~~~~~~~~
+
+Create an Open vSwitch bridge from a network bond or a single interface. Here
+we will do the latter with interface 'enp1s0'. The bridge will be named
+'br-ex'.
+
+Multiple VLANs can be added to the bridge but in this example cloud a single
+untagged VLAN is used.
+
+Configure all four cloud nodes in this way to ensure that the OVN Chassis can
+be accommodated by any node.
+
+The mapping of bridge to interface ('br-ex:enp1s0') will be used in the
+:ref:`Neutron networking <neutron_networking>` section on the :doc:`Install
+OpenStack <install-openstack>` page.
+
 Node summary
 ------------
 
@@ -194,13 +221,13 @@ Here's a summary of the five MAAS nodes:
 +-----------------+-----------+------+------+-----+-------+---------+
 | Node name       | Tag(s)    | CPUs | NICs | RAM | Disks | Storage |
 +=================+===========+======+======+=====+=======+=========+
-| node1.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
+| node1.maas      | compute   | 2    | 1    | 8.0 | 3     | 80.0    |
 +-----------------+-----------+------+------+-----+-------+---------+
-| node2.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
+| node2.maas      | compute   | 2    | 1    | 8.0 | 3     | 80.0    |
 +-----------------+-----------+------+------+-----+-------+---------+
-| node3.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
+| node3.maas      | compute   | 2    | 1    | 8.0 | 3     | 80.0    |
 +-----------------+-----------+------+------+-----+-------+---------+
-| node4.maas      | compute   | 2    | 2    | 8.0 | 3     | 80.0    |
+| node4.maas      | compute   | 2    | 1    | 8.0 | 3     | 80.0    |
 +-----------------+-----------+------+------+-----+-------+---------+
 | controller.maas | juju      | 2    | 1    | 4.0 | 1     | 40.0    |
 +-----------------+-----------+------+------+-----+-------+---------+
@@ -222,3 +249,4 @@ Ubuntu and Juju software onto the designated node. Go to :doc:`Install Juju
 .. _Handling DHCP: https://maas.io/docs/dhcp
 .. _BMC power types: https://maas.io/docs/bmc-power-types
 .. _MAAS tags: https://maas.io/docs/tags
+.. _Open vSwitch: https://docs.openvswitch.org/en/latest/intro/what-is-ovs/

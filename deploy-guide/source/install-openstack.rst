@@ -274,7 +274,7 @@ File ``neutron.yaml`` contains the configuration necessary for three of them:
 .. code-block:: yaml
 
    ovn-chassis:
-     bridge-interface-mappings: br-ex:eth1
+     bridge-interface-mappings: br-ex:enp1s0
      ovn-bridge-mappings: physnet1:br-ex
    neutron-api:
      neutron-security-groups: true
@@ -284,12 +284,10 @@ File ``neutron.yaml`` contains the configuration necessary for three of them:
    ovn-central:
      source: cloud:focal-wallaby
 
-The ``bridge-interface-mappings`` setting refers to a network interface that
-the OVN Chassis will bind to. In the above example it is 'eth1' and it should
-be an unused interface. In MAAS this interface must be given an IP mode of
-'Unconfigured' (see `Post-commission configuration`_ in the MAAS
-documentation). All four nodes should have this interface to ensure that any
-node is able to accommodate OVN Chassis.
+The ``bridge-interface-mappings`` setting impacts the OVN Chassis and refers to
+a mapping of OVS bridge to network interface. As described in the :ref:`Create
+OVS bridge <ovs_bridge>` section on the :doc:`Install MAAS <install-maas>`
+page, it is 'br-ex:enp1s0'.
 
 The ``flat-network-providers`` setting enables the Neutron flat network
 provider used in this example scenario and gives it the name of 'physnet1'. The
@@ -800,7 +798,6 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _Charms upgrade: upgrade-charms.html
 .. _Series upgrade: upgrade-series.html
 .. _Charm store: https://jaas.ai/store
-.. _Post-commission configuration: https://maas.io/docs/commission-nodes#heading--post-commission-configuration
 .. _Deploying applications: https://juju.is/docs/olm/deploying-applications
 .. _Deploying to specific machines: https://juju.is/docs/olm/advanced-application-deployment#heading--deploying-to-specific-machines
 .. _Managing relations: https://juju.is/docs/olm/relations
