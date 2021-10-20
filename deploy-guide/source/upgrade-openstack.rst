@@ -224,7 +224,7 @@ The order provided below is the order used by internal testing.
      - `neutron-api`_
 
    * - 18
-     - `neutron-gateway`_
+     - `neutron-gateway`_ or `ovn-central`_
 
    * - 19
      - `placement`_
@@ -239,15 +239,18 @@ The order provided below is the order used by internal testing.
      - `nova-compute`_
 
    * - 23
-     - `ceph-osd`_
+     - `ovn-dedicated-chassis`_
 
    * - 24
-     - `swift-proxy`_
+     - `ceph-osd`_
 
    * - 25
-     - `swift-storage`_
+     - `swift-proxy`_
 
    * - 26
+     - `swift-storage`_
+
+   * - 27
      - `octavia`_
 
 .. important::
