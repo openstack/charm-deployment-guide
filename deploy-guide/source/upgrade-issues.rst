@@ -75,6 +75,21 @@ exporting shares after restart`_, the nfs-ganesha Ubuntu package must be
 updated on all affected units prior to the upgrading of the manila-ganesha
 charm in OpenStack Charms 21.10.
 
+cinder charm: Pure Storage volumes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For OpenStack releases Pike through Ussuri (inclusive) there is a problem in
+creating Cinder volumes backed by Pure Storage (charm cinder-purestorage) with
+the 21.10 release of the cinder charm.
+
+A newly-created volume will go into an error state and the following message
+will appear in the Cinder logs: "Active-Active configuration is not currently
+supported". This issue is tracked in bug `LP #1947702`_.
+
+Affected environments are therefore discouraged from upgrading the cinder charm
+to the 21.10 release until the issue is resolved for other supported OpenStack
+releases.
+
 OpenStack upgrades
 ------------------
 
@@ -313,3 +328,4 @@ error can be resolved with:
 .. _LP #1912638: https://bugs.launchpad.net/charm-rabbitmq-server/+bug/1912638
 .. _LP #1928992: https://bugs.launchpad.net/charm-deployment-guide/+bug/1928992
 .. _LP #1929254: https://bugs.launchpad.net/charm-ceph-osd/+bug/1929254
+.. _LP #1947702: https://bugs.launchpad.net/bugs/1947702
