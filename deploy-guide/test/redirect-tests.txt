@@ -25,3 +25,5 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-pci-passthrough-gpu.html 301 /project-deploy-guide/charm-deployment-guide/latest/pci-passthrough.html
 /project-deploy-guide/charm-deployment-guide/latest/app-erasure-coding.html 301 /project-deploy-guide/charm-deployment-guide/latest/ceph-erasure-coding.html
 /project-deploy-guide/charm-deployment-guide/latest/app-manila-ganesha.html 301 /project-deploy-guide/charm-deployment-guide/latest/manila-ganesha.html
+/project-deploy-guide/charm-deployment-guide/latest/app-managing-power-events.html 301 /charm-guide/latest/howto/managing-power-events.html
+/project-deploy-guide/charm-deployment-guide/latest/deferred-events.html 301 /charm-guide/latest/howto/deferred-events.html

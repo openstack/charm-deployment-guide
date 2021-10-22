@@ -74,12 +74,8 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
 
 .. toctree::
    :caption: Operations
-   :maxdepth: 1
 
-   app-managing-power-events
-   ceph-operations
-   deferred-events
-   operational-tasks
+   Operations have moved (charm-guide) <https://docs.openstack.org/charm-guide/latest/howto>
 
 .. toctree::
    :caption: Storage

@@ -203,8 +203,7 @@ requests to the application and the application itself.
 .. note::
 
    Highly available applications may require attention if subjected to a power
-   event (see the :doc:`Managing power events <app-managing-power-events>`
-   page).
+   event (see `Managing power events`_ in the Admin Guide).
 
 Cloud applications are typically made highly available through the use of
 techniques applied externally to the application itself (e.g. using a
@@ -832,6 +831,7 @@ Charms`_ project group.
 .. _Raft algorithm: https://raft.github.io/
 .. _Ceph bucket type: https://docs.ceph.com/docs/master/rados/operations/crush-map/#types-and-buckets
 .. _Managing TLS certificates: app-certificate-management.html
+.. _Managing power events: https://docs.openstack.org/charm-guide/latest/howto/managing-power-events.html
 
 .. BUGS
 .. _LP #1234561: https://bugs.launchpad.net/charm-ceph-osd/+bug/1234561
