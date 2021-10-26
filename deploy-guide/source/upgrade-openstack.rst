@@ -68,6 +68,8 @@ battery of operational checks on the cloud.
 This step is to make certain that any issues that may appear after the upgrade
 are not due to pre-existing problems.
 
+.. _disable_unattended_upgrades:
+
 Disable unattended-upgrades
 ---------------------------
 
@@ -473,6 +475,18 @@ Victoria where ``keystone/2`` is the leader:
    The hacluster subordinate unit number may not necessarily match its parent
    unit number. As in the above example, only for keystone/0 do the unit
    numbers correspond (i.e. keystone-hacluster/0 is the subordinate unit).
+
+Re-enable unattended-upgrades
+-----------------------------
+
+In a :ref:`previous step <disable_unattended_upgrades>`, unattended-upgrades
+were disabled on those cloud nodes that hosted multiple principle charms. Once
+such a node has had all of its services upgraded, unattended-upgrades should be
+re-enabled:
+
+.. code-block:: none
+
+   sudo dpkg-reconfigure -plow unattended-upgrades
 
 Verify the new deployment
 -------------------------
