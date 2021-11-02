@@ -100,9 +100,13 @@ rabbitmq-server.
 
 .. important::
 
-   The first machine to be upgraded is always associated with the leader of the
-   principal application. Let this machine be called the "principal leader
-   machine" and its unit be called the "principal leader unit".
+   The first machines to be upgraded are always associated with the non-leaders
+   of the principal application. Let these machines be called the "principal
+   non-leader machines" and their units the "principal non-leader units".
+
+   The last machine to be upgraded is always associated with the leader
+   of the principal application. Let this machine be called the "principal
+   leader machine" and its unit the "principal leader unit".
 
 The steps are as follows:
 
@@ -114,7 +118,8 @@ The steps are as follows:
 
 #. Pause the principal non-leader units.
 
-#. Perform a series upgrade on the principal leader machine.
+#. Perform a series upgrade on one of the (now paused) principal non-leader
+   machines:
 
    #. Disable :ref:`Unattended upgrades <unattended_upgrades>`.
 
@@ -131,12 +136,16 @@ The steps are as follows:
 
    #. Reboot.
 
+   #. Invoke the :command:`complete` sub-command.
+
+#. Repeat step 4 for the remaining principal non-leader machines.
+
+#. Pause the principal leader unit.
+
+#. Repeat step 4 but for the principal leader machine.
+
 #. Set the value of the (application-dependent) ``openstack-origin`` or the
    ``source`` configuration option to 'distro' (new operating system).
-
-#. Invoke the :command:`complete` sub-command on the principal leader machine.
-
-#. Repeat steps 4 and 6 for the application non-leader machines.
 
 #. Perform any possible cluster completed upgrade tasks once all machines have
    had their series upgraded.
