@@ -102,7 +102,7 @@ table.
      - `neutron-api`_
 
    * - 19
-     - `neutron-gateway`_
+     - `neutron-gateway`_ or `ovn-central`_
 
    * - 20
      - `placement`_
@@ -117,12 +117,15 @@ table.
      - `nova-compute`_
 
    * - 24
-     - `ceph-osd`_
+     - `ovn-dedicated-chassis`_
 
    * - 25
-     - `swift-proxy`_
+     - `ceph-osd`_
 
    * - 26
+     - `swift-proxy`_
+
+   * - 27
      - `swift-storage`_
 
 Upgrade testing for subordinate charms does not follow a prescribed order. Once
