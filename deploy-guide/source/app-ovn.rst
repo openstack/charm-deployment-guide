@@ -683,7 +683,7 @@ SSH into one of the chassis units to get access to various diagnostic tools:
 
    sudo ovs-appctl -t ovs-vswitchd \
       ofproto/trace br-provider \
-      in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100'
+      in_port=enp3s0f0,icmp,nw_src=192.0.2.1,nw_dst=192.0.2.100
 
    sudo ovn-trace \
       -p /etc/ovn/key_host \
