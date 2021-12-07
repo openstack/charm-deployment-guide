@@ -295,8 +295,7 @@ that it is responsible for.
 
 .. note::
 
-   A few charms use option ``source`` instead of ``openstack-origin``. See the
-   next section.
+   A few charms support option ``source`` instead of ``openstack-origin``.
 
 Notes concerning the value of ``openstack-origin``:
 
@@ -316,30 +315,60 @@ Notes concerning the value of ``openstack-origin``:
 Perform the upgrade
 -------------------
 
-There are three methods available for performing an OpenStack service upgrade.
-The appropriate method is chosen based on the actions supported by the charm.
-Actions for a charm can be listed with command :command:`juju actions
-<charm-name>`.
+There are three methods available for performing an OpenStack service upgrade,
+two of which have charm requirements in terms of supported actions. Each
+method also has advantages and disadvantages with regard to:
+
+* the time required to perform an upgrade
+* maintaining service availability during an upgrade
+
+This table summarises the characteristics and requirements of each method:
+
++--------------------+----------+----------+--------------------------------------------------+
+| Method             | Time     | Downtime | Charm requirements (actions)                     |
++====================+==========+==========+==================================================+
+| all-in-one         | shortest | most     | *none*                                           |
++--------------------+----------+----------+--------------------------------------------------+
+| single-unit        | medium   | medium   | ``openstack-upgrade``                            |
++--------------------+----------+----------+--------------------------------------------------+
+| paused-single-unit | longest  | least    | ``openstack-upgrade``, ``pause``, and ``resume`` |
++--------------------+----------+----------+--------------------------------------------------+
+
+For example, although the all-in-one method upgrades a service the fastest, it
+also has the greatest potential for service downtime.
+
+.. note::
+
+   A charm's supported actions can be listed with command :command:`juju
+   actions <charm-name>`.
 
 All-in-one
 ~~~~~~~~~~
 
-The "all-in-one" method upgrades an application immediately. Although it is the
-quickest route, it can be harsh when applied in the context of multi-unit
-applications. This is because all the units are upgraded simultaneously, and is
-likely to cause a transient service outage. This method must be used if the
-application has a sole unit.
+The "all-in-one" method upgrades all application units simultaneously. This
+method must be used if the application has a sole unit.
 
-.. attention::
+Although it is the quickest route, it will also cause a temporary disruption of
+the corresponding service.
 
-   The "all-in-one" method should only be used when the charm does not support
-   the ``openstack-upgrade`` action.
+.. important::
+
+   Exceptionally, the ceph-osd and ceph-mon applications use the all-in-one
+   method but their charms are able to maintain service availability during the
+   upgrade.
 
 The syntax is:
 
 .. code-block:: none
 
    juju config <openstack-charm> openstack-origin=cloud:<cloud-archive-release>
+
+For example, to upgrade Cinder across all units (currently running Focal) from
+Ussuri to Victoria:
+
+.. code-block:: none
+
+   juju config cinder openstack-origin=cloud:focal-victoria
 
 Charms whose services are not technically part of the OpenStack project will
 use the ``source`` charm option instead. The Ceph charms are a classic example:
@@ -348,30 +377,18 @@ use the ``source`` charm option instead. The Ceph charms are a classic example:
 
    juju config ceph-mon source=cloud:focal-victoria
 
-.. note::
-
-   The ceph-osd and ceph-mon charms are able to maintain service availability
-   during the upgrade.
-
-So to upgrade Cinder across all units (currently running Focal) from Ussuri to
-Victoria:
-
-.. code-block:: none
-
-   juju config cinder openstack-origin=cloud:focal-victoria
-
 Single-unit
 ~~~~~~~~~~~
 
 The "single-unit" method builds upon the "all-in-one" method by allowing for
 the upgrade of individual units in a controlled manner. It requires the
-enablement of charm option ``action-managed-upgrade`` and the charm action
-``openstack-upgrade``.
+enablement of charm option ``action-managed-upgrade`` and action
+``openstack-upgrade`` must be supported.
 
-.. attention::
-
-   The "single-unit" method should only be used when the charm does not
-   support the ``pause`` and ``resume`` actions.
+This method is slower than the all-in-one method due to the need for each unit
+to be upgraded separately. There is a lesser chance of downtime as the unit
+being upgraded must be in the process of servicing client requests for downtime
+to occur.
 
 As a general rule, whenever there is the possibility of upgrading units
 individually, **always upgrade the application leader first.** The leader is
@@ -394,12 +411,6 @@ where ``glance/1`` is the leader:
    juju run-action --wait glance/0 openstack-upgrade
    juju run-action --wait glance/2 openstack-upgrade
 
-.. note::
-
-   The ``openstack-upgrade`` action is only available for charms whose services
-   are part of the OpenStack project. For instance, you will need to use the
-   "all-in-one" method for the Ceph charms.
-
 .. _paused_single_unit:
 
 Paused-single-unit
@@ -407,15 +418,15 @@ Paused-single-unit
 
 The "paused-single-unit" method extends the "single-unit" method by allowing
 for the upgrade of individual units *while paused*. Additional charm
-requirements are the ``pause`` and ``resume`` actions. This method provides
-more versatility by allowing a unit to be removed from service, upgraded, and
-returned to service. Each of these are distinct events whose timing is chosen
-by the operator.
+requirements are the ``pause`` and ``resume`` actions.
 
-.. attention::
+This method provides more versatility by allowing a unit to be removed from
+service, upgraded, and returned to service. Each of these are distinct events
+whose timing is chosen by the operator.
 
-   The "paused-single-unit" method is the recommended OpenStack service upgrade
-   method.
+This is the slowest method due to the need for each unit to be upgraded
+separately in addition to the required pause/resume management. However, it is
+the method that will result in the least downtime.
 
 For example, to upgrade a three-unit nova-compute application from Ussuri to
 Victoria where ``nova-compute/0`` is the leader:
