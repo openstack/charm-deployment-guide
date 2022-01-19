@@ -114,14 +114,14 @@ examples only; modify the parameters as required.
    touch demoCA/index.txt
    touch demoCA/index.txt.attr
 
-   openssl genpkey -algorithm RSA -pass pass:foobar -out issuing_ca_key.pem
+   openssl genpkey -algorithm RSA -aes256 -pass pass:foobar -out issuing_ca_key.pem
    openssl req -x509 -passin pass:foobar -new -nodes -key issuing_ca_key.pem \
        -config /etc/ssl/openssl.cnf \
        -subj "/C=US/ST=Somestate/O=Org/CN=www.example.com" \
        -days 365 \
        -out issuing_ca.pem
 
-   openssl genpkey -algorithm RSA -pass pass:foobar -out controller_ca_key.pem
+   openssl genpkey -algorithm RSA -aes256 -pass pass:foobar -out controller_ca_key.pem
    openssl req -x509 -passin pass:foobar -new -nodes \
            -key controller_ca_key.pem \
        -config /etc/ssl/openssl.cnf \
