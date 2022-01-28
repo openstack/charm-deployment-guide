@@ -2,7 +2,8 @@
 OpenStack upgrade
 =================
 
-This document outlines how to upgrade a Juju-deployed OpenStack cloud.
+This document outlines how to upgrade the OpenStack service components of a
+Charmed OpenStack cloud.
 
 .. warning::
 
@@ -20,33 +21,102 @@ continuing.
 
 It may be worthwhile to read the upstream OpenStack `Upgrades`_ guide.
 
-Release Notes
--------------
+Software sources
+----------------
 
-The OpenStack Charms `Release Notes`_ for the corresponding current and target
+A key part of an OpenStack upgrade is the stipulation of a unit's software
+sources. For an upgrade, the latter will naturally reflect a more recent
+combination of Ubuntu release (series) and OpenStack release. This combination
+is based on the `Ubuntu Cloud Archive`_ and translates to a "cloud archive
+OpenStack release". It takes on the following syntax:
+
+``<ubuntu series>-<openstack-release>``
+
+The value is passed to a charm's ``openstack-origin`` configuration option. For
+example, to select the 'focal-victoria' release:
+
+``openstack-origin=cloud:focal-victoria``
+
+In this way the charm is informed on where to find updates for the packages
+that it is responsible for.
+
+Notes concerning the value of ``openstack-origin``:
+
+* The default is 'distro'. This denotes an Ubuntu release's default archive
+  (e.g. in the case of the focal series it corresponds to OpenStack Ussuri).
+  The value of 'distro' is therefore invalid in the context of an OpenStack
+  upgrade.
+
+* It should normally be the same across all charms.
+
+* Its series component must be that of the series currently in use (i.e. a
+  series upgrade and an OpenStack upgrade are two completely separate
+  procedures).
+
+.. note::
+
+   A few charms use option ``source`` instead of ``openstack-origin`` (both
+   options support identical values). The ``source`` option is used by charms
+   that don't deploy an actual OpenStack service.
+
+Upgradable services
+-------------------
+
+Services whose software is not included in the `Ubuntu Cloud Archive`_ do not
+get upgraded during a charmed OpenStack upgrade. This software is upgraded by
+the administrator (on the units) using other means (e.g. manually via package
+utilities, the Landscape management tool, a snap, or as part of a series
+upgrade). Common charms where this applies are:
+
+* memcached
+* ntp
+* percona-cluster
+* mysql-innodb-cluster
+* mysql-router
+* rabbitmq-server
+* vault
+
+Services that are associated with subordinate charms are upgradable but only
+indirectly. They get upgraded along with their parent principal application.
+Subordinate charms do not support the ``openstack-origin`` (or ``source``)
+configuration option that is, as will be shown, a pre-requisite for initiating
+an OpenStack charm payload upgrade.
+
+.. _openstack_upgrade_prepare:
+
+Prepare for the upgrade
+-----------------------
+
+Pay special attention to the below pre-upgrade preparatory and informational
+sections.
+
+Release notes
+~~~~~~~~~~~~~
+
+The OpenStack Charms `Release notes`_ for the corresponding current and target
 versions of OpenStack must be consulted for any special instructions. In
 particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
 
 Manual intervention
--------------------
+~~~~~~~~~~~~~~~~~~~
 
-It is intended that the now upgraded charms are able to accommodate all
-software changes associated with the corresponding OpenStack services to be
-upgraded. A new charm will also strive to produce a service as similarly
-configured to the pre-upgraded service as possible.
+By design, the latest stable charms will support the software changes related
+to the OpenStack services being upgraded. During the upgrade, the charms will
+also strive to preserve the existing configuration of their associated
+services.
 
 However, there are still times when intervention on the part of the operator
 may be needed, such as when an OpenStack service is removed/added/replaced or
 when a software bug (in the charms or in upstream OpenStack) affecting the
 upgrade is present. The below resources cover these topics:
 
-* the :doc:`Special charm procedures <upgrade-special>` page
-* the :doc:`Upgrade issues <upgrade-issues>` page
-* the :doc:`Various issues <various-issues>` page
+* :doc:`Special charm procedures <upgrade-special>`
+* :doc:`Upgrade issues <upgrade-issues>`
+* :doc:`Various issues <various-issues>`
 
 Ensure cloud node software is up to date
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Every machine in the cloud, including containers, should have their software
 packages updated to ensure that the latest SRUs have been applied. This is done
@@ -54,26 +124,31 @@ in the usual manner:
 
 .. code-block:: none
 
-   sudo apt-get update
-   sudo apt-get dist-upgrade
+   sudo apt update
+   sudo apt full-upgrade
 
 Verify the current deployment
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Confirm that the output for the :command:`juju status` command of the current
 deployment is error-free. In addition, if monitoring is in use (e.g. Nagios),
 ensure that all alerts have been resolved. You may also consider running a
 battery of operational checks on the cloud.
 
-This step is to make certain that any issues that may appear after the upgrade
-are not due to pre-existing problems.
+This step is to make certain that any issues that are apparent after the
+upgrade are not due to pre-existing problems.
+
+Perform the upgrade
+-------------------
+
+Perform the upgrade by following the below sections.
 
 .. _disable_unattended_upgrades:
 
 Disable unattended-upgrades
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When performing a service upgrade on a cloud node that hosts multiple principle
+When performing a service upgrade on a cloud node that hosts multiple principal
 charms (e.g. nova-compute and ceph-osd), ensure that ``unattended-upgrades`` is
 disabled on the underlying machine for the duration of the upgrade process.
 This is to prevent the other services from being upgraded outside of Juju's
@@ -83,33 +158,59 @@ control. On a cloud node run:
 
    sudo dpkg-reconfigure -plow unattended-upgrades
 
-Perform a database backup
--------------------------
+Perform a backup of the service databases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before making any changes to cloud services perform a backup of the cloud
-database by running the ``backup`` action on any single percona-cluster unit:
+Perform a backup of the cloud service databases by applying the ``mysqldump``
+action to any unit of the cloud's database application. Be sure to select all
+applicable databases; the commands provided are examples only.
+
+The permissions on the remote backup directory will need to be adjusted in
+order to access the data. Take note that the transfer method presented here
+will capture all existing backups in that directory.
+
+.. important::
+
+   Store the backup archive in a safe place.
+
+The next two sections include the commands to run for the two possible database
+applications.
+
+percona-cluster
+^^^^^^^^^^^^^^^
+
+The percona-cluster application requires a modification to its "strict mode"
+(see `Percona strict mode`_ for an understanding of the implications).
 
 .. code-block:: none
 
-   juju run-action --wait percona-cluster/0 backup
+   juju run-action --wait percona-cluster/0 set-pxc-strict-mode mode=MASTER
+   juju run-action --wait percona-cluster/0 mysqldump \
+      databases=aodh,cinder,designate,glance,gnocchi,horizon,keystone,neutron,nova,nova_api,nova_cell0,placement
+   juju run-action --wait percona-cluster/0 set-pxc-strict-mode mode=ENFORCING
 
-Now transfer the backup directory to the Juju client with the intention of
-subsequently storing it somewhere safe. This command will grab **all** existing
-backups:
+   juju run -u percona-cluster/0 -- sudo chmod o+rx /var/backups/mysql
+   juju scp -- -r percona-cluster/0:/var/backups/mysql .
+   juju run -u percona-cluster/0 -- sudo chmod o-rx /var/backups/mysql
+
+mysql-innodb-cluster
+^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: none
 
-   juju scp -- -r percona-cluster/0:/opt/backups/mysql /path/to/local/directory
+   juju run-action --wait mysql-innodb-cluster/0 mysqldump \
+      databases=cinder,designate,glance,gnocchi,horizon,keystone,neutron,nova,nova_api,nova_cell0,placement,vault
 
-Permissions may first need to be altered on the remote machine.
+   juju run -u mysql-innodb-cluster/0 -- sudo chmod o+rx /var/backups/mysql
+   juju scp -- -r mysql-innodb-cluster/0:/var/backups/mysql .
+   juju run -u mysql-innodb-cluster/0 -- sudo chmod o-rx /var/backups/mysql
 
 Archive old database data
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 During the upgrade, database migrations will be run. This operation can be
 optimised by first archiving any stale data (e.g. deleted instances). Do this
-by running the ``archive-data`` action on any single nova-cloud-controller
-unit:
+by running the ``archive-data`` action on any nova-cloud-controller unit:
 
 .. code-block:: none
 
@@ -119,10 +220,10 @@ This action may need to be run multiple times until the action output reports
 'Nothing was archived'.
 
 Purge old compute service entries
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Old compute service entries for units which are no longer part of the model
-should be purged before the upgrade. These entries will show as 'down' (and be
+should be purged prior to upgrading. These entries will show as 'down' (and be
 hosted on machines no longer in the model) in the current list of compute
 services:
 
@@ -136,21 +237,13 @@ To remove a compute service:
 
    openstack compute service delete <service-id>
 
-Subordinate charm applications
-------------------------------
-
-Applications that are associated with subordinate charms are upgraded along
-with their parent application. Subordinate charms do not support the
-``openstack-origin`` configuration option which, as will be shown, is a
-pre-requisite for initiating an OpenStack charm payload upgrade.
-
 .. _openstack_upgrade_order:
 
-Upgrade order
--------------
+List the upgrade order
+~~~~~~~~~~~~~~~~~~~~~~
 
-Generally speaking, the order is determined by the idea of a dependency tree.
-Those services that have the most potential impact on other services are
+Generally speaking, the upgrade order is determined by the idea of a dependency
+tree. Those services that have the most potential impact on other services are
 upgraded first and those services that have the least potential impact on other
 services are upgraded last.
 
@@ -175,94 +268,82 @@ The order provided below is the order used by internal testing.
      - Charm
 
    * - 1
-     - `rabbitmq-server`_
-
-   * - 2
      - `ceph-mon`_
 
-   * - 3
+   * - 2
      - `keystone`_
 
-   * - 4
+   * - 3
      - `aodh`_
 
-   * - 5
+   * - 4
      - `barbican`_
 
-   * - 6
+   * - 5
      - `ceilometer`_
 
-   * - 7
+   * - 6
      - `ceph-fs`_
 
-   * - 8
+   * - 7
      - `ceph-radosgw`_
 
-   * - 9
+   * - 8
      - `cinder`_
 
-   * - 10
+   * - 9
      - `designate`_
 
-   * - 11
+   * - 10
      - `designate-bind`_
 
-   * - 12
+   * - 11
      - `glance`_
 
-   * - 13
+   * - 12
      - `gnocchi`_
 
-   * - 14
+   * - 13
      - `heat`_
 
-   * - 15
+   * - 14
      - `manila`_
 
-   * - 16
+   * - 15
      - `manila-generic`_
 
-   * - 17
+   * - 16
      - `neutron-api`_
 
-   * - 18
+   * - 17
      - `neutron-gateway`_ or `ovn-central`_
 
-   * - 19
+   * - 18
      - `placement`_
 
-   * - 20
+   * - 19
      - `nova-cloud-controller`_
 
-   * - 21
+   * - 20
      - `openstack-dashboard`_
 
-   * - 22
+   * - 21
      - `nova-compute`_
 
-   * - 23
+   * - 22
      - `ovn-dedicated-chassis`_
 
-   * - 24
+   * - 23
      - `ceph-osd`_
 
-   * - 25
+   * - 24
      - `swift-proxy`_
 
-   * - 26
+   * - 25
      - `swift-storage`_
 
-   * - 27
+   * - 26
      - `octavia`_
-
-.. important::
-
-   Services whose software is not included in the `Ubuntu Cloud Archive`_ are
-   not represented in the above list. This software is upgraded by the
-   administrator (on the units) using traditional means (e.g. manually via
-   package tools or as part of a series upgrade). Common charms where this
-   applies are ntp, memcached, percona-cluster, rabbitmq-server,
-   mysql-innodb-cluster, and mysql-router.
 
 .. note::
 
@@ -273,42 +354,6 @@ The order provided below is the order used by internal testing.
    * the desire to use features available in the new amphora agent or haproxy
 
    See the upstream documentation on `Rotating amphora images`_.
-
-Software sources
-----------------
-
-A key part of an OpenStack upgrade is the stipulation of a unit's software
-sources. For an upgrade, the latter will naturally reflect a more recent
-combination of Ubuntu release (series) and OpenStack release. This combination
-is based on the `Ubuntu Cloud Archive`_ and translates to a "cloud archive
-OpenStack release". It takes on the following syntax:
-
-``<ubuntu series>-<openstack-release>``
-
-The value is passed to a charm's ``openstack-origin`` configuration option. For
-example, to select the 'focal-victoria' release:
-
-``openstack-origin=cloud:focal-victoria``
-
-In this way the charm is informed on where to find updates for the packages
-that it is responsible for.
-
-.. note::
-
-   A few charms support option ``source`` instead of ``openstack-origin``.
-
-Notes concerning the value of ``openstack-origin``:
-
-* The default is 'distro'. This denotes an Ubuntu release's default archive
-  (e.g. in the case of the focal series it corresponds to OpenStack Ussuri).
-  The value of 'distro' is therefore invalid in the context of an OpenStack
-  upgrade.
-
-* It should normally be the same across all charms.
-
-* Its series component must be that of the series currently in use (i.e. a
-  series upgrade and an OpenStack upgrade are two completely separate
-  procedures).
 
 .. _perform_the_upgrade:
 
@@ -345,7 +390,7 @@ also has the greatest potential for service downtime.
 All-in-one
 ~~~~~~~~~~
 
-The "all-in-one" method upgrades all application units simultaneously. This
+The all-in-one method upgrades all application units simultaneously. This
 method must be used if the application has a sole unit.
 
 Although it is the quickest route, it will also cause a temporary disruption of
@@ -380,10 +425,10 @@ use the ``source`` charm option instead. The Ceph charms are a classic example:
 Single-unit
 ~~~~~~~~~~~
 
-The "single-unit" method builds upon the "all-in-one" method by allowing for
-the upgrade of individual units in a controlled manner. It requires the
-enablement of charm option ``action-managed-upgrade`` and action
-``openstack-upgrade`` must be supported.
+The single-unit method builds upon the all-in-one method by allowing for the
+upgrade of individual units in a controlled manner. The charm must support the
+``openstack-upgrade`` action, which in turn guarantees the availability of the
+``action-managed-upgrade`` option.
 
 This method is slower than the all-in-one method due to the need for each unit
 to be upgraded separately. There is a lesser chance of downtime as the unit
@@ -391,13 +436,16 @@ being upgraded must be in the process of servicing client requests for downtime
 to occur.
 
 As a general rule, whenever there is the possibility of upgrading units
-individually, **always upgrade the application leader first.** The leader is
-the unit with a ***** next to it in the :command:`juju status` output. It can
-also be discovered via the CLI:
+individually, **always upgrade the application leader first**.
 
-.. code-block:: none
+.. note::
 
-   juju run --application <application-name> is-leader
+   The leader is the unit with a ***** next to it in the :command:`juju status`
+   output. It can also be discovered via the CLI:
+
+   .. code-block:: none
+
+      juju run -a <application-name> is-leader
 
 For example, to upgrade a three-unit glance application from Ussuri to Victoria
 where ``glance/1`` is the leader:
@@ -416,9 +464,9 @@ where ``glance/1`` is the leader:
 Paused-single-unit
 ~~~~~~~~~~~~~~~~~~
 
-The "paused-single-unit" method extends the "single-unit" method by allowing
-for the upgrade of individual units *while paused*. Additional charm
-requirements are the ``pause`` and ``resume`` actions.
+The paused-single-unit method extends the single-unit method by allowing for
+the upgrade of individual units while paused. Additional charm requirements are
+the ``pause`` and ``resume`` actions.
 
 This method provides more versatility by allowing a unit to be removed from
 service, upgraded, and returned to service. Each of these are distinct events
@@ -426,7 +474,8 @@ whose timing is chosen by the operator.
 
 This is the slowest method due to the need for each unit to be upgraded
 separately in addition to the required pause/resume management. However, it is
-the method that will result in the least downtime.
+the method that will result in the least downtime as clients will not be able
+to solicit a paused service.
 
 For example, to upgrade a three-unit nova-compute application from Ussuri to
 Victoria where ``nova-compute/0`` is the leader:
@@ -449,14 +498,14 @@ Victoria where ``nova-compute/0`` is the leader:
    juju run-action --wait nova-compute/2 resume
 
 In addition, this method also permits a possible hacluster subordinate unit,
-which typically manages a VIP, to be paused so that client traffic will not
-flow to the associated parent unit while its upgrade is underway.
+which typically manages a VIP, to be paused so that client requests will never
+even be directed to the associated parent unit.
 
 .. attention::
 
    When there is an hacluster subordinate unit then it is recommended to always
-   take advantage of the "pause-single-unit" method's ability to pause it
-   before upgrading the parent unit.
+   take advantage of the pause-single-unit method's ability to pause it before
+   upgrading the parent unit.
 
 For example, to upgrade a three-unit keystone application from Ussuri to
 Victoria where ``keystone/2`` is the leader:
@@ -487,14 +536,14 @@ Victoria where ``keystone/2`` is the leader:
 .. warning::
 
    The hacluster subordinate unit number may not necessarily match its parent
-   unit number. As in the above example, only for keystone/0 do the unit
-   numbers correspond (i.e. keystone-hacluster/0 is the subordinate unit).
+   unit number. As in the above example, only for ``keystone/0`` do the unit
+   numbers correspond (i.e. ``keystone-hacluster/0`` is its subordinate unit).
 
 Re-enable unattended-upgrades
 -----------------------------
 
 In a :ref:`previous step <disable_unattended_upgrades>`, unattended-upgrades
-were disabled on those cloud nodes that hosted multiple principle charms. Once
+were disabled on those cloud nodes that hosted multiple principal charms. Once
 such a node has had all of its services upgraded, unattended-upgrades should be
 re-enabled:
 
@@ -512,6 +561,7 @@ Check for errors in :command:`juju status` output and any monitoring service.
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
 .. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
+.. _Percona strict mode: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/features/pxc-strict-mode.html
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
