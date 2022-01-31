@@ -75,7 +75,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
 .. toctree::
    :caption: Operations
 
-   Operations have moved (charm-guide) <https://docs.openstack.org/charm-guide/latest/howto>
+   Operations have moved (charm-guide) <https://docs.openstack.org/charm-guide/latest/admin>
 
 .. toctree::
    :caption: Storage

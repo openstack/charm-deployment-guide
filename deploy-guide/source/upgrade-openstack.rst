@@ -556,6 +556,12 @@ Verify the new deployment
 
 Check for errors in :command:`juju status` output and any monitoring service.
 
+Example upgrade
+---------------
+
+The :doc:`OpenStack upgrade example <upgrade-openstack-example>` page shows the
+explicit steps used to upgrade a basic cloud.
+
 .. LINKS
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
