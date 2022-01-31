@@ -24,8 +24,8 @@ it is v2 specific.
 
 .. note::
 
-    This is a *Nova* cell, other services such as Neutron, Glance etc are not
-    cell aware.
+   This is a *Nova* cell, other services such as Neutron, Glance etc are not
+   cell aware.
 
 The Super Conductor
 ~~~~~~~~~~~~~~~~~~~
@@ -54,8 +54,16 @@ Each cell requires the following charms:
 
 * nova-cell-controller
 * rabbitmq-server
-* percona-cluster
+* mysql-innodb-cluster
 * nova-compute
+
+.. note::
+
+   Prior to Ubuntu 20.04 LTS (Focal) the percona-cluster charm (as opposed to
+   mysql-innodb-cluster) is used for the cloud database
+   (see :doc:`percona-cluster charm: series upgrade to focal
+   <percona-series-upgrade-to-focal>`). The `corresponding page in the Train
+   release`_ of this guide covers percona-cluster instructions.
 
 To allow each application to be configured differently between cells and to
 be able to distinguish which instance of an application goes with which cell it
@@ -64,7 +72,7 @@ components.
 
 .. code:: bash
 
-    juju deploy nova-compute nova-compute-cell4
+   juju deploy nova-compute nova-compute-cell4
 
 Rabbit for Neutron
 ~~~~~~~~~~~~~~~~~~
@@ -76,10 +84,10 @@ out onto a separate broker.
 
 .. code:: bash
 
-    juju add-relation neutron-api:amqp rabbitmq-server-neutron:amqp
-    juju add-relation neutron-gateway:amqp rabbitmq-server-neutron:amqp
-    juju add-relation neutron-openvswitch:amqp rabbitmq-server-neutron:amqp
-    juju add-relation ceilometer:amqp-listener rabbitmq-server-neutron:amqp
+   juju add-relation neutron-api:amqp rabbitmq-server-neutron:amqp
+   juju add-relation neutron-gateway:amqp rabbitmq-server-neutron:amqp
+   juju add-relation neutron-openvswitch:amqp rabbitmq-server-neutron:amqp
+   juju add-relation ceilometer:amqp-listener rabbitmq-server-neutron:amqp
 
 Adding A New Cell to an Existing Deployment
 +++++++++++++++++++++++++++++++++++++++++++
@@ -92,52 +100,58 @@ Add the four cell applications:
 
 .. code:: bash
 
-    juju deploy cs:percona-cluster mysql-cell2
-    juju deploy cs:rabbitmq-server rabbitmq-server-nova-cell2
-    juju deploy cs:nova-compute nova-compute-cell2
-    juju deploy cs:nova-cell-controller --config cell-name='cell2' nova-cell-controller-cell2
+   juju deploy -n 3 ch:mysql-innodb-cluster mysql-innodb-cluster-cell2
+   juju deploy ch:mysql-router nova-cell-controller-cell2-mysql-router
+   juju deploy ch:rabbitmq-server rabbitmq-server-nova-cell2
+   juju deploy ch:nova-compute nova-compute-cell2
+   juju deploy ch:nova-cell-controller --config cell-name='cell2' nova-cell-controller-cell2
+
+.. note::
+
+   mysql-innodb-cluster charm deploys HA MySQL database cluster therefore it requires at least three units.
 
 Relate the new cell applications to each other:
 
 .. code:: bash
 
-    juju add-relation nova-compute-cell2:amqp rabbitmq-server-nova-cell2:amqp
-    juju add-relation nova-cell-controller-cell2:amqp rabbitmq-server-nova-cell2:amqp
-    juju add-relation nova-cell-controller-cell2:shared-db mysql-cell2:shared-db
-    juju add-relation nova-cell-controller-cell2:cloud-compute nova-compute-cell2:cloud-compute
+   juju add-relation nova-compute-cell2:amqp rabbitmq-server-nova-cell2:amqp
+   juju add-relation nova-cell-controller-cell2:amqp rabbitmq-server-nova-cell2:amqp
+   juju add-relation nova-cell-controller-cell2:shared-db nova-cell-controller-cell2-mysql-router:shared-db
+   juju add-relation nova-cell-controller-cell2-mysql-router:db-router mysql-innodb-cluster-cell2:db-router
+   juju add-relation nova-cell-controller-cell2:cloud-compute nova-compute-cell2:cloud-compute
 
 Relate the super conductor to the new cell:
 
 .. code:: bash
 
-    juju add-relation nova-cloud-controller:nova-cell-api nova-cell-controller-cell2:nova-cell-compute
-    juju add-relation nova-cloud-controller:amqp-cell rabbitmq-server-nova-cell2:amqp
-    juju add-relation nova-cloud-controller:shared-db-cell mysql-cell2:shared-db
-
+   juju add-relation nova-cloud-controller:nova-cell-api nova-cell-controller-cell2:nova-cell-compute
+   juju add-relation nova-cloud-controller:amqp-cell rabbitmq-server-nova-cell2:amqp
+   juju add-relation nova-cloud-controller:shared-db-cell nova-cell-controller-cell2-mysql-router:shared-db
 
 Relate the new cell to network, image and identity services:
 
 .. code:: bash
 
-    juju add-relation nova-compute-cell2:neutron-plugin neutron-openvswitch:neutron-plugin
-    juju add-relation nova-compute-cell2:image-service glance:image-service
-    juju add-relation nova-compute-cell2:cloud-credentials keystone:identity-credentials
+   juju add-relation nova-compute-cell2:neutron-plugin neutron-openvswitch:neutron-plugin
+   juju add-relation nova-compute-cell2:image-service glance:image-service
+   juju add-relation nova-cell-controller-cell2:identity-credentials keystone:identity-credentials
+   juju add-relation nova-compute-cell2:cloud-credentials keystone:identity-credentials
 
 Relate the new cell to telemetry services.
 
 .. note::
 
-    The ceilometer charm has an *amqp* and an *amqp-listerner* interface.
-    ceilometer will listen and post messages to the broker related to the
-    *amqp* interface. It will only listen to messages posted to the broker(s)
-    related to the *amqp-listener*. Therefore services that consume messages
-    from ceilometer, such as aodh, should be related to the broker associated
-    with ceilometers *amqp* interface.
+   The ceilometer charm has an *amqp* and an *amqp-listerner* interface.
+   ceilometer will listen and post messages to the broker related to the
+   *amqp* interface. It will only listen to messages posted to the broker(s)
+   related to the *amqp-listener*. Therefore services that consume messages
+   from ceilometer, such as aodh, should be related to the broker associated
+   with ceilometers *amqp* interface.
 
 .. code:: bash
 
-    juju add-relation ceilometer:amqp-listener rabbitmq-server-nova-cell2:amqp
-    juju add-relation ceilometer-agent:nova-ceilometer nova-compute-cell2:nova-ceilometer
+   juju add-relation ceilometer:amqp-listener rabbitmq-server-nova-cell2:amqp
+   juju add-relation ceilometer-agent:nova-ceilometer nova-compute-cell2:nova-ceilometer
 
 New Deployments
 +++++++++++++++
@@ -160,59 +174,63 @@ to add a second cell:
 
 .. code:: yaml
 
-  applications:
-    mysql-cell2:
-      charm: cs:percona-cluster
-      series: bionic
-      num_units: 1
-      options:
-        max-connections: 1000
-    nova-cell-controller-cell2:
-      charm: cs:nova-cell-controller
-      series: bionic
-      num_units: 1
-      options:
-        cell-name: "cell2"
-    nova-compute-cell2:
-      charm: cs:nova-compute
-      series: bionic
-      num_units: 1
-      constraints: mem=4G
-      options:
-        config-flags: default_ephemeral_format=ext4
-        enable-live-migration: true
-        enable-resize: true
-        migration-auth-type: ssh
-    rabbitmq-server-nova-cell2:
-      charm: cs:rabbitmq-server
-      num_units: 1
-  relations:
-    - - nova-compute-cell2:neutron-plugin
-      - neutron-openvswitch:neutron-plugin
-    - - nova-cloud-controller:amqp-cell
-      - rabbitmq-server-nova-cell2:amqp
-    - - ceilometer:amqp-listener
-      - rabbitmq-server-nova-cell2
-    - - ceilometer-agent
-      - nova-compute-cell2
-    - - nova-cloud-controller:nova-cell-api
-      - nova-cell-controller-cell2:nova-cell-compute
-    - - nova-cloud-controller:shared-db-cell
-      - mysql-cell2:shared-db
-    - - nova-cloud-controller:amqp-cell
-      - rabbitmq-server-nova-cell2:amqp
-    - - nova-compute-cell2:amqp
-      - rabbitmq-server-nova-cell2:amqp
-    - - nova-cell-controller-cell2:cloud-compute
-      - nova-compute-cell2:cloud-compute
-    - - nova-compute-cell2:image-service
-      - glance:image-service
-    - - nova-cell-controller-cell2:amqp
-      - rabbitmq-server-nova-cell2:amqp
-    - - nova-cell-controller-cell2:shared-db
-      - mysql-cell2:shared-db
-    - - nova-compute-cell2:cloud-credentials
-      - keystone:identity-credentials
+   applications:
+     mysql-innodb-cluster-cell2:
+       charm: ch:mysql-innodb-cluster
+       num_units: 3
+       options:
+         max-connections: 1000
+     nova-cell-controller-cell2-mysql-router:
+       charm: ch:mysql-router
+       num_units: 1
+       options:
+         base-port: 3316
+     nova-cell-controller-cell2:
+       charm: ch:nova-cell-controller
+       num_units: 1
+       options:
+         cell-name: "cell2"
+     nova-compute-cell2:
+       charm: ch:nova-compute
+       num_units: 1
+       constraints: mem=4G
+       options:
+         config-flags: default_ephemeral_format=ext4
+         enable-live-migration: true
+         enable-resize: true
+         migration-auth-type: ssh
+     rabbitmq-server-nova-cell2:
+       charm: ch:rabbitmq-server
+       num_units: 1
+   relations:
+     - - nova-compute-cell2:neutron-plugin
+       - neutron-openvswitch:neutron-plugin
+     - - nova-compute-cell2:image-service
+       - glance:image-service
+     - - nova-compute-cell2:cloud-credentials
+       - keystone:identity-credentials
+     - - nova-cell-controller-cell2:identity-credentials
+       - keystone:identity-credentials
+     - - nova-cloud-controller:amqp-cell
+       - rabbitmq-server-nova-cell2:amqp
+     - - nova-cloud-controller:nova-cell-api
+       - nova-cell-controller-cell2:nova-cell-compute
+     - - nova-cloud-controller:shared-db-cell
+       - nova-cell-controller-cell2-mysql-router:shared-db
+     - - nova-compute-cell2:amqp
+       - rabbitmq-server-nova-cell2:amqp
+     - - nova-cell-controller-cell2:amqp
+       - rabbitmq-server-nova-cell2:amqp
+     - - nova-cell-controller-cell2:shared-db
+       - nova-cell-controller-cell2-mysql-router:shared-db
+     - - nova-cell-controller-cell2-mysql-router:db-router
+       - mysql-innodb-cluster-cell2:db-router
+     - - nova-cell-controller-cell2:cloud-compute
+       - nova-compute-cell2:cloud-compute
+     - - ceilometer:amqp-listener
+       - rabbitmq-server-nova-cell2::amqp
+     - - ceilometer-agent:nova-ceilometer
+       - nova-compute-cell2::nova-ceilometer
 
 Targeting instances at a cell
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,27 +242,30 @@ host aggregate for *cell2* and add the compute host into it.
 
 .. code:: bash
 
-    openstack aggregate create --property cell=cell2 ag_cell2
-    openstack aggregate add host ag_cell2 juju-250b86-prod-19
+   openstack aggregate create --property cell=cell2 ag_cell2
+   openstack aggregate add host ag_cell2 juju-250b86-prod-19
 
 
 Now create a flavor that targets that cell.
 
 .. code:: bash
 
-    openstack flavor create --id 5 --ram 2048 --disk 10 --ephemeral 0 --vcpus 1 --public --property cell=cell2 m1.cell2.small
+   openstack flavor create --id 5 --ram 2048 --disk 10 --ephemeral 0 --vcpus 1 --public --property cell=cell2 m1.cell2.small
 
 Finally, enable the *AggregateInstanceExtraSpecsFilter*
 
 .. code:: bash
 
-    FILTERS=$(juju config nova-cloud-controller scheduler-default-filters)
-    juju config nova-cloud-controller scheduler-default-filters="${FILTERS},AggregateInstanceExtraSpecsFilter"
+   FILTERS=$(juju config nova-cloud-controller scheduler-default-filters)
+   juju config nova-cloud-controller scheduler-default-filters="${FILTERS},AggregateInstanceExtraSpecsFilter"
 
 Now instances that use the *m1.cell2.small* filter will land on cell2 compute
 hosts.
 
 .. note::
 
-    These host aggregates need to be manually updated when compute nodes are
-    added to the cell.
+   These host aggregates need to be manually updated when compute nodes are
+   added to the cell.
+
+.. LINKS
+.. _corresponding page in the Train release: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/train/app-nova-cells.html
