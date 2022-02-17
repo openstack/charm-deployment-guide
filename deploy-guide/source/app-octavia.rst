@@ -241,6 +241,24 @@ Octavia will use this image for all Amphora instances.
 
    See the Octavia `operators maintenance`_ guide for more details.
 
+Octavia user roles
+------------------
+
+To provide access to the Octavia API endpoints a load-balancer role must be
+added to a user. For example:
+
+.. code-block:: none
+
+   openstack role add --user-domain admin_domain --user admin \
+      --project-domain admin_domain --project admin \
+      load-balancer_admin
+
+See `Managing Octavia User Roles`_ in the upstream documentation.
+
+.. note::
+
+   Explicit user role assignments are required starting with OpenStack Wallaby.
+
 Usage
 -----
 
@@ -286,3 +304,4 @@ Octavia please refer to the `Octavia cookbook`_.
 .. _Octavia cookbook: https://docs.openstack.org/octavia/latest/user/guides/basic-cookbook.html
 .. _operators maintenance: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
 .. _vault charm: https://jaas.ai/vault/
+.. _Managing Octavia User Roles: https://docs.openstack.org/octavia/latest/configuration/policy.html#managing-octavia-user-roles
