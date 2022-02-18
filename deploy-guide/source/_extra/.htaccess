@@ -16,3 +16,4 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-mani
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-managing-power-events.html$ /charm-guide/$1/admin/managing-power-events.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/deferred-events.html$ /charm-guide/$1/admin/deferred-events.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-policy-overrides.html$ /charm-guide/$1/admin/policy-overrides.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ha.html$ /charm-guide/$1/admin/ha.html

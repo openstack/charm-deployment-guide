@@ -30,3 +30,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-managing-power-events.html 301 /charm-guide/latest/admin/managing-power-events.html
 /project-deploy-guide/charm-deployment-guide/latest/deferred-events.html 301 /charm-guide/latest/admin/deferred-events.html
 /project-deploy-guide/charm-deployment-guide/latest/app-policy-overrides.html 301 /charm-guide/latest/admin/policy-overrides.html
+/project-deploy-guide/charm-deployment-guide/latest/app-ha.html 301 /charm-guide/latest/admin/ha.html

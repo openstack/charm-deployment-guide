@@ -1111,8 +1111,7 @@ ensuring the availability of services.
    is deployed with ``customize-failure-domain`` set to 'true' and the ceph-osd
    units are hosted on machines in three or more separate Juju AZs you can
    safely reboot ceph-osd machines simultaneously in the same zone. See
-   :ref:`Ceph AZ <ceph_az>` in :doc:`Infrastructure high availability <app-ha>`
-   for details.
+   `Ceph AZ`_ in `Infrastructure high availability`_ for details.
 
 Automation
 ----------
@@ -1147,3 +1146,5 @@ and test the series upgrade primitives:
 .. _mysql-router: https://jaas.ai/mysql-router
 .. _percona-cluster charm - series upgrade to focal: percona-series-upgrade-to-focal.html
 .. _Live migrate VMs from a running compute node: https://docs.openstack.org/charm-guide/latest/admin/ops-live-migrate-vms.html
+.. _Ceph AZ: https://docs.openstack.org/charm-guide/latest/admin/ha.html#ceph-az
+.. _Infrastructure high availability: https://docs.openstack.org/charm-guide/latest/admin/ha.html

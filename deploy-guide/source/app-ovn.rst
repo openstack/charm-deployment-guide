@@ -1086,7 +1086,7 @@ Perform migration
 .. _ovn-chassis charm: https://jaas.ai/u/openstack-charmers/ovn-chassis/
 .. _OpenStack Base bundle: https://github.com/openstack-charmers/openstack-bundles/tree/master/development/openstack-base-bionic-ussuri-ovn
 .. _gaps from ML2/OVS: https://docs.openstack.org/neutron/latest/ovn/gaps.html
-.. _OVN section of the Infrastructure high availability: app-ha#ovn
+.. _OVN section of the Infrastructure high availability: https://docs.openstack.org/charm-guide/latest/admin/ha.html#ovn
 .. _OpenStack Charms Deployment Guide: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/
 .. _Nova config drive: https://docs.openstack.org/nova/latest/user/metadata.html#config-drives
 .. _DPDK supported hardware page: http://core.dpdk.org/supported/

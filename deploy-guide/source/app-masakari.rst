@@ -511,6 +511,6 @@ Masakari.
 .. _MAAS: https://maas.io
 .. _Masakari charm: http://jaas.ai/masakari
 .. _openstack-base: https://jaas.ai/openstack-base
-.. _Infrastructure high availability: app-ha.html#ha-applications
+.. _Infrastructure high availability: https://docs.openstack.org/charm-guide/latest/admin/ha.html#ha-applications
 .. _Configure OpenStack: configure-openstack.html
 .. _Issuing of certificates: app-certificate-management.html#issuing-of-certificates

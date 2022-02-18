@@ -45,7 +45,7 @@ documentation before continuing:
    Cloud topology section goes here (modelled on openstack-base README)
 
 This page will show how to install a minimal non-HA OpenStack cloud. See
-:doc:`Infrastructure high availability <app-ha>` for guidance on that subject.
+`Infrastructure high availability`_ for guidance on that subject.
 
 OpenStack release
 -----------------
@@ -807,6 +807,7 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _Deploying to specific machines: https://juju.is/docs/olm/advanced-application-deployment#heading--deploying-to-specific-machines
 .. _Managing relations: https://juju.is/docs/olm/relations
 .. _vault charm: https://jaas.ai/vault/
+.. _Infrastructure high availability: https://docs.openstack.org/charm-guide/latest/admin/ha.html
 
 .. CHARMS
 .. _ceph-mon: https://jaas.ai/ceph-mon
