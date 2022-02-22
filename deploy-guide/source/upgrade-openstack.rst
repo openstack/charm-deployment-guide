@@ -355,6 +355,36 @@ The order provided below is the order used by internal testing.
 
    See the upstream documentation on `Rotating amphora images`_.
 
+Update the charm channel
+------------------------
+
+.. warning::
+
+   This step is only performed for charms that follow a channel (see
+   :ref:`Charm types <charm_types>`).
+
+A charm's channel needs to be updated according to the target OpenStack
+release. This is done as per the following syntax:
+
+.. code-block:: none
+
+   juju refresh --switch ch:<charm> --channel=<channel> <application>
+
+For example, if the cloud is being upgraded to OpenStack Yoga then the keystone
+charm's channel should be updated to 'yoga/stable':
+
+.. code-block:: none
+
+   juju refresh --switch ch:keystone --channel=yoga/stable keystone
+
+Charms whose services are not technically part of the OpenStack project will
+generally use a channel naming scheme that is not based on OpenStack release
+names. Here is the ovn-central charm:
+
+.. code-block:: none
+
+   juju refresh --switch ch:ovn-central --channel=22.03/stable ovn-central
+
 .. _perform_the_upgrade:
 
 Perform the upgrade

@@ -195,22 +195,6 @@ column 'Rev'). For the ceph-mon charm:
    App       Version  Status  Scale  Charm     Store       Rev  OS      Notes
    ceph-mon  13.2.8   active      3  ceph-mon  jujucharms   48  ubuntu
 
-The latest available stable revision of a charm can be obtained by querying the
-Charm Store with the :command:`charm` snap:
-
-.. code-block:: none
-
-   sudo snap install charm --classic
-   charm pull ceph-mon
-
-Sample output:
-
-.. code-block:: console
-
-   cs:ceph-mon-48
-
-Based on the above, the ceph-mon charm does not require an upgrade.
-
 .. important::
 
    As stated earlier, any kind of upgrade should first be tested in a
