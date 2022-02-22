@@ -21,6 +21,7 @@ Procedures
 * :doc:`percona-cluster charm: series upgrade to focal <percona-series-upgrade-to-focal>`
 * :doc:`placement charm: OpenStack upgrade to Train <placement-charm-upgrade-to-train>`
 * :doc:`ceph charm: migration to ceph-mon and ceph-osd <ceph-charm-migration>`
+* :doc:`All charms: migration to channels <charmhub-migration>`
 
 .. LINKS
 .. _Various issues: various-issues.html
