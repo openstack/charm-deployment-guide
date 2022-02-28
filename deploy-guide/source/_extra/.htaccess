@@ -13,5 +13,6 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ceph
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-pci-passthrough-gpu.html$ /project-deploy-guide/charm-deployment-guide/$1/pci-passthrough.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-erasure-coding.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-erasure-coding.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-manila-ganesha.html$ /project-deploy-guide/charm-deployment-guide/$1/manila-ganesha.html
-RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-managing-power-events.html$ /charm-guide/$1/howto/managing-power-events.html
-RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/deferred-events.html$ /charm-guide/$1/howto/deferred-events.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-managing-power-events.html$ /charm-guide/$1/admin/managing-power-events.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/deferred-events.html$ /charm-guide/$1/admin/deferred-events.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-policy-overrides.html$ /charm-guide/$1/admin/policy-overrides.html

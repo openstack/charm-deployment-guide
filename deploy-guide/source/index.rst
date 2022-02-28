@@ -38,7 +38,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
 
    Overview <security-overview>
    keystone
-   app-policy-overrides
    app-certificate-management
 
 .. toctree::
