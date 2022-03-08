@@ -252,13 +252,15 @@ OpenStack services should be upgraded. Each service represented by a charm will
 need to be upgraded individually, and only the packages associated with a
 charm's OpenStack service will be updated.
 
-The order provided below is the order used by internal testing.
-
 .. warning::
 
    Ceph may require one of its options to be set prior to upgrading, and
    failure to consider this may result in a broken cluster. See the associated
    :ref:`upgrade issue <ceph-require-osd-release>`.
+
+.. note::
+
+   At this time, only stable charms are listed in the upgrade order table.
 
 .. list-table::
    :header-rows: 1
@@ -310,7 +312,7 @@ The order provided below is the order used by internal testing.
      - `manila`_
 
    * - 15
-     - `manila-generic`_
+     - `manila-ganesha`_
 
    * - 16
      - `neutron-api`_
@@ -630,5 +632,3 @@ Check for errors in :command:`juju status` output and any monitoring service.
 .. _trilio-horizon-plugin: https://opendev.org/openstack/charm-trilio-horizon-plugin/
 .. _trilio-wlm: https://opendev.org/openstack/charm-trilio-wlm/
 .. _vault: https://opendev.org/openstack/charm-vault/
-
-.. _manila-generic: https://opendev.org/openstack/charm-manila-generic/

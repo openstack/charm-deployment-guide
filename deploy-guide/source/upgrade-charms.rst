@@ -34,13 +34,17 @@ testing.
 
 The general order is:
 
-#. all principle charms
+#. all principal charms
 #. all subordinate charms
 
-The precise order within the group of principle charms is shown in the below
+The precise order within the group of principal charms is shown in the below
 table.
 
-.. list-table:: Principle charms
+.. note::
+
+   At this time, only stable charms are listed in the upgrade order table.
+
+.. list-table:: Principal charms
    :header-rows: 1
    :widths: auto
 
@@ -96,7 +100,7 @@ table.
      - `manila`_
 
    * - 17
-     - `manila-generic`_
+     - `manila-ganesha`_
 
    * - 18
      - `neutron-api`_
@@ -128,8 +132,11 @@ table.
    * - 27
      - `swift-storage`_
 
+   * - 28
+     - `octavia`_
+
 Upgrade testing for subordinate charms does not follow a prescribed order. Once
-all the principle charms have been processed all the subordinate charms can
+all the principal charms have been processed all the subordinate charms can
 then be upgraded in any order.
 
 Perform the upgrade
@@ -282,5 +289,3 @@ Based on the above, the ceph-mon charm does not require an upgrade.
 .. _trilio-horizon-plugin: https://opendev.org/openstack/charm-trilio-horizon-plugin/
 .. _trilio-wlm: https://opendev.org/openstack/charm-trilio-wlm/
 .. _vault: https://opendev.org/openstack/charm-vault/
-
-.. _manila-generic: https://opendev.org/openstack/charm-manila-generic/
