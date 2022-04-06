@@ -106,22 +106,22 @@ table.
      - `neutron-api`_
 
    * - 19
-     - `neutron-gateway`_ or `ovn-central`_
+     - `neutron-gateway`_ or `ovn-dedicated-chassis`_
 
    * - 20
-     - `placement`_
+     - `ovn-central`_
 
    * - 21
-     - `nova-cloud-controller`_
-
-   * - 22
-     - `openstack-dashboard`_
-
-   * - 23
      - `nova-compute`_
 
+   * - 22
+     - `placement`_
+
+   * - 23
+     - `nova-cloud-controller`_
+
    * - 24
-     - `ovn-dedicated-chassis`_
+     - `openstack-dashboard`_
 
    * - 25
      - `ceph-osd`_

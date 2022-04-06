@@ -318,22 +318,22 @@ charm's OpenStack service will be updated.
      - `neutron-api`_
 
    * - 17
-     - `neutron-gateway`_ or `ovn-central`_
+     - `neutron-gateway`_ or `ovn-dedicated-chassis`_
 
    * - 18
-     - `placement`_
+     - `ovn-central`_
 
    * - 19
-     - `nova-cloud-controller`_
-
-   * - 20
-     - `openstack-dashboard`_
-
-   * - 21
      - `nova-compute`_
 
+   * - 20
+     - `placement`_
+
+   * - 21
+     - `nova-cloud-controller`_
+
    * - 22
-     - `ovn-dedicated-chassis`_
+     - `openstack-dashboard`_
 
    * - 23
      - `ceph-osd`_
@@ -346,6 +346,12 @@ charm's OpenStack service will be updated.
 
    * - 26
      - `octavia`_
+
+.. note::
+
+   The OVN control plane will not be available between the commencement of the
+   ovn-central upgrade and the completion of the nova-compute upgrade. They are
+   deliberately placed in close proximity to each other for this reason.
 
 .. note::
 
