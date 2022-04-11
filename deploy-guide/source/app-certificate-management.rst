@@ -153,6 +153,14 @@ command syntax is dependent upon the CA. Note the inclusion of the input file
       -notext -md sha256 -in ~/csr_file -out ~/vault-charm-int.pem -batch \
       -passin pass:secretpassword
 
+.. note::
+
+   Depending on the services deployed on your cloud, the intermediate CA
+   may need to issue both client and server certificates. Therefore, it is
+   necessary to check the property of your external CA and grant the
+   intermediate CA the proper level of authorization to issue both types
+   of certificates.
+
 The certificate is normally provided in PEM format, like the output file
 ``~/vault-charm-int.pem`` in the above command. A root CA certificate should
 also be provided and placed in, say, file ``~/root-ca.pem``.
@@ -268,6 +276,57 @@ Reissuing of certificates
 New certificates can be reissued to all TLS-enabled clients by means of the
 ``reissue-certificates`` action. See cloud operation `Reissue TLS
 certificates across the cloud`_ in the Admin Guide for details.
+
+Switching between different types of CA certificates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to switch between a self-signed root CA certificate
+and a third-party intermediate CA certificate after deployment.
+
+.. Important::
+
+   Switching certificates will cause a short period of downtime for services
+   using Vault as the certificate manager. Notebly, a TLS-enabled Keystone will
+   temporarily move to the ``maintainance`` state to update its endpoints.
+
+From self-signed root certificate to third-party intermediate certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To switch from a self-signed root CA certificate to a third-party intermediate
+CA certificate, you need to first disable the PKI secrets
+backend:
+
+.. code-block:: none
+
+   juju run-action --wait vault/leader disable-pki
+
+This step deletes the exisitng root certificate and invalidates any previous csr
+requests.
+
+Next, follow the steps described in the
+`Third-party intermediate CA certificate`_ section above to retrieve a CSR
+from the Vault and have it signed by the external CA.
+
+
+Finally, upload both the signed intermediate certificate and the external root
+CA certificate to Vault:
+
+.. code-block:: none
+
+   juju run-action --wait vault/leader upload-signed-csr \
+      pem=“$(cat /path/to/vault-charm-int.pem | base64)" \
+      root-ca="$(cat /path/to/root-ca.pem | base64)"
+
+From third-party intermediate certificate to self-signed root certificate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To switch from an external certificate to a self-signed one first disable the
+PKI secrets backend and then generate a root CA certificate:
+
+.. code-block:: none
+
+   juju run-action --wait vault/leader disable-pki
+   juju run-action --wait vault/leader generate-root-ca
 
 .. LINKS
 .. _RFC5280: https://tools.ietf.org/html/rfc5280#section-3.2
