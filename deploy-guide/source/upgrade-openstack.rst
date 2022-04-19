@@ -247,10 +247,11 @@ tree. Those services that have the most potential impact on other services are
 upgraded first and those services that have the least potential impact on other
 services are upgraded last.
 
-In the below table charms are listed in the order in which their corresponding
+In the below table, charms are listed in the order in which their corresponding
 OpenStack services should be upgraded. Each service represented by a charm will
-need to be upgraded individually, and only the packages associated with a
-charm's OpenStack service will be updated.
+need to be upgraded individually. Note that since charms merely modify a
+machine's apt sources, any co-located service will have their packages updated
+along with those of the service being targeted.
 
 .. warning::
 
