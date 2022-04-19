@@ -353,16 +353,6 @@ charm's OpenStack service will be updated.
    ovn-central upgrade and the completion of the nova-compute upgrade. They are
    deliberately placed in close proximity to each other for this reason.
 
-.. note::
-
-   An Octavia upgrade may entail an update of its load balancers (amphorae) as
-   a post-upgrade task. Reasons for doing this include:
-
-   * API incompatibility between the amphora agent and the new Octavia service
-   * the desire to use features available in the new amphora agent or haproxy
-
-   See the upstream documentation on `Rotating amphora images`_.
-
 .. _perform_the_upgrade:
 
 Perform the upgrade
@@ -574,7 +564,6 @@ explicit steps used to upgrade a basic cloud.
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
-.. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
 .. _Percona strict mode: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/features/pxc-strict-mode.html
 
 .. BUGS

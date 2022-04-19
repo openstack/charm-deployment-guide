@@ -10,7 +10,12 @@ The items on this page are distinct from those found on the following pages:
 * the `Various issues`_ page
 * the `Special charm procedures`_ page
 
-The issues are organised by upgrade type.
+The issues are organised by upgrade type:
+
+.. contents::
+   :local:
+   :depth: 2
+   :backlinks: top
 
 Charm upgrades
 --------------
@@ -264,6 +269,17 @@ Prior to upgrading to Victoria users of FWaaS should remove any existing
 firewall groups to avoid the possibility of orphaning active firewalls (see the
 `FWaaS v2 CLI documentation`_).
 
+Octavia
+~~~~~~~
+
+An Octavia upgrade may entail an update of its load balancers (amphorae) as a
+post-upgrade task. Reasons for doing this include:
+
+* API incompatibility between the amphora agent and the new Octavia service
+* the desire to use features available in the new amphora agent or haproxy
+
+See the upstream documentation on `Rotating amphora images`_.
+
 Series upgrades
 ---------------
 
@@ -300,6 +316,7 @@ error can be resolved with:
 .. _21.10 Release Notes: https://docs.openstack.org/charm-guide/latest/2110.html
 .. _FWaaS v2: https://docs.openstack.org/neutron/ussuri/admin/fwaas.html
 .. _FWaaS v2 CLI documentation: https://docs.openstack.org/python-neutronclient/ussuri/cli/osc/v2/firewall-group.html
+.. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
