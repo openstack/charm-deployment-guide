@@ -38,6 +38,22 @@ Concerning the cloud being operated upon, the following is assumed:
    applications). It should first be tested on a non-production cloud that
    closely resembles the production environment.
 
+Upgrade candidate availability
+------------------------------
+
+Ensure that there is an upgrade candidate available. Charmed OpenStack is
+primarily designed to run on Ubuntu LTS releases, and an Ubuntu system is
+configured, by default, to upgrade only to the next LTS. In addition, this will
+be possible only once the first LTS point release is published (see the `Ubuntu
+releases wiki page`_ for release date information). For example, an upgrade to
+Focal was possible starting on August 6, 2020.
+
+.. caution::
+
+   The Juju tooling will initiate the upgrade process irrespective of whether
+   an upgrade candidate is available or not. A cancelled upgrade is not fatal,
+   but it will leave erroneous messaging in :command:`juju status` output.
+
 The Juju :command:`upgrade-series` command
 ------------------------------------------
 
@@ -331,6 +347,7 @@ When you are ready to perform a series upgrade across your cloud proceed to
 the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` page.
 
 .. LINKS
+.. _Ubuntu releases wiki page: https://wiki.ubuntu.com/Releases
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Charms upgrade: upgrade-charms.html
 .. _OpenStack upgrade: upgrade-openstack.html
