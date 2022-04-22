@@ -80,6 +80,26 @@ exporting shares after restart`_, the nfs-ganesha Ubuntu package must be
 updated on all affected units prior to the upgrading of the manila-ganesha
 charm in OpenStack Charms 21.10.
 
+.. _charm_upgrade_issue-radosgw_gss:
+
+ceph-radosgw charm: upgrading to channel ``quincy/stable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Due to a `ceph-radosgw charm change`_ in the ``quincy/stable`` channel, URLs
+are processed differently by the RADOS Gateway. This will lead to breakage for
+an existing ``product-streams`` endpoint, set up by the
+glance-simplestreams-sync application, that includes a trailing slash in its
+URL.
+
+The glance-simplestreams-sync charm has been fixed in the ``yoga/stable``
+channel, but it will not update a pre-existing endpoint. The URL must be
+modified (remove the trailing slash) with native OpenStack tooling:
+
+.. code-block:: none
+
+   openstack endpoint list --service product-streams
+   openstack endpoint set --url <new-url> <endpoint-id>
+
 OpenStack upgrades
 ------------------
 
@@ -317,6 +337,7 @@ error can be resolved with:
 .. _FWaaS v2: https://docs.openstack.org/neutron/ussuri/admin/fwaas.html
 .. _FWaaS v2 CLI documentation: https://docs.openstack.org/python-neutronclient/ussuri/cli/osc/v2/firewall-group.html
 .. _Rotating amphora images: https://docs.openstack.org/octavia/latest/admin/guides/operator-maintenance.html#rotating-the-amphora-images
+.. _ceph-radosgw charm change: https://review.opendev.org/c/openstack/charm-ceph-radosgw/+/835827
 
 .. BUGS
 .. _LP #1825999: https://bugs.launchpad.net/charm-nova-compute/+bug/1825999
