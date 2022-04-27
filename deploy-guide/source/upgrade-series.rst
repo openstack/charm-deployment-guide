@@ -211,11 +211,12 @@ thinking to multiple applications.
 Application leadership
 ----------------------
 
-`Application leadership`_ plays an important role in determining the order in
-which machines (and their applications) will have their series upgraded. The
-guiding principle is that an application's unit leader is acted upon by a
-series upgrade before its non-leaders are (the leader is typically used to
-coordinate aspects with other services over relations).
+`Application leadership`_ plays a role in determining the order in which
+machines will have their series upgraded. The guiding principle is that an
+application's non-leader units (if they exist) are upgraded (in no particular
+order) prior to its leader unit. There are exceptions to this however, and they
+will be indicated on the :doc:`Series upgrade OpenStack
+<upgrade-series-openstack>` page.
 
 .. note::
 
@@ -264,6 +265,11 @@ output:
    1        started  10.0.0.242  node3    xenial  zone4  Deployed
    2        started  10.0.0.243  node1    xenial  zone5  Deployed
 
+.. important::
+
+   The asterisk in the Unit column denotes the leader. Here, ``ubuntu1/0`` is
+   the leader and its machine ID is 0.
+
 First ensure that any new applications will (by default) use the new series, in
 this case bionic. This is done by configuring at the model level:
 
@@ -278,22 +284,24 @@ existing application, in this case 'ubuntu1':
 
    juju set-series ubuntu1 bionic
 
-Perform the actual series upgrade. We begin with the machine that houses the
-application unit leader, machine 0 (see the asterisk in the Unit column). Note
-that :command:`juju run` is preferred over :command:`juju ssh` but the latter
-should be used for sessions requiring user interaction:
+To perform the actual series upgrade we begin with a non-leader machine (1):
 
 .. code-block:: none
    :linenos:
 
    # Perform any workload maintenance pre-upgrade steps here
-   juju upgrade-series 0 prepare bionic
-   juju run --machine=0 -- sudo apt update
-   juju ssh 0 sudo apt full-upgrade
-   juju ssh 0 sudo do-release-upgrade
+   juju upgrade-series 1 prepare bionic
+   juju ssh 1 sudo apt update
+   juju ssh 1 sudo apt full-upgrade
+   juju ssh 1 sudo do-release-upgrade
    # Perform any workload maintenance post-upgrade steps here
    # Reboot the machine (if not already done)
-   juju upgrade-series 0 complete
+   juju upgrade-series 1 complete
+
+.. note::
+
+   It is recommended to use a terminal multiplexer (e.g. tmux) in order to
+   prevent a network disruption from breaking the invoked commands.
 
 In this generic example there are no `workload maintenance`_ steps to perform.
 If there were post-upgrade steps then the prompt to reboot the machine at the
@@ -309,10 +317,10 @@ non-interactive mode is preferred, those two lines can be replaced with:
 
 .. code-block:: none
 
-   juju run --machine=0 --timeout=30m -- sudo DEBIAN_FRONTEND=noninteractive apt-get --assume-yes \
+   juju ssh 1 sudo DEBIAN_FRONTEND=noninteractive apt-get --assume-yes \
       -o "Dpkg::Options::=--force-confdef" \
       -o "Dpkg::Options::=--force-confold" dist-upgrade
-   juju run --machine=0 --timeout=30m -- sudo DEBIAN_FRONTEND=noninteractive \
+   juju ssh 1 sudo DEBIAN_FRONTEND=noninteractive \
       do-release-upgrade -f DistUpgradeViewNonInteractive
 
 The :command:`apt-get` command is preferred while in non-interactive mode (or
@@ -327,18 +335,15 @@ the ``-d`` (development) option with the :command:`do-release-upgrade` command.
    Performing a series upgrade non-interactively can be risky so the decision
    to do so should be made only after careful deliberation.
 
-Machines 1 and 2 should now be upgraded in the same way (in no particular
-order).
+The remaining non-leader machine (2) is then upgraded:
 
-.. note::
+.. code-block:: none
 
-   It has been reported that a trusty:xenial series upgrade may require an
-   additional step to ensure a purely non-interactive mode. A file under
-   ``/etc/apt/apt.conf.d`` with a single line as its contents needs to be added
-   to the target machine pre-upgrade and be removed post-upgrade. It can be
-   created (here on machine 0) in this way:
+   juju upgrade-series 2 prepare bionic
+   ...
+   ...
 
-   juju run --machine=0 -- "echo 'DPkg::options { "--force-confdef"; "--force-confnew"; }' | sudo tee /etc/apt/apt.conf.d/local"
+Finally, the leader machine (0) is upgraded in the same way.
 
 Next steps
 ----------
