@@ -34,13 +34,6 @@ Development notes
 This section includes charm development information that will better prepare
 the administrator for the task of upgrading Charmed OpenStack.
 
-* There is a single development branch for the OpenStack charms. Unless stated
-  otherwise, each new revision of a charm includes all the functionality of the
-  previous revision. This means that a charm that works for a recent
-  series:openstack combination will also work on an older combination. There is
-  also no need to switch to a different charm (or charm channel) in order to
-  upgrade to a new series and/or OpenStack version.
-
 * It is possible for a charm to gain new functionality that is only supported
   starting with a specific OpenStack version (e.g. gnocchi S3 support with
   Stein).
@@ -54,6 +47,44 @@ the administrator for the task of upgrading Charmed OpenStack.
 
    A charm's limitations concerning OpenStack versions and application features
    are stated in its README file.
+
+.. _charm_types:
+
+Charm types
+~~~~~~~~~~~
+
+There are two general types of OpenStack charms: one that does use channels and
+one that does not (legacy).
+
+.. note::
+
+   For an overview of how charms are consumed by the end-user see `Charm
+   delivery`_.
+
+Channels
+^^^^^^^^
+
+With the channels type, a channel is dedicated to a single OpenStack release
+(release N-1 will be technically supported to assist with upgrades). This means
+that a charm that works for a recent series-openstack combination will
+generally not work on an older combination. Furthermore, there is a need to
+switch to a different channel in order to upgrade to a new OpenStack version
+- but not to a new series.
+
+The most recent supported series-openstack combination is ``focal-yoga``.
+Channels however are available for many older combinations.
+
+Legacy
+^^^^^^
+
+For the legacy charms, unless stated otherwise, each new revision of a charm
+includes all the functionality of the previous revision. This means that a
+charm that works for a recent series-openstack combination will also work on an
+older combination.
+
+The development of legacy charms has stopped at the 21.10 release of OpenStack
+Charms (and at the 21.06 release of Trilio Charms). The last supported
+series-openstack combination is ``focal-xena``.
 
 Software release cycles
 -----------------------
@@ -115,7 +146,7 @@ Upgrade order
 The order in which to upgrade the different software components is critical.
 The generic upgrade order is:
 
-#. charms (to latest stable revision)
+#. charms (to latest stable revision for the current charm type)
 #. OpenStack (to latest stable version on the current series)
 #. series
 #. OpenStack (to desired stable version on the new series)
@@ -145,7 +176,7 @@ target: a specific Ubuntu release
 
 Upgrade path:
 
-#. Upgrade charms to latest stable revision
+#. Upgrade charms to latest stable revision for the current charm type
 #. Upgrade OpenStack from Train to Ussuri
 #. Upgrade series from bionic to focal
 
@@ -159,7 +190,7 @@ target: a specific OpenStack version
 
 Upgrade path:
 
-#. Upgrade charms to latest stable revision
+#. Upgrade charms to latest stable revision for the current charm type
 #. Upgrade series from bionic to focal
 #. Upgrade OpenStack from Ussuri to Victoria
 
@@ -194,3 +225,4 @@ Each upgrade type is broken down into more detail on the following pages:
 .. LINKS
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Release schedule: https://docs.openstack.org/charm-guide/latest/release-schedule.html
+.. _Charm delivery: https://docs.openstack.org/charm-guide/latest/project/charm-delivery.html
