@@ -16,10 +16,10 @@ Charms upgrade
 OpenStack upgrade
   An upgrade of the software deployed by the OpenStack charms. Each application
   is upgraded via its corresponding charm. This constitutes an upgrade from one
-  major OpenStack version to the next (e.g. Ussuri to Victoria).
+  major OpenStack version to the next (e.g. Xena to Yoga).
 
 Series upgrade
-  An upgrade of the Ubuntu operating system (e.g. Bionic to Focal) on the cloud
+  An upgrade of the Ubuntu operating system (e.g. Focal to Jammy) on the cloud
   nodes. This includes containers.
 
 .. important::
@@ -100,7 +100,7 @@ Each software component has a predictable release cycle.
      - Schedule
 
    * - OpenStack Charms
-     - 3
+     - 6
      - https://docs.openstack.org/charm-guide/latest/release-schedule.html
 
    * - OpenStack
@@ -171,16 +171,16 @@ Two example scenarios are provided next.
 target: a specific Ubuntu release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Current state: OpenStack Train on Ubuntu 18.04 LTS
-* Goal state: Ubuntu 20.04 LTS
+* Current state: OpenStack Xena on Ubuntu 20.04 LTS
+* Goal state: Ubuntu 22.04 LTS
 
 Upgrade path:
 
 #. Upgrade charms to latest stable revision for the current charm type
-#. Upgrade OpenStack from Train to Ussuri
-#. Upgrade series from bionic to focal
+#. Upgrade OpenStack from Xena to Yoga
+#. Upgrade series from focal to jammy
 
-Final result: OpenStack Ussuri on Ubuntu 20.04 LTS
+Final result: OpenStack Yoga on Ubuntu 22.04 LTS
 
 target: a specific OpenStack version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
