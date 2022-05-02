@@ -11,11 +11,12 @@ MySQL, OVN, Swift, and RabbitMQ).
 
 The software versions used in this guide are as follows:
 
-* **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, Juju
-  controller, and all cloud nodes (including containers)
-* **MAAS 3.0.0**
-* **Juju 2.9.15**
-* **OpenStack Xena**
+* **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, and Juju
+  controller
+* **Ubuntu 22.04 LTS (Jammy)** for all cloud nodes (including containers)
+* **MAAS 3.1.0**
+* **Juju 2.9.29**
+* **OpenStack Yoga**
 
 Proceed to the :doc:`Install MAAS <install-maas>` page to begin your
 installation journey. Hardware requirements are also listed there.

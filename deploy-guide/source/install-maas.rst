@@ -59,7 +59,7 @@ The MAAS system's single network interface resides on subnet
 
 .. attention::
 
-   The MAAS-provisioned nodes rely upon Focal AMD64 images provided by MAAS.
+   The MAAS-provisioned nodes rely upon Jammy AMD64 images provided by MAAS.
 
 .. _install_maas:
 
@@ -73,7 +73,7 @@ instructions`_ for details:
 .. code-block:: none
 
    sudo snap install maas-test-db
-   sudo snap install maas --channel=3.0/stable
+   sudo snap install maas --channel=3.1/stable
    sudo maas init region+rack --maas-url http://10.0.0.2:5240/MAAS --database-uri maas-test-db:///
    sudo maas createadmin --username admin --password ubuntu --email admin@example.com --ssh-import lp:<unsername>
    sudo maas apikey --username admin > ~ubuntu/admin-api-key
@@ -115,7 +115,7 @@ The web UI URL then becomes:
 **http://10.0.0.2:5240/MAAS**
 
 You will be whisked through an on-boarding process when you access the web UI
-for the first time. Recall that we require 20.04 LTS AMD64 images.
+for the first time. Recall that we require 22.04 LTS AMD64 images.
 
 Enable DHCP
 ~~~~~~~~~~~

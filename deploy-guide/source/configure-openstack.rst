@@ -25,7 +25,7 @@ command line. Install them now:
 
 .. code-block:: none
 
-   sudo snap install openstackclients --classic
+   sudo snap install openstackclients
 
 Create the admin user environment
 ---------------------------------
@@ -65,7 +65,7 @@ Sample output:
    OS_REGION_NAME=RegionOne
    OS_AUTH_VERSION=3
    OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
-   OS_AUTH_URL=https://10.0.0.170:5000/v3
+   OS_AUTH_URL=https://10.0.0.174:5000/v3
    OS_PROJECT_DOMAIN_NAME=admin_domain
    OS_AUTH_PROTOCOL=https
    OS_USERNAME=admin
@@ -97,13 +97,12 @@ The output will look similar to this:
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
    | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                      |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
-   | 12011a63a8e24e2290986cf7d8c285db | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.179:8776/v3/$(tenant_id)s |
-   | 17a66b67744c42beb20135dca647a9a4 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.170:35357/v3              |
-   | 296755b4627641379fd43095c5fab3ba | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.172:8774/v2.1             |
-   | 682fd715c05f492fb0abc08f56e25439 | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.173:8778                  |
-   | 7b20063d208c40aa9d3e3d1152259868 | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.169:9696                  |
-   | a613af1a0d8349ee9329e1230e76b764 | RegionOne | cinderv2     | volumev2     | True    | admin     | https://10.0.0.179:8776/v2/$(tenant_id)s |
-   | b4fe417933704e8b86cfbca91811fcbf | RegionOne | glance       | image        | True    | admin     | https://10.0.0.175:9292                  |
+   | 153cac31650f4c3db2d4ed38cb21af5d | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.176:8774/v2.1             |
+   | 163ea3aef1cb4e2cab7900a092437b8e | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.173:9696                  |
+   | 2ae599431cf641618da754446c827983 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.174:35357/v3              |
+   | 42befdb50fd84719a7e1c1f60d5ead42 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.183:8776/v3/$(tenant_id)s |
+   | d73168f18aba40efa152e304249d95ab | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.177:8778                  |
+   | f63768a3b71f415680b45835832b7860 | RegionOne | glance       | image        | True    | admin     | https://10.0.0.179:9292                  |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
 
 If the endpoints aren't visible, it's likely your environment variables aren't
@@ -120,20 +119,22 @@ Create an image and flavor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Import a boot image into Glance to create server instances with. Here we import
-a Focal amd64 image:
+a Jammy amd64 image:
 
 .. code-block:: none
 
-   curl http://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img \
-      --output ~/cloud-images/focal-amd64.img
+   mkdir ~/cloud-images
 
-Now import the image and call it 'focal-amd64':
+   curl http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img \
+      --output ~/cloud-images/jammy-amd64.img
+
+Now import the image and call it 'jammy-amd64':
 
 .. code-block:: none
 
    openstack image create --public --container-format bare \
-      --disk-format qcow2 --file ~/cloud-images/focal-amd64.img \
-      focal-amd64
+      --disk-format qcow2 --file ~/cloud-images/jammy-amd64.img \
+      jammy-amd64
 
 Create at least one flavor to define a hardware profile for new instances. Here
 we create one called 'm1.small':
@@ -232,7 +233,7 @@ The contents of the file, say ``project1-rc``, will therefore look like this
 
 .. code-block:: ini
 
-   export OS_AUTH_URL=https://10.0.0.170:5000/v3
+   export OS_AUTH_URL=https://10.0.0.174:5000/v3
    export OS_USER_DOMAIN_NAME=domain1
    export OS_USERNAME=user1
    export OS_PROJECT_DOMAIN_NAME=domain1
@@ -264,7 +265,7 @@ Perform a cloud query to ensure the user environment is functioning correctly:
    +--------------------------------------+-------------+--------+
    | ID                                   | Name        | Status |
    +--------------------------------------+-------------+--------+
-   | 82517c74-1226-4dab-8a6b-59b4fe07f681 | focal-amd64 | active |
+   | 82517c74-1226-4dab-8a6b-59b4fe07f681 | jammy-amd64 | active |
    +--------------------------------------+-------------+--------+
 
 The image that was previously imported by the admin user should be returned.
@@ -277,15 +278,15 @@ project-specific network with a private subnet. We'll also need a router to
 link this network to the public network created earlier.
 
 The non-admin user now creates a private internal network called 'user1_net'
-and an accompanying subnet called 'user1_subnet' (the DNS server is the MAAS
-server at 10.0.0.2):
+and an accompanying subnet called 'user1_subnet' (here the DNS server is the
+MAAS server at 10.0.0.2, but adjust to local conditions):
 
 .. code-block:: none
 
    openstack network create --internal user1_net
 
    openstack subnet create --network user1_net --dns-nameserver 10.0.0.2 \
-      --gateway 192.168.0.1 --subnet-range 192.168.0/24 \
+      --subnet-range 192.168.0/24 \
       --allocation-pool start=192.168.0.10,end=192.168.0.199 \
       user1_subnet
 
@@ -309,6 +310,8 @@ passphraseless keypair (remove the ``-N`` option to avoid that):
 
 .. code-block:: none
 
+   mkdir ~/cloud-keys
+
    ssh-keygen -q -N '' -f ~/cloud-keys/user1-key
 
 To import a keypair:
@@ -329,20 +332,20 @@ We do the latter by creating a group called 'Allow_SSH':
 Create and access an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a Focal amd64 instance called 'focal-1':
+Create a Jammy amd64 instance called 'jammy-1':
 
 .. code-block:: none
 
-   openstack server create --image focal-amd64 --flavor m1.small \
+   openstack server create --image jammy-amd64 --flavor m1.small \
       --key-name user1 --network user1_net --security-group Allow_SSH \
-      focal-1
+      jammy-1
 
 Request and assign a floating IP address to the new instance:
 
 .. code-block:: none
 
    FLOATING_IP=$(openstack floating ip create -f value -c floating_ip_address ext_net)
-   openstack server add floating ip focal-1 $FLOATING_IP
+   openstack server add floating ip jammy-1 $FLOATING_IP
 
 Ask for a listing of all instances within the context of the current project
 ('project1'):
@@ -358,7 +361,7 @@ Sample output:
    +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
    | ID                                   | Name    | Status | Networks                            | Image       | Flavor   |
    +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
-   | 687b96d0-ab22-459b-935b-a9d0b7e9964c | focal-1 | ACTIVE | user1_net=192.168.0.154, 10.0.0.187 | focal-amd64 | m1.small |
+   | 687b96d0-ab22-459b-935b-a9d0b7e9964c | jammy-1 | ACTIVE | user1_net=192.168.0.154, 10.0.0.187 | jammy-amd64 | m1.small |
    +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
 
 The first address listed is in the private network and the second one is in the
@@ -368,7 +371,7 @@ You can monitor the booting of the instance with this command:
 
 .. code-block:: none
 
-   openstack console log show focal-1
+   openstack console log show jammy-1
 
 The instance is ready when the output contains:
 
@@ -377,9 +380,9 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 20.04.3 LTS focal-1 ttyS0
+   Ubuntu 22.04 LTS jammy-1 ttyS0
 
-   focal-1 login:
+   jammy-1 login:
 
 Connect to the instance in this way:
 
@@ -392,10 +395,14 @@ Next steps
 
 You now have a functional OpenStack cloud managed by MAAS-backed Juju.
 
-Go on to read the many Charmed OpenStack topics in this guide or consider the
-`OpenStack Administrator Guides`_ for upstream OpenStack administrative help.
+As next steps, consider browsing these documentation sources:
+
+* `OpenStack Charm Guide`_: the primary source of information for OpenStack
+  charms
+* `OpenStack Administrator Guides`_: upstream OpenStack administrative help
 
 .. LINKS
 .. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
+.. _OpenStack Charm Guide: https://docs.openstack.org/charm-guide
 .. _OpenStack Administrator Guides: http://docs.openstack.org/user-guide-admin/content
