@@ -112,13 +112,13 @@ table.
      - `ovn-central`_
 
    * - 21
-     - `nova-compute`_
-
-   * - 22
      - `placement`_
 
-   * - 23
+   * - 22
      - `nova-cloud-controller`_
+
+   * - 23
+     - `nova-compute`_
 
    * - 24
      - `openstack-dashboard`_

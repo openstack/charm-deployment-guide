@@ -325,13 +325,13 @@ along with those of the service being targeted.
      - `ovn-central`_
 
    * - 19
-     - `nova-compute`_
-
-   * - 20
      - `placement`_
 
-   * - 21
+   * - 20
      - `nova-cloud-controller`_
+
+   * - 21
+     - `nova-compute`_
 
    * - 22
      - `openstack-dashboard`_
@@ -348,11 +348,10 @@ along with those of the service being targeted.
    * - 26
      - `octavia`_
 
-.. note::
+.. important::
 
    The OVN control plane will not be available between the commencement of the
-   ovn-central upgrade and the completion of the nova-compute upgrade. They are
-   deliberately placed in close proximity to each other for this reason.
+   ovn-central upgrade and the completion of the nova-compute upgrade.
 
 Update the charm channel
 ------------------------

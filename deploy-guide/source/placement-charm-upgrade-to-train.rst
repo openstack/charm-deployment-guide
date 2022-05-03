@@ -21,7 +21,7 @@ Here are example commands for the process just described:
 
 .. code-block:: none
 
-   juju deploy --series bionic --config openstack-origin=cloud:bionic-train placement
+   juju deploy --series bionic --config openstack-origin=cloud:bionic-train cs:placement
    juju run-action --wait nova-cloud-controller/leader pause
    juju add-relation placement percona-cluster
    juju add-relation placement keystone
@@ -43,6 +43,8 @@ method for a more controlled approach:
 
    juju config nova-cloud-controller openstack-origin=cloud:bionic-train
 
+The Compute service (nova-compute) should then be upgraded.
+
 .. LINKS
-.. _placement: https://jaas.ai/placement
+.. _placement: https://charmhub.io/placement
 .. _paused-single-unit: upgrade-openstack.html#paused-single-unit
