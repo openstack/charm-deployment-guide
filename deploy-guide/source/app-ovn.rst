@@ -98,17 +98,14 @@ Hardware offloading support
 It is possible to configure chassis to prepare network interface cards (NICs)
 for use with hardware offloading and make them available to OpenStack.
 
-.. warning::
+.. caution::
 
-   Support for hardware offload in conjunction with OVN is an experimental
-   feature. OVN programs flow tables in a different way than legacy
-   ML2+OVS and this has had less exposure to validation in NIC firmware and
-   driver support.
-
-To use the feature you need to use supported network interface card (NIC)
-hardware. We have done feature validation using the Mellanox ConnectX-5 NICs.
-
-Please refer to `Hardware offloading`_ for more background on the feature.
+   This feature is to be considered Tech Preview. OVN has more stringent
+   requirements for match/action support in the hardware than for example
+   Neutron ML2+OVS. Make sure to acquire hardware with appropriate support.
+   
+   Depending on hardware vendor, it may be required to install third party
+   drivers (DKMS) in order to successfully use this feature.
 
 Hardware offload support makes use of SR-IOV as an underlying mechanism to
 accelerate the data path between a virtual machine instance and the NIC
@@ -124,8 +121,18 @@ with appropriate driver and firmware support.
 Prerequisites
 ^^^^^^^^^^^^^
 
-Please refer to the `SR-IOV for networking support`_ section and the `Hardware
-offloading`_ page for information on hardware and kernel configuration.
+* Ubuntu 22.04 LTS or later
+
+* Linux kernel >= 5.15
+
+* Open vSwitch 2.17
+
+* OVN 22.03
+
+* OpenStack Yoga or later
+
+Please refer to the `SR-IOV for networking support`_ section for information on
+kernel configuration.
 
 Charm configuration
 ^^^^^^^^^^^^^^^^^^^
