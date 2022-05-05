@@ -4,8 +4,8 @@
 All charms: migration to channels
 =================================
 
-Charmed OpenStack deployments must migrate from legacy non-channel charms to
-charms that use a channel.
+Charmed OpenStack deployments must eventually migrate from legacy non-channel
+charms to charms that use a channel.
 
 .. important::
 
@@ -101,9 +101,6 @@ Select the channels
 OpenStack charms.
 
 Examples:
-
-* if OpenStack Ussuri is running, then any OpenStack service charm that
-  supports the ``ussuri/stable`` channel should use that channel
 
 * if Ceph Octopus is running, then any Ceph charm that supports the
   ``octopus/stable`` channel should use that channel
