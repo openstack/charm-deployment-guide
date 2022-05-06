@@ -28,6 +28,35 @@ Series upgrade
    across the cloud. Operating a cloud consisting of partially upgraded
    components is not tested nor supported.
 
+Cloud topology
+--------------
+
+All upgrade procedures assume a specific hyperconverged cloud topology.
+
+.. caution::
+
+   Any deviation from the described topology may require adjustments to the
+   given procedural steps. In particular, look at differences in co-located
+   principal applications.
+
+The topology is defined in this way:
+
+* Only compute and storage charms (and their subordinates) are co-located.
+
+* Third-party charms either do not exist or have been thoroughly tested for all
+  three upgrade types.
+
+* The following services run in LXD containers:
+
+  * all API applications
+  * the database application (percona-cluster or mysql-innodb-cluster)
+  * the rabbitmq-server application
+  * the ceph-mon application
+
+* All applications, where possible, are under high availability, whether
+  natively (e.g. ceph-mon, rabbitmq-server) or via hacluster (e.g.
+  keystone).
+
 Development notes
 -----------------
 

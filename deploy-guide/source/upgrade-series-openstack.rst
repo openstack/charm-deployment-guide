@@ -36,55 +36,6 @@ that the commencement of an outage coincides with this step (it will cause
 cluster quorum heartbeats to fail and the service VIP will consequently go
 offline).
 
-Reference cloud topology
-------------------------
-
-This section describes a hyperconverged cloud topology that this document will
-use for the procedural steps to follow. Hyperconvergence refers to the practice
-of co-locating principal applications on the same machine.
-
-The topology is defined in this way:
-
-* Only compute and storage charms (and their subordinates) may be co-located.
-
-* Third-party charms either do not exist or have been thoroughly tested for a
-  series upgrade.
-
-* The following are containerised:
-
-  * All API applications
-
-  * The percona-cluster application
-
-  * The rabbitmq-server application
-
-  * The ceph-mon application
-
-* All applications, where possible, are under high availability, whether
-  natively (e.g. ceph-mon, rabbitmq-server) or via hacluster (e.g.
-  percona-cluster).
-
-.. caution::
-
-   If your cloud differs from this topology you must adapt the procedural steps
-   accordingly. In particular, look at the aspects of co-located applications
-   and containerised applications. Recall that:
-
-   * the :command:`upgrade-series` command:
-
-     * affects all applications residing on the target machine
-
-     * does not affect containers hosted on the target machine
-
-Notes
-~~~~~
-
-Storage charms are charms that manage physical disks. For example, ceph-osd and
-swift-storage.
-
-Example OpenStack subordinate charms are networking SDN charms for the
-nova-compute charm, or monitoring charms for compute or storage charms.
-
 Generalised OpenStack series upgrade
 ------------------------------------
 
