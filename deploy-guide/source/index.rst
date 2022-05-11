@@ -65,17 +65,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-masakari
 
 .. toctree::
-   :caption: Backup
-   :maxdepth: 1
-
-   app-trilio-vault
-
-.. toctree::
-   :caption: Operations
-
-   Operations have moved (charm-guide) <https://docs.openstack.org/charm-guide/latest/admin>
-
-.. toctree::
    :caption: Storage
    :maxdepth: 1
 
