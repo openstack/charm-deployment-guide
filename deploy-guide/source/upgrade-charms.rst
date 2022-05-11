@@ -158,8 +158,7 @@ is running Stein. The 'keystone' **charm** however shows a revision number of
 '306'. Upon charm upgrade, the service version will remain unchanged but the
 charm revision is expected to increase in number.
 
-So to upgrade this 'keystone' charm (to the most recent promulgated version in
-the Charm Store):
+So to upgrade the keystone charm:
 
 .. code-block:: none
 
