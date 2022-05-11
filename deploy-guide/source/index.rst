@@ -59,12 +59,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    configure-bridge
 
 .. toctree::
-   :caption: High availability
-   :maxdepth: 1
-
-   app-masakari
-
-.. toctree::
    :caption: Storage
    :maxdepth: 1
 

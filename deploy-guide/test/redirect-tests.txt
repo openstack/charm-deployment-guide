@@ -32,3 +32,4 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-policy-overrides.html 301 /charm-guide/latest/admin/policy-overrides.html
 /project-deploy-guide/charm-deployment-guide/latest/app-ha.html 301 /charm-guide/latest/admin/ha.html
 /project-deploy-guide/charm-deployment-guide/latest/app-trilio-vault.html 301 /charm-guide/latest/admin/trilio.html
+/project-deploy-guide/charm-deployment-guide/latest/app-masakari.html 301 /charm-guide/latest/admin/instance-ha.html
