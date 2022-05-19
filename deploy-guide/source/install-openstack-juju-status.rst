@@ -12,107 +12,102 @@ installed from the instructions given on the :doc:`Install OpenStack
 
 .. code-block:: console
 
-   Model      Controller       Cloud/Region    Version  SLA          Timestamp
-   openstack  maas-controller  mymaas/default  2.9.15   unsupported  22:00:48Z
+   Model      Controller       Cloud/Region      Version  SLA          Timestamp
+   openstack  maas-controller  maas-one/default  2.9.29   unsupported  18:51:46Z
 
-   App                       Version          Status  Scale  Charm                   Store       Channel  Rev  OS      Message
-   ceph-mon                  16.2.6           active      3  ceph-mon                charmstore  stable   482  ubuntu  Unit is ready and clustered
-   ceph-osd                  16.2.6           active      4  ceph-osd                charmstore  stable   502  ubuntu  Unit is ready (1 OSD)
-   ceph-radosgw              16.2.6           active      1  ceph-radosgw            charmstore  stable   412  ubuntu  Unit is ready
-   cinder                    19.0.0           active      1  cinder                  charmstore  stable   448  ubuntu  Unit is ready
-   cinder-ceph               19.0.0           active      1  cinder-ceph             charmstore  stable   360  ubuntu  Unit is ready
-   cinder-mysql-router       8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   dashboard-mysql-router    8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   glance                    23.0.0           active      1  glance                  charmstore  stable   473  ubuntu  Unit is ready
-   glance-mysql-router       8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   keystone                  20.0.0           active      1  keystone                charmstore  stable   565  ubuntu  Application Ready
-   keystone-mysql-router     8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   mysql-innodb-cluster      8.0.26           active      3  mysql-innodb-cluster    charmstore  stable    88  ubuntu  Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
-   ncc-mysql-router          8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   neutron-api               19.0.0           active      1  neutron-api             charmstore  stable   485  ubuntu  Unit is ready
-   neutron-api-mysql-router  8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   neutron-api-plugin-ovn    19.0.0           active      1  neutron-api-plugin-ovn  charmstore  stable    46  ubuntu  Unit is ready
-   nova-cloud-controller     24.0.0           active      1  nova-cloud-controller   charmstore  stable   552  ubuntu  Unit is ready
-   nova-compute              24.0.0           active      3  nova-compute            charmstore  stable   577  ubuntu  Unit is ready
-   ntp                       3.5              active      4  ntp                     charmhub    stable    47  ubuntu  chrony: Ready
-   openstack-dashboard       20.1.0           active      1  openstack-dashboard     charmstore  stable   513  ubuntu  Unit is ready
-   ovn-central               21.09.0~git2...  active      3  ovn-central             charmstore  stable    68  ubuntu  Unit is ready
-   ovn-chassis               21.09.0~git2...  active      3  ovn-chassis             charmstore  stable    86  ubuntu  Unit is ready
-   placement                 6.0.0            active      1  placement               charmstore  stable    64  ubuntu  Unit is ready
-   placement-mysql-router    8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
-   rabbitmq-server           3.8.2            active      1  rabbitmq-server         charmstore  stable   440  ubuntu  Unit is ready
-   vault                     1.5.9            active      1  vault                   charmstore  stable   153  ubuntu  Unit is ready (active: true, mlock: disabled)
-   vault-mysql-router        8.0.26           active      1  mysql-router            charmstore  stable    60  ubuntu  Unit is ready
+   App                       Version  Status  Scale  Charm                   Channel        Rev  Exposed  Message
+   ceph-mon                  17.1.0   active      3  ceph-mon                quincy/stable  106  no       Unit is ready and clustered
+   ceph-osd                  17.1.0   active      4  ceph-osd                quincy/stable  534  no       Unit is ready (2 OSD)
+   ceph-radosgw              17.1.0   active      1  ceph-radosgw            quincy/stable  526  no       Unit is ready
+   cinder                    20.0.0   active      1  cinder                  yoga/stable    554  no       Unit is ready
+   cinder-ceph               20.0.0   active      1  cinder-ceph             yoga/stable    502  no       Unit is ready
+   cinder-mysql-router       8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   dashboard-mysql-router    8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   glance                    24.0.0   active      1  glance                  yoga/stable    544  no       Unit is ready
+   glance-mysql-router       8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   keystone                  21.0.0   active      1  keystone                yoga/stable    568  no       Application Ready
+   keystone-mysql-router     8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   mysql-innodb-cluster      8.0.29   active      3  mysql-innodb-cluster    8.0/stable      24  no       Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   ncc-mysql-router          8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   neutron-api               20.0.0   active      1  neutron-api             yoga/stable    526  no       Unit is ready
+   neutron-api-mysql-router  8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   neutron-api-plugin-ovn    20.0.0   active      1  neutron-api-plugin-ovn  yoga/stable     29  no       Unit is ready
+   nova-cloud-controller     25.0.0   active      1  nova-cloud-controller   yoga/stable    601  no       Unit is ready
+   nova-compute              25.0.0   active      3  nova-compute            yoga/stable    588  no       Unit is ready
+   openstack-dashboard       22.1.0   active      1  openstack-dashboard     yoga/stable    536  no       Unit is ready
+   ovn-central               22.03.0  active      3  ovn-central             22.03/stable    31  no       Unit is ready
+   ovn-chassis               22.03.0  active      3  ovn-chassis             22.03/stable    46  no       Unit is ready
+   placement                 7.0.0    active      1  placement               yoga/stable     49  no       Unit is ready
+   placement-mysql-router    8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
+   rabbitmq-server           3.9.13   active      1  rabbitmq-server         3.9/stable     149  no       Unit is ready
+   vault                     1.7.9    active      1  vault                   1.7/stable      68  no       Unit is ready (active: true, mlock: disabled)
+   vault-mysql-router        8.0.29   active      1  mysql-router            8.0/stable      26  no       Unit is ready
 
-   Unit                           Workload  Agent  Machine  Public address  Ports              Message
-   ceph-mon/0*                    active    idle   0/lxd/3  10.0.0.176                         Unit is ready and clustered
-   ceph-mon/1                     active    idle   1/lxd/3  10.0.0.177                         Unit is ready and clustered
-   ceph-mon/2                     active    idle   2/lxd/4  10.0.0.178                         Unit is ready and clustered
-   ceph-osd/0                     active    idle   0        10.0.0.158                         Unit is ready (1 OSD)
-     ntp/1                        active    idle            10.0.0.158      123/udp            chrony: Ready
-   ceph-osd/1*                    active    idle   1        10.0.0.159                         Unit is ready (1 OSD)
-     ntp/2                        active    idle            10.0.0.159      123/udp            chrony: Ready
-   ceph-osd/2                     active    idle   2        10.0.0.160                         Unit is ready (1 OSD)
-     ntp/0*                       active    idle            10.0.0.160      123/udp            chrony: Ready
-   ceph-osd/3                     active    idle   3        10.0.0.161                         Unit is ready (1 OSD)
-     ntp/3                        active    idle            10.0.0.161      123/udp            chrony: Ready
-   ceph-radosgw/0*                active    idle   0/lxd/4  10.0.0.180      80/tcp             Unit is ready
-   cinder/0*                      active    idle   1/lxd/4  10.0.0.179      8776/tcp           Unit is ready
-     cinder-ceph/0*               active    idle            10.0.0.179                         Unit is ready
-     cinder-mysql-router/0*       active    idle            10.0.0.179                         Unit is ready
-   glance/0*                      active    idle   3/lxd/3  10.0.0.175      9292/tcp           Unit is ready
-     glance-mysql-router/0*       active    idle            10.0.0.175                         Unit is ready
-   keystone/0*                    active    idle   0/lxd/2  10.0.0.170      5000/tcp           Unit is ready
-     keystone-mysql-router/0*     active    idle            10.0.0.170                         Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.162                         Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.163                         Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.165                         Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
-   neutron-api/0*                 active    idle   1/lxd/2  10.0.0.169      9696/tcp           Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.0.0.169                         Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.0.0.169                         Unit is ready
-   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.172      8774/tcp,8775/tcp  Unit is ready
-     ncc-mysql-router/0*          active    idle            10.0.0.172                         Unit is ready
-   nova-compute/0*                active    idle   1        10.0.0.159                         Unit is ready
-     ovn-chassis/3                active    idle            10.0.0.159                         Unit is ready
-   nova-compute/1                 active    idle   2        10.0.0.160                         Unit is ready
-     ovn-chassis/2                active    idle            10.0.0.160                         Unit is ready
-   nova-compute/2                 active    idle   3        10.0.0.161                         Unit is ready
-     ovn-chassis/1*               active    idle            10.0.0.161                         Unit is ready
-   openstack-dashboard/0*         active    idle   2/lxd/3  10.0.0.174      80/tcp,443/tcp     Unit is ready
-     dashboard-mysql-router/0*    active    idle            10.0.0.174                         Unit is ready
-   ovn-central/0                  active    idle   0/lxd/1  10.0.0.166      6641/tcp,6642/tcp  Unit is ready
-   ovn-central/1                  active    idle   1/lxd/1  10.0.0.167      6641/tcp,6642/tcp  Unit is ready
-   ovn-central/2*                 active    idle   2/lxd/1  10.0.0.168      6641/tcp,6642/tcp  Unit is ready (leader: ovnnb_db, ovnsb_db northd: active)
-   placement/0*                   active    idle   3/lxd/2  10.0.0.173      8778/tcp           Unit is ready
-     placement-mysql-router/0*    active    idle            10.0.0.173                         Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.0.0.171      5672/tcp           Unit is ready
-   vault/0*                       active    idle   3/lxd/0  10.0.0.164      8200/tcp           Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.0.0.164                         Unit is ready
+   Unit                           Workload  Agent  Machine  Public address  Ports               Message
+   ceph-mon/0                     active    idle   0/lxd/4  10.0.0.180                          Unit is ready and clustered
+   ceph-mon/1*                    active    idle   1/lxd/4  10.0.0.182                          Unit is ready and clustered
+   ceph-mon/2                     active    idle   2/lxd/5  10.0.0.181                          Unit is ready and clustered
+   ceph-osd/0                     active    idle   0        10.0.0.160                          Unit is ready (2 OSD)
+   ceph-osd/1*                    active    idle   1        10.0.0.159                          Unit is ready (2 OSD)
+   ceph-osd/2                     active    idle   2        10.0.0.162                          Unit is ready (2 OSD)
+   ceph-osd/3                     active    idle   3        10.0.0.161                          Unit is ready (2 OSD)
+   ceph-radosgw/0*                active    idle   0/lxd/5  10.0.0.184      80/tcp              Unit is ready
+   cinder/0*                      active    idle   1/lxd/5  10.0.0.183      8776/tcp            Unit is ready
+     cinder-ceph/0*               active    idle            10.0.0.183                          Unit is ready
+     cinder-mysql-router/0*       active    idle            10.0.0.183                          Unit is ready
+   glance/0*                      active    idle   3/lxd/3  10.0.0.179      9292/tcp            Unit is ready
+     glance-mysql-router/0*       active    idle            10.0.0.179                          Unit is ready
+   keystone/0*                    active    idle   0/lxd/3  10.0.0.174      5000/tcp            Unit is ready
+     keystone-mysql-router/0*     active    idle            10.0.0.174                          Unit is ready
+   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.0.0.163                          Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.0.0.164                          Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.0.0.165                          Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   neutron-api/0*                 active    idle   1/lxd/3  10.0.0.173      9696/tcp            Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.0.0.173                          Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.0.0.173                          Unit is ready
+   nova-cloud-controller/0*       active    idle   3/lxd/1  10.0.0.176      8774/tcp,8775/tcp   Unit is ready
+     ncc-mysql-router/0*          active    idle            10.0.0.176                          Unit is ready
+   nova-compute/0*                active    idle   1        10.0.0.159                          Unit is ready
+     ovn-chassis/0*               active    idle            10.0.0.159                          Unit is ready
+   nova-compute/1                 active    idle   2        10.0.0.162                          Unit is ready
+     ovn-chassis/2                active    idle            10.0.0.162                          Unit is ready
+   nova-compute/2                 active    idle   3        10.0.0.161                          Unit is ready
+     ovn-chassis/1                active    idle            10.0.0.161                          Unit is ready
+   openstack-dashboard/0*         active    idle   2/lxd/4  10.0.0.178      80/tcp,443/tcp      Unit is ready
+     dashboard-mysql-router/0*    active    idle            10.0.0.178                          Unit is ready
+   ovn-central/3                  active    idle   0/lxd/2  10.0.0.170      6641/tcp,6642/tcp   Unit is ready
+   ovn-central/4                  active    idle   1/lxd/2  10.0.0.171      6641/tcp,6642/tcp   Unit is ready (northd: active)
+   ovn-central/5*                 active    idle   2/lxd/2  10.0.0.172      6641/tcp,6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
+   placement/0*                   active    idle   3/lxd/2  10.0.0.177      8778/tcp            Unit is ready
+     placement-mysql-router/0*    active    idle            10.0.0.177                          Unit is ready
+   rabbitmq-server/0*             active    idle   2/lxd/3  10.0.0.175      5672/tcp,15672/tcp  Unit is ready
+   vault/0*                       active    idle   3/lxd/0  10.0.0.166      8200/tcp            Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.0.0.166                          Unit is ready
 
    Machine  State    DNS         Inst id              Series  AZ       Message
-   0        started  10.0.0.158  node1                focal   default  Deployed
-   0/lxd/0  started  10.0.0.162  juju-c6e3fb-0-lxd-0  focal   default  Container started
-   0/lxd/1  started  10.0.0.166  juju-c6e3fb-0-lxd-1  focal   default  Container started
-   0/lxd/2  started  10.0.0.170  juju-c6e3fb-0-lxd-2  focal   default  Container started
-   0/lxd/3  started  10.0.0.176  juju-c6e3fb-0-lxd-3  focal   default  Container started
-   0/lxd/4  started  10.0.0.180  juju-c6e3fb-0-lxd-4  focal   default  Container started
-   1        started  10.0.0.159  node2                focal   default  Deployed
-   1/lxd/0  started  10.0.0.163  juju-c6e3fb-1-lxd-0  focal   default  Container started
-   1/lxd/1  started  10.0.0.167  juju-c6e3fb-1-lxd-1  focal   default  Container started
-   1/lxd/2  started  10.0.0.169  juju-c6e3fb-1-lxd-2  focal   default  Container started
-   1/lxd/3  started  10.0.0.177  juju-c6e3fb-1-lxd-3  focal   default  Container started
-   1/lxd/4  started  10.0.0.179  juju-c6e3fb-1-lxd-4  focal   default  Container started
-   2        started  10.0.0.160  node3                focal   default  Deployed
-   2/lxd/0  started  10.0.0.165  juju-c6e3fb-2-lxd-0  focal   default  Container started
-   2/lxd/1  started  10.0.0.168  juju-c6e3fb-2-lxd-1  focal   default  Container started
-   2/lxd/2  started  10.0.0.171  juju-c6e3fb-2-lxd-2  focal   default  Container started
-   2/lxd/3  started  10.0.0.174  juju-c6e3fb-2-lxd-3  focal   default  Container started
-   2/lxd/4  started  10.0.0.178  juju-c6e3fb-2-lxd-4  focal   default  Container started
-   3        started  10.0.0.161  node4                focal   default  Deployed
-   3/lxd/0  started  10.0.0.164  juju-c6e3fb-3-lxd-0  focal   default  Container started
-   3/lxd/1  started  10.0.0.172  juju-c6e3fb-3-lxd-1  focal   default  Container started
-   3/lxd/2  started  10.0.0.173  juju-c6e3fb-3-lxd-2  focal   default  Container started
-   3/lxd/3  started  10.0.0.175  juju-c6e3fb-3-lxd-3  focal   default  Container started
+   0        started  10.0.0.160  node1                jammy   default  Deployed
+   0/lxd/0  started  10.0.0.163  juju-df2f3d-0-lxd-0  jammy   default  Container started
+   0/lxd/2  started  10.0.0.170  juju-df2f3d-0-lxd-2  jammy   default  Container started
+   0/lxd/3  started  10.0.0.174  juju-df2f3d-0-lxd-3  jammy   default  Container started
+   0/lxd/4  started  10.0.0.180  juju-df2f3d-0-lxd-4  jammy   default  Container started
+   0/lxd/5  started  10.0.0.184  juju-df2f3d-0-lxd-5  jammy   default  Container started
+   1        started  10.0.0.159  node2                jammy   default  Deployed
+   1/lxd/0  started  10.0.0.164  juju-df2f3d-1-lxd-0  jammy   default  Container started
+   1/lxd/2  started  10.0.0.171  juju-df2f3d-1-lxd-2  jammy   default  Container started
+   1/lxd/3  started  10.0.0.173  juju-df2f3d-1-lxd-3  jammy   default  Container started
+   1/lxd/4  started  10.0.0.182  juju-df2f3d-1-lxd-4  jammy   default  Container started
+   1/lxd/5  started  10.0.0.183  juju-df2f3d-1-lxd-5  jammy   default  Container started
+   2        started  10.0.0.162  node4                jammy   default  Deployed
+   2/lxd/0  started  10.0.0.165  juju-df2f3d-2-lxd-0  jammy   default  Container started
+   2/lxd/2  started  10.0.0.172  juju-df2f3d-2-lxd-2  jammy   default  Container started
+   2/lxd/3  started  10.0.0.175  juju-df2f3d-2-lxd-3  jammy   default  Container started
+   2/lxd/4  started  10.0.0.178  juju-df2f3d-2-lxd-4  jammy   default  Container started
+   2/lxd/5  started  10.0.0.181  juju-df2f3d-2-lxd-5  jammy   default  Container started
+   3        started  10.0.0.161  node3                jammy   default  Deployed
+   3/lxd/0  started  10.0.0.166  juju-df2f3d-3-lxd-0  jammy   default  Container started
+   3/lxd/1  started  10.0.0.176  juju-df2f3d-3-lxd-1  jammy   default  Container started
+   3/lxd/2  started  10.0.0.177  juju-df2f3d-3-lxd-2  jammy   default  Container started
+   3/lxd/3  started  10.0.0.179  juju-df2f3d-3-lxd-3  jammy   default  Container started
 
    Relation provider                      Requirer                                     Interface                       Type         Message
    ceph-mon:client                        cinder-ceph:ceph                             ceph-client                     regular
@@ -121,7 +116,6 @@ installed from the instructions given on the :doc:`Install OpenStack
    ceph-mon:mon                           ceph-mon:mon                                 ceph                            peer
    ceph-mon:osd                           ceph-osd:mon                                 ceph-osd                        regular
    ceph-mon:radosgw                       ceph-radosgw:mon                             ceph-radosgw                    regular
-   ceph-osd:juju-info                     ntp:juju-info                                juju-info                       subordinate
    ceph-radosgw:cluster                   ceph-radosgw:cluster                         swift-ha                        peer
    cinder-ceph:ceph-access                nova-compute:ceph-access                     cinder-ceph-key                 regular
    cinder-ceph:storage-backend            cinder:storage-backend                       cinder-backend                  subordinate
@@ -160,7 +154,6 @@ installed from the instructions given on the :doc:`Install OpenStack
    nova-cloud-controller:cluster          nova-cloud-controller:cluster                nova-ha                         peer
    nova-compute:cloud-compute             nova-cloud-controller:cloud-compute          nova-compute                    regular
    nova-compute:compute-peer              nova-compute:compute-peer                    nova                            peer
-   ntp:ntp-peers                          ntp:ntp-peers                                ntp                             peer
    openstack-dashboard:cluster            openstack-dashboard:cluster                  openstack-dashboard-ha          peer
    ovn-central:ovsdb                      ovn-chassis:ovsdb                            ovsdb                           regular
    ovn-central:ovsdb-cms                  neutron-api-plugin-ovn:ovsdb-cms             ovsdb-cms                       regular
