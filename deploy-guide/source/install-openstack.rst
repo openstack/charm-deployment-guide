@@ -4,38 +4,11 @@ Install OpenStack
 
 In the :doc:`previous section <install-juju>`, we installed Juju and created a
 Juju controller and model. We are now going to use Juju to install OpenStack
-itself. There are two methods to choose from:
-
-#. **By individual charm**. This method provides a solid understanding of how
-   Juju works and of how OpenStack is put together. Choose this option if you
-   have never installed OpenStack with Juju.
-
-#. **By charm bundle**. This method provides an automated means to install
-   OpenStack. Choose this option if you are familiar with how OpenStack is
-   built with Juju.
-
-The current page is devoted to method #1. See :doc:`Install OpenStack from a
-bundle <install-openstack-bundle>` for method #2.
-
-.. important::
-
-   Irrespective of install method, once the cloud is deployed, the following
-   management practices related to charm versions and machine series are
-   recommended:
-
-   #. The entire suite of charms used to manage the cloud should be upgraded to
-      the latest stable charm revision before any major change is made to the
-      cloud (e.g. migrating to new charms, upgrading cloud services, upgrading
-      machine series). See :doc:`Charms upgrade <upgrade-charms>` for details.
-
-   #. The Juju machines that comprise the cloud should all be running the same
-      series (e.g. 'focal' or 'jammy', but not a mix of the two). See
-      :doc:`Series upgrade <upgrade-series>` for details.
+itself.
 
 Despite the length of this page, only two distinct Juju commands will be
-employed: :command:`juju deploy`, and :command:`juju add-relation`. You may
-want to review these pertinent sections of the Juju documentation before
-continuing:
+employed: :command:`juju deploy` and :command:`juju add-relation`. You may want
+to review these pertinent sections of the Juju documentation before continuing:
 
 * `Deploying applications`_
 * `Deploying to specific machines`_

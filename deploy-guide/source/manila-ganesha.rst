@@ -122,8 +122,8 @@ To deploy OpenStack with Manila Ganesha:
 
    juju deploy ./base.yaml --overlay ./manila-ganesha-overlay.yaml
 
-Where `base.yaml` is a bundle to deploy OpenStack. See :doc:`Install OpenStack
-from a bundle <install-openstack-bundle>`.
+Where `base.yaml` is a bundle to deploy OpenStack. See the `Getting started
+tutorial`_ for an introduction to bundle usage.
 
 Configuration
 -------------
@@ -174,3 +174,4 @@ be attached to that provider network.
 .. _deploying OpenStack: install-openstack
 .. _create the share: https://docs.openstack.org/manila/latest/admin/cephfs_driver.html#create-cephfs-nfs-share
 .. _grant access: https://docs.openstack.org/manila/latest/admin/cephfs_driver.html#allow-access-to-cephfs-nfs-share
+.. _Getting started tutorial: https://docs.openstack.org/charm-guide/latest/getting-started/index.html
