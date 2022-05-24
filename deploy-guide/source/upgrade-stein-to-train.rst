@@ -1,8 +1,14 @@
 :orphan:
 
-===========================================
-placement charm: OpenStack upgrade to Train
-===========================================
+=======================
+Upgrade: Stein to Train
+=======================
+
+This page contains notes specific to the Stein to Train upgrade path. See the
+main :doc:`upgrade-openstack` page for full coverage.
+
+New placement charm
+-------------------
 
 As of OpenStack Train, the Placement API is managed by the new `placement`_
 charm and is no longer managed by the nova-cloud-controller charm. The upgrade
@@ -45,6 +51,36 @@ method for a more controlled approach:
 
 The Compute service (nova-compute) should then be upgraded.
 
+Placement endpoints not updated in Keystone service catalog
+-----------------------------------------------------------
+
+When the placement charm is deployed during the upgrade to Train (as described
+above) the Keystone service catalog is not updated accordingly. This issue is
+tracked in bug `LP #1928992`_, which also includes an explicit workaround
+(comment #4).
+
+Neutron LBaaS retired
+---------------------
+
+As of Train, support for Neutron LBaaS has been retired. The load-balancing
+services are now provided by Octavia LBaaS. There is no automatic migration
+path, please review the :doc:`app-octavia` page for more information.
+
+Designate encoding issue
+------------------------
+
+When upgrading Designate to Train, there is an encoding issue between the
+designate-producer and memcached that causes the designate-producer to crash.
+See bug `LP #1828534`_. This can be resolved by restarting the memcached service.
+
+.. code-block:: none
+
+   juju run --application=memcached 'sudo systemctl restart memcached'
+
 .. LINKS
 .. _placement: https://charmhub.io/placement
 .. _paused-single-unit: upgrade-openstack.html#paused-single-unit
+
+.. BUGS
+.. _LP #1828534: https://bugs.launchpad.net/charm-designate/+bug/1828534
+.. _LP #1928992: https://bugs.launchpad.net/charm-deployment-guide/+bug/1928992
