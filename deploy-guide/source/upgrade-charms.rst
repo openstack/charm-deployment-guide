@@ -3,7 +3,7 @@ Charms upgrade
 ==============
 
 The Juju command to use is :command:`upgrade-charm`. For extra guidance see
-`Upgrading applications`_ in the Juju documentation.
+`How to upgrade applications`_ in the Juju documentation.
 
 Please read the following before continuing:
 
@@ -208,7 +208,7 @@ column 'Rev'). For the ceph-mon charm:
    single-step upgrades only (N+1).
 
 .. LINKS
-.. _Upgrading applications: https://discourse.charmhub.io/t/upgrading-applications
+.. _How to upgrade applications: https://juju.is/docs/olm/upgrade-applications
 .. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 
 .. _aodh: https://opendev.org/openstack/charm-aodh/
