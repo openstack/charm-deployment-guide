@@ -16,11 +16,8 @@ part of an OpenStack cloud.
 OVN charms:
 
 * neutron-api-plugin-ovn
-
 * ovn-central
-
 * ovn-chassis
-
 * ovn-dedicated-chassis
 
 .. note::
