@@ -19,3 +19,7 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-poli
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ha.html$ /charm-guide/$1/admin/ha.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-trilio-vault.html$ /charm-guide/$1/admin/trilio.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-masakari.html$ /charm-guide/$1/admin/instance-ha.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/nfv.html$ /charm-guide/$1/admin/compute/nfv.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/pci-passthrough.html$ /charm-guide/$1/admin/compute/pci-passthrough.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/nova-cells.html$ /charm-guide/$1/admin/compute/nova-cells.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/ironic.html$ /charm-guide/$1/admin/compute/ironic.html
