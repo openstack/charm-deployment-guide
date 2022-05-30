@@ -9,6 +9,13 @@ both performing some real work and scaling to fit more ambitious projects. High
 availability will not be implemented beyond natively HA applications (Ceph,
 MySQL, OVN, Swift, and RabbitMQ).
 
+.. note::
+
+   The cloud will be deployed charm-by-charm. This method will provide a solid
+   understanding of how Charmed OpenStack is put together. For a streamlined
+   path towards a working cloud, consider the `Getting started tutorial`_ found
+   in the Charm Guide.
+
 The software versions used in this guide are as follows:
 
 * **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, and Juju
@@ -25,3 +32,4 @@ installation journey. Hardware requirements are also listed there.
 .. _MAAS: https://maas.io
 .. _Juju: https://juju.is
 .. _OpenStack Charms: https://docs.openstack.org/charm-guide
+.. _Getting started tutorial: https://docs.openstack.org/charm-guide/latest/getting-started/index.html
