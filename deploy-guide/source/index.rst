@@ -41,15 +41,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-certificate-management
 
 .. toctree::
-   :caption: Compute
-   :maxdepth: 1
-
-   ironic
-   nova-cells
-   pci-passthrough
-   NFV <nfv>
-
-.. toctree::
    :caption: Networking
    :maxdepth: 1
 
