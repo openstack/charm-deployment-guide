@@ -98,6 +98,17 @@ versions of OpenStack must be consulted for any special instructions. In
 particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
 
+Upgrade path notes
+~~~~~~~~~~~~~~~~~~
+
+Any notes relevant to a specific upgrade path are recorded here.
+
+* :doc:`Ussuri to Victoria <upgrade-ussuri-to-victoria>`
+* :doc:`Stein to Train <upgrade-stein-to-train>`
+* :doc:`Queens to Rocky <upgrade-queens-to-rocky>`
+* :doc:`Newton to Ocata <upgrade-newton-to-ocata>`
+* :doc:`Mitaka to Newton <upgrade-mitaka-to-newton>`
+
 Manual intervention
 ~~~~~~~~~~~~~~~~~~~
 
