@@ -23,3 +23,10 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/nfv.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/pci-passthrough.html$ /charm-guide/$1/admin/compute/pci-passthrough.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/nova-cells.html$ /charm-guide/$1/admin/compute/nova-cells.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/ironic.html$ /charm-guide/$1/admin/compute/ironic.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ceph-rbd-mirror.html$ /charm-guide/$1/admin/storage/ceph-rbd-mirror.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/ceph-erasure-coding.html$ /charm-guide/$1/admin/storage/ceph-erasure-coding.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/rgw-multisite.html$ /charm-guide/$1/admin/storage/ceph-rgw-multisite.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/cinder-volume-replication.html$ /charm-guide/$1/admin/storage/cinder-replication.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/encryption-at-rest.html$ /charm-guide/$1/admin/storage/encryption-at-rest.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/manila-ganesha.html$ /charm-guide/$1/admin/storage/shared-filesystem-services.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/swift.html$ /charm-guide/$1/admin/storage/swift.html

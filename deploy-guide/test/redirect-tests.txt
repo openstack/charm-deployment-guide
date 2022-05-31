@@ -37,3 +37,10 @@
 /project-deploy-guide/charm-deployment-guide/latest/pci-passthrough.html 301 /charm-guide/latest/admin/compute/pci-passthrough.html
 /project-deploy-guide/charm-deployment-guide/latest/nova-cells.html 301 /charm-guide/latest/admin/compute/nova-cells.html
 /project-deploy-guide/charm-deployment-guide/latest/ironic.html 301 /charm-guide/latest/admin/compute/ironic.html
+/project-deploy-guide/charm-deployment-guide/latest/app-ceph-rbd-mirror.html 301 /charm-guide/latest/admin/storage/ceph-rbd-mirror.html
+/project-deploy-guide/charm-deployment-guide/latest/ceph-erasure-coding.html 301 /charm-guide/latest/admin/storage/ceph-erasure-coding.html
+/project-deploy-guide/charm-deployment-guide/latest/rgw-multisite.html 301 /charm-guide/latest/admin/storage/ceph-rgw-multisite.html
+/project-deploy-guide/charm-deployment-guide/latest/cinder-volume-replication.html 301 /charm-guide/latest/admin/storage/cinder-replication.html
+/project-deploy-guide/charm-deployment-guide/latest/encryption-at-rest.html 301 /charm-guide/latest/admin/storage/encryption-at-rest.html
+/project-deploy-guide/charm-deployment-guide/latest/manila-ganesha.html 301 /charm-guide/latest/admin/storage/shared-filesystem-services.html
+/project-deploy-guide/charm-deployment-guide/latest/swift.html 301 /charm-guide/latest/admin/storage/swift.html

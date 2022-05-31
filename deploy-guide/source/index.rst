@@ -49,18 +49,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    app-octavia
    configure-bridge
 
-.. toctree::
-   :caption: Storage
-   :maxdepth: 1
-
-   encryption-at-rest
-   ceph-erasure-coding
-   rgw-multisite
-   app-ceph-rbd-mirror
-   cinder-volume-replication
-   manila-ganesha
-   swift
-
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug
 .. _submit a contribution: https://opendev.org/openstack/charm-deployment-guide
