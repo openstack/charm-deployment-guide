@@ -40,15 +40,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    keystone
    app-certificate-management
 
-.. toctree::
-   :caption: Networking
-   :maxdepth: 1
-
-   app-ovn
-   app-hardware-offload
-   app-octavia
-   configure-bridge
-
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug
 .. _submit a contribution: https://opendev.org/openstack/charm-deployment-guide

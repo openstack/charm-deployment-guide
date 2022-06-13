@@ -64,7 +64,8 @@ Neutron LBaaS retired
 
 As of Train, support for Neutron LBaaS has been retired. The load-balancing
 services are now provided by Octavia LBaaS. There is no automatic migration
-path, please review the :doc:`app-octavia` page for more information.
+path, please review the :doc:`cg:admin/networking/load-balancing` page in the
+Charm Guide for more information.
 
 Designate encoding issue
 ------------------------
