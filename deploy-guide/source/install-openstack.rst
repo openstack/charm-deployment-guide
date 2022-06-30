@@ -259,6 +259,20 @@ a mapping of OVS bridge to network interface. As described in the :ref:`Create
 OVS bridge <ovs_bridge>` section on the :doc:`Install MAAS <install-maas>`
 page, it is 'br-ex:enp1s0'.
 
+.. note::
+
+   To use hardware addresses (as opposed to an interface name common to all
+   four nodes) the ``bridge-interface-mappings`` option can be expressed in
+   this way (substitute in your own values):
+
+   .. code-block:: yaml
+
+      bridge-interface-mappings: >-
+        br-ex:52:54:00:03:01:01
+        br-ex:52:54:00:03:01:02
+        br-ex:52:54:00:03:01:03
+        br-ex:52:54:00:03:01:04
+
 The ``flat-network-providers`` setting enables the Neutron flat network
 provider used in this example scenario and gives it the name of 'physnet1'. The
 flat network provider and its name will be referenced when we :ref:`Set up

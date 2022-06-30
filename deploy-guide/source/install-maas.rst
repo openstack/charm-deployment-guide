@@ -232,6 +232,13 @@ The mapping of bridge to interface ('br-ex:enp1s0') will be used in the
 :ref:`Neutron networking <neutron_networking>` section on the :doc:`Install
 OpenStack <install-openstack>` page.
 
+.. important::
+
+   Identically-named interfaces on the cloud nodes is not a strict requirement
+   as an individual interface can also be denoted by its hardware (MAC)
+   address. In such a case, make note of the MAC address of each node's
+   interface.
+
 Node summary
 ------------
 
