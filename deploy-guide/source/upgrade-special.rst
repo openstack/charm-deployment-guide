@@ -17,3 +17,4 @@ Procedures
 * :doc:`percona-cluster charm: series upgrade to focal <percona-series-upgrade-to-focal>`
 * :doc:`ceph charm: migration to ceph-mon and ceph-osd <ceph-charm-migration>`
 * :doc:`All charms: migration to channels <charmhub-migration>`
+* :doc:`Migration to OVN <ovn-migration>`
