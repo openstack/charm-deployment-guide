@@ -286,7 +286,7 @@ and a third-party intermediate CA certificate after deployment.
 .. Important::
 
    Switching certificates will cause a short period of downtime for services
-   using Vault as the certificate manager. Notebly, a TLS-enabled Keystone will
+   using Vault as the certificate manager. Notably, a TLS-enabled Keystone will
    temporarily move to the ``maintainance`` state to update its endpoints.
 
 From self-signed root certificate to third-party intermediate certificate
@@ -300,7 +300,7 @@ backend:
 
    juju run-action --wait vault/leader disable-pki
 
-This step deletes the exisitng root certificate and invalidates any previous csr
+This step deletes the existing root certificate and invalidates any previous csr
 requests.
 
 Next, follow the steps described in the
