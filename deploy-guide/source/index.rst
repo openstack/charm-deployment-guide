@@ -32,14 +32,6 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    upgrade-special
    upgrade-issues
 
-.. toctree::
-   :caption: Security
-   :maxdepth: 1
-
-   Overview <security-overview>
-   keystone
-   app-certificate-management
-
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug
 .. _submit a contribution: https://opendev.org/openstack/charm-deployment-guide

@@ -28,7 +28,7 @@
 /project-deploy-guide/charm-deployment-guide/latest/placement-charm-upgrade-to-train.html 301 /project-deploy-guide/charm-deployment-guide/latest/uprade-stein-to-train.html
 /project-deploy-guide/charm-deployment-guide/latest/app-ovn.html#migration-from-neutron-ml2-ovs-to-ml2-ovn 301 /project-deploy-guide/charm-deployment-guide/latest/ovn-migration.html
 
-## charm guide
+# Migration to charm-guide
 /project-deploy-guide/charm-deployment-guide/latest/app-managing-power-events.html 301 /charm-guide/latest/admin/managing-power-events.html
 /project-deploy-guide/charm-deployment-guide/latest/deferred-events.html 301 /charm-guide/latest/admin/deferred-events.html
 /project-deploy-guide/charm-deployment-guide/latest/app-policy-overrides.html 301 /charm-guide/latest/admin/policy-overrides.html
@@ -50,3 +50,5 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-octavia.html 301 /charm-guide/latest/admin/networking/load-balancing.html
 /project-deploy-guide/charm-deployment-guide/latest/app-hardware-offload.html 301 /charm-guide/latest/admin/networking/hardware-offloading.html
 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html 301 /charm-guide/latest/admin/networking/interface-config.html
+/project-deploy-guide/charm-deployment-guide/latest/app-certificate-management.html 301 /charm-guide/latest/admin/security/tls.html
+/project-deploy-guide/charm-deployment-guide/latest/keystone.html 301 /charm-guide/latest/admin/security/keystone.html
