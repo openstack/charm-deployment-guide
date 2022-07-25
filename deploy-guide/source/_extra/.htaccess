@@ -34,7 +34,7 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/cinder-v
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/encryption-at-rest.html$ /charm-guide/$1/admin/storage/encryption-at-rest.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/manila-ganesha.html$ /charm-guide/$1/admin/storage/shared-filesystem-services.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/swift.html$ /charm-guide/$1/admin/storage/swift.html
-RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ovn.html$ /charm-guide/$1/admin/networking/ovn.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ovn.html$ /charm-guide/$1/admin/networking/ovn/index.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-octavia.html$ /charm-guide/$1/admin/networking/load-balancing.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-hardware-offload.html$ /charm-guide/$1/admin/networking/hardware-offloading.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/configure-bridge.html$ /charm-guide/$1/admin/networking/interface-config.html

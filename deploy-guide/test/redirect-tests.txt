@@ -46,7 +46,7 @@
 /project-deploy-guide/charm-deployment-guide/latest/encryption-at-rest.html 301 /charm-guide/latest/admin/storage/encryption-at-rest.html
 /project-deploy-guide/charm-deployment-guide/latest/manila-ganesha.html 301 /charm-guide/latest/admin/storage/shared-filesystem-services.html
 /project-deploy-guide/charm-deployment-guide/latest/swift.html 301 /charm-guide/latest/admin/storage/swift.html
-/project-deploy-guide/charm-deployment-guide/latest/app-ovn.html 301 /charm-guide/latest/admin/networking/ovn.html
+/project-deploy-guide/charm-deployment-guide/latest/app-ovn.html 301 /charm-guide/latest/admin/networking/ovn/index.html
 /project-deploy-guide/charm-deployment-guide/latest/app-octavia.html 301 /charm-guide/latest/admin/networking/load-balancing.html
 /project-deploy-guide/charm-deployment-guide/latest/app-hardware-offload.html 301 /charm-guide/latest/admin/networking/hardware-offloading.html
 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html 301 /charm-guide/latest/admin/networking/interface-config.html
