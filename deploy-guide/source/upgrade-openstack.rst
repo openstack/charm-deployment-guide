@@ -103,11 +103,14 @@ Upgrade path notes
 
 Any notes relevant to a specific upgrade path are recorded here.
 
-* :doc:`Ussuri to Victoria <upgrade-ussuri-to-victoria>`
-* :doc:`Stein to Train <upgrade-stein-to-train>`
-* :doc:`Queens to Rocky <upgrade-queens-to-rocky>`
-* :doc:`Newton to Ocata <upgrade-newton-to-ocata>`
-* :doc:`Mitaka to Newton <upgrade-mitaka-to-newton>`
+.. toctree::
+   :maxdepth: 1
+
+   Ussuri to Victoria <upgrade-ussuri-to-victoria>
+   Stein to Train <upgrade-stein-to-train>
+   Queens to Rocky <upgrade-queens-to-rocky>
+   Newton to Ocata <upgrade-newton-to-ocata>
+   Mitaka to Newton <upgrade-mitaka-to-newton>
 
 Manual intervention
 ~~~~~~~~~~~~~~~~~~~
