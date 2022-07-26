@@ -87,8 +87,8 @@ one that does not (legacy).
 
 .. note::
 
-   For an overview of how charms are consumed by the end-user see `Charm
-   delivery`_.
+   For an overview of how charms are distributed to the end-user see
+   :doc:`cg:project/charm-delivery` in the Charm Guide.
 
 Channels
 ^^^^^^^^
@@ -99,9 +99,6 @@ that a charm that works for a recent series-openstack combination will
 generally not work on an older combination. Furthermore, there is a need to
 switch to a different channel in order to upgrade to a new OpenStack version
 - but not to a new series.
-
-The most recent supported series-openstack combination is ``focal-yoga``.
-Channels however are available for many older combinations.
 
 Legacy
 ^^^^^^
@@ -253,5 +250,3 @@ Each upgrade type is broken down into more detail on the following pages:
 
 .. LINKS
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
-.. _Release schedule: https://docs.openstack.org/charm-guide/latest/release-schedule.html
-.. _Charm delivery: https://docs.openstack.org/charm-guide/latest/project/charm-delivery.html
