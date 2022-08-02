@@ -9,11 +9,9 @@ entirely new version.
 
 Please read the following before continuing:
 
-* the :doc:`Upgrades overview <upgrade-overview>` page
-* the OpenStack Charms `Release Notes`_
-* the :doc:`Special charm procedures <upgrade-special>` page
-* the :doc:`Upgrade issues <upgrade-issues>` page
-* the :doc:`Various issues <various-issues>` page
+* :doc:`upgrade-overview`
+* :doc:`cg:release-notes/index`
+* :doc:`issues-and-procedures`
 
 Once this document has been studied the administrator will be ready to graduate
 to the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` guide that
@@ -353,7 +351,6 @@ the :doc:`Series upgrade OpenStack <upgrade-series-openstack>` page.
 
 .. LINKS
 .. _Ubuntu releases wiki page: https://wiki.ubuntu.com/Releases
-.. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Charms upgrade: upgrade-charms.html
 .. _OpenStack upgrade: upgrade-openstack.html
 .. _Known OpenStack upgrade issues: upgrade-issues.html

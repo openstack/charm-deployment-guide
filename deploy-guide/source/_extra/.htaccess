@@ -14,6 +14,7 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-pci-
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-erasure-coding.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-erasure-coding.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-manila-ganesha.html$ /project-deploy-guide/charm-deployment-guide/$1/manila-ganesha.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ovn.html#migration-from-neutron-ml2-ovs-to-ml2-ovn$ /project-deploy-guide/charm-deployment-guide/$1/ovn-migration.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-special.html$ /project-deploy-guide/charm-deployment-guide/$1/issues-and-procedures.html
 
 # Migration to charm-guide
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-managing-power-events.html$ /charm-guide/$1/admin/managing-power-events.html

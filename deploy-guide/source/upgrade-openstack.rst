@@ -10,8 +10,7 @@ Charmed OpenStack cloud.
    Upgrading an OpenStack cloud is not risk-free. The procedures outlined in
    this guide should first be tested in a pre-production environment.
 
-Please read the :doc:`Upgrades overview <upgrade-overview>` page before
-continuing.
+Please read the :doc:`upgrade-overview` page before continuing.
 
 .. note::
 
@@ -98,36 +97,15 @@ versions of OpenStack must be consulted for any special instructions. In
 particular, pay attention to services and/or configuration options that may be
 retired, deprecated, or changed.
 
-Upgrade path notes
-~~~~~~~~~~~~~~~~~~
-
-Any notes relevant to a specific upgrade path are recorded here.
-
-.. toctree::
-   :maxdepth: 1
-
-   Ussuri to Victoria <upgrade-ussuri-to-victoria>
-   Stein to Train <upgrade-stein-to-train>
-   Queens to Rocky <upgrade-queens-to-rocky>
-   Newton to Ocata <upgrade-newton-to-ocata>
-   Mitaka to Newton <upgrade-mitaka-to-newton>
-
 Manual intervention
 ~~~~~~~~~~~~~~~~~~~
 
 By design, the latest stable charms will support the software changes related
 to the OpenStack services being upgraded. During the upgrade, the charms will
 also strive to preserve the existing configuration of their associated
-services.
-
-However, there are still times when intervention on the part of the operator
-may be needed, such as when an OpenStack service is removed/added/replaced or
-when a software bug (in the charms or in upstream OpenStack) affecting the
-upgrade is present. The below resources cover these topics:
-
-* :doc:`Special charm procedures <upgrade-special>`
-* :doc:`Upgrade issues <upgrade-issues>`
-* :doc:`Various issues <various-issues>`
+services. Upstream OpenStack is also designed to support N+1 upgrades. However,
+there may still be times when intervention on the part of the operator is
+needed. The :doc:`issues-and-procedures` page covers this topic.
 
 Ensure cloud node software is up to date
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -605,7 +583,6 @@ The :doc:`OpenStack upgrade example <upgrade-openstack-example>` page shows the
 explicit steps used to upgrade a basic cloud.
 
 .. LINKS
-.. _Release Notes: https://docs.openstack.org/charm-guide/latest/release-notes.html
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
 .. _Upgrades: https://docs.openstack.org/operations-guide/ops-upgrades.html
 .. _Percona strict mode: https://www.percona.com/doc/percona-xtradb-cluster/LATEST/features/pxc-strict-mode.html

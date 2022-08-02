@@ -5,10 +5,10 @@ Upgrade issues
 This page documents upgrade issues and notes. These may apply to either of the
 three upgrade types (charms, OpenStack, series).
 
-The items on this page are distinct from those found on the following pages:
+.. important::
 
-* the `Various issues`_ page
-* the `Special charm procedures`_ page
+   It is recommended to read the :doc:`issues-and-procedures` page before
+   continuing.
 
 The issues are organised by upgrade type:
 
@@ -16,6 +16,8 @@ The issues are organised by upgrade type:
    :local:
    :depth: 2
    :backlinks: top
+
+.. _upgrade_issues_charm_upgrades:
 
 Charm upgrades
 --------------
@@ -100,6 +102,8 @@ modified (remove the trailing slash) with native OpenStack tooling:
    openstack endpoint list --service product-streams
    openstack endpoint set --url <new-url> <endpoint-id>
 
+.. _upgrade_issues_openstack_upgrades:
+
 OpenStack upgrades
 ------------------
 
@@ -167,6 +171,8 @@ post-upgrade task. Reasons for doing this include:
 * the desire to use features available in the new amphora agent or haproxy
 
 See the upstream documentation on `Rotating amphora images`_.
+
+.. _upgrade_issues_series_upgrades:
 
 Series upgrades
 ---------------

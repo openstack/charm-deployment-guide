@@ -29,8 +29,7 @@ OpenStack Charms usage. To help improve it you can `file an issue`_ or
    upgrade-charms
    upgrade-openstack
    upgrade-series
-   upgrade-special
-   upgrade-issues
+   issues-and-procedures
 
 .. LINKS
 .. _file an issue: https://bugs.launchpad.net/charm-deployment-guide/+filebug

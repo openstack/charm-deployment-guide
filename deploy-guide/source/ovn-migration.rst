@@ -18,8 +18,8 @@ with these charms:
 * ovn-chassis (or ovn-dedicated-chassis)
 * neutron-api-plugin-ovn charms
 
-Post-migration, the :doc:`cg:admin/networking/ovn` page in the Charm Guide
-includes information on configuration and usage.
+Post-migration, the :doc:`cg:admin/networking/ovn/index` page in the Charm
+Guide includes information on configuration and usage.
 
 MTU considerations
 ------------------
@@ -201,7 +201,8 @@ of the actual migration.
 5. Unseal Vault (see the `vault charm`_), set up TLS certificates (see
    `Managing TLS certificates`_), and validate that the services on ovn-central
    units are running as expected. Please refer to the OVN
-   :doc:`cg:admin/networking/ovn` page in the Charm Guide for more information.
+   :doc:`cg:admin/networking/ovn/index` page in the Charm Guide for more
+   information.
 
 Perform the migration
 ---------------------
