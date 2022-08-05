@@ -7,11 +7,9 @@ The Juju command to use is :command:`upgrade-charm`. For extra guidance see
 
 Please read the following before continuing:
 
-* the :doc:`Upgrades overview <upgrade-overview>` page
-* the OpenStack Charms `Release Notes`_
-* the :doc:`Special charm procedures <upgrade-special>` page
-* the :doc:`Upgrade issues <upgrade-issues>` page
-* the :doc:`Various issues <various-issues>` page
+* :doc:`upgrade-overview`
+* :doc:`cg:release-notes/index`
+* :doc:`issues-and-procedures`
 
 .. note::
 

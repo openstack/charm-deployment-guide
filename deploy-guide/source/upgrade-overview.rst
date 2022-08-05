@@ -244,9 +244,9 @@ Next steps
 
 Each upgrade type is broken down into more detail on the following pages:
 
-* :doc:`Charms upgrade <upgrade-charms>`
-* :doc:`OpenStack upgrade <upgrade-openstack>`
-* :doc:`Series upgrade <upgrade-series>`
+* :doc:`upgrade-charms`
+* :doc:`upgrade-openstack`
+* :doc:`upgrade-series`
 
 .. LINKS
 .. _Ubuntu Cloud Archive: https://wiki.ubuntu.com/OpenStack/CloudArchive
