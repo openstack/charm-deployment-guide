@@ -14,7 +14,6 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-pci-
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-erasure-coding.html$ /project-deploy-guide/charm-deployment-guide/$1/ceph-erasure-coding.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-manila-ganesha.html$ /project-deploy-guide/charm-deployment-guide/$1/manila-ganesha.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-ovn.html#migration-from-neutron-ml2-ovs-to-ml2-ovn$ /project-deploy-guide/charm-deployment-guide/$1/ovn-migration.html
-RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-special.html$ /project-deploy-guide/charm-deployment-guide/$1/issues-and-procedures.html
 
 # Migration to charm-guide
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-managing-power-events.html$ /charm-guide/$1/admin/managing-power-events.html
@@ -41,3 +40,7 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-hard
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/configure-bridge.html$ /charm-guide/$1/admin/networking/interface-config.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/app-certificate-management.html$ /charm-guide/$1/admin/security/tls.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/keystone.html$ /charm-guide/$1/admin/security/keystone.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/percona-series-upgrade-to-focal.html$ /charm-guide/$1/project/procedures/percona-series-upgrade-to-focal.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/charmhub-migration.html$ /charm-guide/$1/project/procedures/charmhub-migration.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/ovn-migration.html$ /charm-guide/$1/project/procedures/ovn-migration.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-special.html$ /charm-guide/$1/project/issues-and-procedures.html

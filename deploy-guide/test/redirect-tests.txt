@@ -27,7 +27,6 @@
 /project-deploy-guide/charm-deployment-guide/latest/app-manila-ganesha.html 301 /project-deploy-guide/charm-deployment-guide/latest/manila-ganesha.html
 /project-deploy-guide/charm-deployment-guide/latest/placement-charm-upgrade-to-train.html 301 /project-deploy-guide/charm-deployment-guide/latest/uprade-stein-to-train.html
 /project-deploy-guide/charm-deployment-guide/latest/app-ovn.html#migration-from-neutron-ml2-ovs-to-ml2-ovn 301 /project-deploy-guide/charm-deployment-guide/latest/ovn-migration.html
-/project-deploy-guide/charm-deployment-guide/latest/upgrade-special.html 301 /project-deploy-guide/charm-deployment-guide/latest/issues-and-procedures.html
 
 # Migration to charm-guide
 /project-deploy-guide/charm-deployment-guide/latest/app-managing-power-events.html 301 /charm-guide/latest/admin/managing-power-events.html
@@ -53,3 +52,7 @@
 /project-deploy-guide/charm-deployment-guide/latest/configure-bridge.html 301 /charm-guide/latest/admin/networking/interface-config.html
 /project-deploy-guide/charm-deployment-guide/latest/app-certificate-management.html 301 /charm-guide/latest/admin/security/tls.html
 /project-deploy-guide/charm-deployment-guide/latest/keystone.html 301 /charm-guide/latest/admin/security/keystone.html
+/project-deploy-guide/charm-deployment-guide/latest/percona-series-upgrade-to-focal.html 301 /charm-guide/latest/project/procedures/percona-series-upgrade-to-focal.html
+/project-deploy-guide/charm-deployment-guide/latest/charmhub-migration.html 301 /charm-guide/latest/project/procedures/charmhub-migration.html
+/project-deploy-guide/charm-deployment-guide/latest/ovn-migration.html 301 /charm-guide/latest/project/procedures/ovn-migration.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-special.html 301 /charm-guide/latest/project/issues-and-procedures.html

@@ -9,7 +9,7 @@ Please read the following before continuing:
 
 * :doc:`upgrade-overview`
 * :doc:`cg:release-notes/index`
-* :doc:`issues-and-procedures`
+* :doc:`cg:project/issues-and-procedures`
 
 .. note::
 

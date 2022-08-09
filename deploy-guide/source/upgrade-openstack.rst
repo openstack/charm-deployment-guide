@@ -105,7 +105,7 @@ to the OpenStack services being upgraded. During the upgrade, the charms will
 also strive to preserve the existing configuration of their associated
 services. Upstream OpenStack is also designed to support N+1 upgrades. However,
 there may still be times when intervention on the part of the operator is
-needed. The :doc:`issues-and-procedures` page covers this topic.
+needed. The :doc:`cg:project/issues-and-procedures` page covers this topic.
 
 Ensure cloud node software is up to date
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
