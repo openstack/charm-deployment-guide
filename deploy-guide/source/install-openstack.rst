@@ -41,9 +41,8 @@ nodes will be used during the install of each OpenStack application. Note that
 some applications are not part of the OpenStack project per se and therefore do
 not apply (exceptionally, Ceph applications do use this method).
 
-See :ref:`Perform the upgrade <perform_the_upgrade>` on the :doc:`OpenStack
-Upgrade <upgrade-openstack>` page for more details on cloud archive releases
-and how they are used when upgrading OpenStack.
+See :ref:`cg:perform_the_upgrade` in the Charm Guide for more details on cloud
+archive releases and how they are used when upgrading OpenStack.
 
 .. important::
 

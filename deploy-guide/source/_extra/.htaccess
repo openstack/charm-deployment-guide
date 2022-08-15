@@ -44,3 +44,8 @@ RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/percona-
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/charmhub-migration.html$ /charm-guide/$1/project/procedures/charmhub-migration.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/ovn-migration.html$ /charm-guide/$1/project/procedures/ovn-migration.html
 RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-special.html$ /charm-guide/$1/project/issues-and-procedures.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-charms.html$ /charm-guide/$1/admin/upgrades/charms.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-series.html$ /charm-guide/$1/admin/upgrades/series.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-series-openstack.html$ /charm-guide/$1/admin/upgrades/series-openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-openstack.html$ /charm-guide/$1/admin/upgrades/openstack.html
+RedirectMatch 301 ^/project-deploy-guide/charm-deployment-guide/([^/]+)/upgrade-overview.html$ /charm-guide/$1/admin/upgrades/overview.html

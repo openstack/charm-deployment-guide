@@ -403,11 +403,12 @@ You now have a functional OpenStack cloud managed by MAAS-backed Juju.
    * The entire suite of charms used to manage the cloud should be upgraded to
      the latest stable charm revision before any major change is made to the
      cloud (e.g. migrating to new charms, upgrading cloud services, upgrading
-     machine series). See :doc:`Charms upgrade <upgrade-charms>` for details.
+     machine series). See :doc:`cg:admin/upgrades/charms` in the Charm Guide
+     for details.
 
    * The Juju machines that comprise the cloud should all be running the same
      series (e.g. 'focal' or 'jammy', but not a mix of the two). See
-     :doc:`Series upgrade <upgrade-series>` for details.
+     :doc:`cg:admin/upgrades/series` in the Charm Guide for details.
 
 As next steps, consider browsing these documentation sources:
 

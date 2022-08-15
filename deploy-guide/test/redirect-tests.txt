@@ -56,3 +56,8 @@
 /project-deploy-guide/charm-deployment-guide/latest/charmhub-migration.html 301 /charm-guide/latest/project/procedures/charmhub-migration.html
 /project-deploy-guide/charm-deployment-guide/latest/ovn-migration.html 301 /charm-guide/latest/project/procedures/ovn-migration.html
 /project-deploy-guide/charm-deployment-guide/latest/upgrade-special.html 301 /charm-guide/latest/project/issues-and-procedures.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-charms.html 301 /charm-guide/latest/admin/upgrades/charms.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-series.html 301 /charm-guide/latest/admin/upgrades/series.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-series-openstack.html 301 /charm-guide/latest/admin/upgrades/series-openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-openstack.html 301 /charm-guide/latest/admin/upgrades/openstack.html
+/project-deploy-guide/charm-deployment-guide/latest/upgrade-overview.html 301 /charm-guide/latest/admin/upgrades/overview.html
