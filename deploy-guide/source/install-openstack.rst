@@ -24,17 +24,14 @@ OpenStack release
 -----------------
 
 .. TEMPLATE (alternate between the following two paragraphs each six months)
-   As the :doc:`Overview <install-overview>` of the Installation section
-   states, OpenStack Xena will be deployed atop Ubuntu 20.04 LTS (Focal) cloud
-   nodes. In order to achieve this a cloud archive release of
-   'cloud:focal-xena' will be used during the install of each OpenStack
-   application. Note that some applications are not part of the OpenStack
-   project per se and therefore do not apply (exceptionally, Ceph applications
-   do use this method). Not using a more recent OpenStack release in this way
-   will result in an Ussuri deployment (i.e. Ussuri is in the Ubuntu package
-   archive for Focal).
+   OpenStack Xena will be deployed atop Ubuntu 20.04 LTS (Focal) cloud nodes.
+   In order to achieve this a cloud archive release of 'cloud:focal-xena' will
+   be used during the install of each OpenStack application. Note that some
+   applications are not part of the OpenStack project per se and therefore do
+   not apply (exceptionally, Ceph applications do use this method). Not using a
+   more recent OpenStack release in this way will result in an Ussuri
+   deployment (i.e. Ussuri is in the Ubuntu package archive for Focal).
 
-As the :doc:`Overview <install-overview>` of the Installation section states,
 OpenStack Yoga will be deployed atop Ubuntu 22.04 LTS (Jammy) cloud nodes. In
 order to achieve this the default package archive ("distro") for the cloud
 nodes will be used during the install of each OpenStack application. Note that
