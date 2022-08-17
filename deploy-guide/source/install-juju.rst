@@ -102,12 +102,6 @@ series of 'jammy':
 
    juju add-model --config default-series=jammy openstack
 
-.. note::
-
-   Due to Juju issue `LP #1966664`_, a model's default series is not honoured.
-   Consequently, the series will be explicitly requested during the deployment
-   of each principal application.
-
 The output of the :command:`juju status` command summarises the Juju aspect of
 the environment. It should now look very similar to this:
 
@@ -128,4 +122,3 @@ the OpenStack applications and adding relations between them. Go to
 .. LINKS
 .. _Juju: https://juju.is
 .. _MAAS: https://maas.io
-.. _LP #1966664: https://bugs.launchpad.net/juju/+bug/1966664

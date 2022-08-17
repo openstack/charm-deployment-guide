@@ -105,7 +105,7 @@ each of these nodes on the :doc:`Install MAAS <install-maas>` page:
 
 .. code-block:: none
 
-   juju deploy -n 4 --series jammy --channel quincy/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
+   juju deploy -n 4 --channel quincy/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
 
 If a message from a ceph-osd unit like "Non-pristine devices detected" appears
 in the output of :command:`juju status` you will need to use actions
@@ -141,7 +141,7 @@ our nodes. We've chosen machines 1, 2, and 3. To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to 1,2,3 --series jammy --channel yoga/stable --config nova-compute.yaml nova-compute
+   juju deploy -n 3 --to 1,2,3 --channel yoga/stable --config nova-compute.yaml nova-compute
 
 .. note::
 
@@ -159,7 +159,7 @@ be containerised on machines 0, 1, and 2. To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --series jammy --channel 8.0/stable mysql-innodb-cluster
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel 8.0/stable mysql-innodb-cluster
 
 Vault
 ~~~~~
@@ -170,7 +170,7 @@ communication between cloud applications. It will be containerised on machine
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --series jammy --channel 1.7/stable vault
+   juju deploy --to lxd:3 --channel 1.7/stable vault
 
 This is the first application to be joined with the cloud database that was set
 up in the previous section. The process is:
@@ -282,13 +282,13 @@ They will be containerised on machines 0, 1, and 2. To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --series jammy --channel 22.03/stable --config neutron.yaml ovn-central
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel 22.03/stable --config neutron.yaml ovn-central
 
 The neutron-api application will be containerised on machine 1:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 --series jammy --channel yoga/stable --config neutron.yaml neutron-api
+   juju deploy --to lxd:1 --channel yoga/stable --config neutron.yaml neutron-api
 
 Deploy the subordinate charm applications:
 
@@ -326,7 +326,7 @@ The keystone application will be containerised on machine 0 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:0 --series jammy --channel yoga/stable keystone
+   juju deploy --to lxd:0 --channel yoga/stable keystone
 
 Join keystone to the cloud database:
 
@@ -351,7 +351,7 @@ The rabbitmq-server application will be containerised on machine 2 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:2 --series jammy --channel 3.9/stable rabbitmq-server
+   juju deploy --to lxd:2 --channel 3.9/stable rabbitmq-server
 
 Two relations can be added at this time:
 
@@ -408,7 +408,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --series jammy --channel yoga/stable --config ncc.yaml nova-cloud-controller
+   juju deploy --to lxd:3 --channel yoga/stable --config ncc.yaml nova-cloud-controller
 
 Join nova-cloud-controller to the cloud database:
 
@@ -442,7 +442,7 @@ The placement application will be containerised on machine 3 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --series jammy --channel yoga/stable placement
+   juju deploy --to lxd:3 --channel yoga/stable placement
 
 Join placement to the cloud database:
 
@@ -468,7 +468,7 @@ The openstack-dashboard application (Horizon) will be containerised on machine
 
 .. code-block:: none
 
-   juju deploy --to lxd:2 --series jammy --channel yoga/stable openstack-dashboard
+   juju deploy --to lxd:2 --channel yoga/stable openstack-dashboard
 
 Join openstack-dashboard to the cloud database:
 
@@ -499,7 +499,7 @@ charm. To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --series jammy --channel yoga/stable glance
+   juju deploy --to lxd:3 --channel yoga/stable glance
 
 Join glance to the cloud database:
 
@@ -574,7 +574,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --series jammy --channel quincy/stable --config ceph-mon.yaml ceph-mon
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel quincy/stable --config ceph-mon.yaml ceph-mon
 
 Three relations can be added at this time:
 
@@ -609,7 +609,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 --series jammy --channel yoga/stable --config cinder.yaml cinder
+   juju deploy --to lxd:1 --channel yoga/stable --config cinder.yaml cinder
 
 Join cinder to the cloud database:
 
@@ -660,7 +660,7 @@ The ceph-radosgw application will be containerised on machine 0 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:0 --series jammy --channel quincy/stable ceph-radosgw
+   juju deploy --to lxd:0 --channel quincy/stable ceph-radosgw
 
 A single relation is needed:
 

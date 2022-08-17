@@ -23,11 +23,10 @@ Software
 
 The software versions used in this guide are as follows:
 
-* **Ubuntu 20.04 LTS (Focal)** for the MAAS server, Juju client, and Juju
-  controller
-* **Ubuntu 22.04 LTS (Jammy)** for all cloud nodes (including containers)
-* **MAAS 3.1.0**
-* **Juju 2.9.29**
+* **Ubuntu 22.04 LTS (Jammy)** for the Juju client, Juju controller, and all
+  cloud nodes (including containers)
+* **MAAS 3.2.0**
+* **Juju 2.9.33**
 * **OpenStack Yoga**
 
 Cloud description
