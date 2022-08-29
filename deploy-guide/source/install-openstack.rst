@@ -20,6 +20,29 @@ to review these pertinent sections of the Juju documentation before continuing:
 This page will show how to install a minimal non-HA OpenStack cloud. See
 `Infrastructure high availability`_ for guidance on that subject.
 
+Specification of software versions
+----------------------------------
+
+The cloud deployment involves two levels of software:
+
+* charms (e.g. keystone charm)
+* charm payload (e.g. Keystone service)
+
+A charm's software version (its revision) is expressed via its channel (e.g.
+'yoga/stable') whereas its payload is specified via its ``openstack-origin``
+configuration option (e.g. 'distro' or 'cloud:focal-yoga'). See the Charm Guide
+for more information:
+
+* :doc:`cg:project/charm-delivery` for charms (channels)
+* :doc:`cg:admin/upgrades/openstack` for charm payload (OpenStack software
+  sources)
+
+.. note::
+
+   For a successful deployment, both the charm channel and the charm payload
+   must be compatible. Note also that the Ubuntu version is incorporated in the
+   charm payload value.
+
 OpenStack release
 -----------------
 
