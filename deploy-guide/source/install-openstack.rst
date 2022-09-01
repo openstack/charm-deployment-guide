@@ -17,8 +17,8 @@ to review these pertinent sections of the Juju documentation before continuing:
 .. TODO
    Cloud topology section goes here (modelled on openstack-base README)
 
-This page will show how to install a minimal non-HA OpenStack cloud. See
-`Infrastructure high availability`_ for guidance on that subject.
+This page will show how to install a minimal non-HA OpenStack cloud. See the
+:doc:`cg:admin/ha` page in the Charm Guide for guidance on that subject.
 
 Specification of software versions
 ----------------------------------
@@ -774,13 +774,11 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 <configure-openstack>` now.
 
 .. LINKS
-.. _OpenStack Charms: https://docs.openstack.org/charm-guide/latest/openstack-charms.html
 .. _Charmhub: https://charmhub.io
 .. _Deploying applications: https://juju.is/docs/olm/deploy-a-charm-from-charmhub
 .. _Deploying to specific machines: https://juju.is/docs/olm/deploy-to-a-specific-machine
 .. _Managing relations: https://juju.is/docs/olm/manage-relations
 .. _vault charm: https://charmhub.io/vault/
-.. _Infrastructure high availability: https://docs.openstack.org/charm-guide/latest/admin/ha.html
 
 .. CHARMS
 .. _ceph-mon: https://charmhub.io/ceph-mon

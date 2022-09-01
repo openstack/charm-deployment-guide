@@ -412,12 +412,10 @@ You now have a functional OpenStack cloud managed by MAAS-backed Juju.
 
 As next steps, consider browsing these documentation sources:
 
-* `OpenStack Charm Guide`_: the primary source of information for OpenStack
-  charms
+* :doc:`cg:index`: the primary source of information for OpenStack charms
 * `OpenStack Administrator Guides`_: upstream OpenStack administrative help
 
 .. LINKS
 .. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
-.. _OpenStack Charm Guide: https://docs.openstack.org/charm-guide
 .. _OpenStack Administrator Guides: http://docs.openstack.org/user-guide-admin/content
