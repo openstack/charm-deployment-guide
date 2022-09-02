@@ -30,12 +30,11 @@ The cloud deployment involves two levels of software:
 
 A charm's software version (its revision) is expressed via its channel (e.g.
 'yoga/stable') whereas its payload is specified via its ``openstack-origin``
-configuration option (e.g. 'distro' or 'cloud:focal-yoga'). See the Charm Guide
-for more information:
+(or ``source``) configuration option (e.g. 'distro' or 'cloud:focal-yoga'). See
+the Charm Guide for more information:
 
-* :doc:`cg:project/charm-delivery` for charms (channels)
-* :doc:`cg:admin/upgrades/openstack` for charm payload (OpenStack software
-  sources)
+* :doc:`cg:project/charm-delivery` for charm channels
+* :doc:`cg:concepts/software-sources` for charm payload
 
 .. note::
 
