@@ -62,18 +62,18 @@ Sample output:
 
 .. code-block:: console
 
-   OS_REGION_NAME=RegionOne
-   OS_AUTH_VERSION=3
-   OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
-   OS_AUTH_URL=https://10.0.0.174:5000/v3
-   OS_PROJECT_DOMAIN_NAME=admin_domain
-   OS_AUTH_PROTOCOL=https
+   OS_AUTH_URL=https://10.246.114.25:5000/v3
    OS_USERNAME=admin
-   OS_AUTH_TYPE=password
+   OS_PASSWORD=Aichohv7aigheiba
    OS_USER_DOMAIN_NAME=admin_domain
    OS_PROJECT_NAME=admin
-   OS_PASSWORD=aegoaquoo1veZae6
+   OS_PROJECT_DOMAIN_NAME=admin_domain
+   OS_AUTH_VERSION=3
    OS_IDENTITY_API_VERSION=3
+   OS_REGION_NAME=RegionOne
+   OS_AUTH_PROTOCOL=https
+   OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
+   OS_AUTH_TYPE=password
 
 Perform actions as the admin user
 ---------------------------------
@@ -94,19 +94,19 @@ The output will look similar to this:
 
 .. code-block:: console
 
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
-   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                      |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
-   | 153cac31650f4c3db2d4ed38cb21af5d | RegionOne | nova         | compute      | True    | admin     | https://10.0.0.176:8774/v2.1             |
-   | 163ea3aef1cb4e2cab7900a092437b8e | RegionOne | neutron      | network      | True    | admin     | https://10.0.0.173:9696                  |
-   | 2ae599431cf641618da754446c827983 | RegionOne | keystone     | identity     | True    | admin     | https://10.0.0.174:35357/v3              |
-   | 42befdb50fd84719a7e1c1f60d5ead42 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.0.0.183:8776/v3/$(tenant_id)s |
-   | d73168f18aba40efa152e304249d95ab | RegionOne | placement    | placement    | True    | admin     | https://10.0.0.177:8778                  |
-   | f63768a3b71f415680b45835832b7860 | RegionOne | glance       | image        | True    | admin     | https://10.0.0.179:9292                  |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+------------------------------------------+
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+   | 3c48cac8e70e47698d38d1611fc6e224 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.25:35357/v3              |
+   | 5ba390395df64adf89f45f32d27969ae | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.114.43:8776/v3/$(tenant_id)s |
+   | 761629b7f09547cc8b84de5b207b3726 | RegionOne | glance       | image        | True    | admin     | https://10.246.114.19:9292                  |
+   | b58ea16e6e2e4919ba5ace59e376c361 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.37:8774/v2.1             |
+   | cca67377a66d4900820141284c93c52d | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.38:8778                  |
+   | ff4947f47e5f480fb8ba90dbde673c6f | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.24:9696                  |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
 
-If the endpoints aren't visible, it's likely your environment variables aren't
-set correctly.
+If the endpoints aren't displayed, it's likely your environment variables
+aren't set correctly.
 
 .. note::
 
@@ -125,8 +125,8 @@ a Jammy amd64 image:
 
    mkdir ~/cloud-images
 
-   curl http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img \
-      --output ~/cloud-images/jammy-amd64.img
+   wget http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img \
+      -O ~/cloud-images/jammy-amd64.img
 
 Now import the image and call it 'jammy-amd64':
 
@@ -163,13 +163,13 @@ page:
 
 Create the subnet, here called 'ext_subnet', for the above network. The values
 used are based on the local environment. For instance, recall that our MAAS
-subnet is '10.0.0.0/24':
+subnet is '10.246.112.0/21':
 
 .. code-block:: none
 
    openstack subnet create --network ext_net --no-dhcp \
-      --gateway 10.0.0.1 --subnet-range 10.0.0.0/24 \
-      --allocation-pool start=10.0.0.40,end=10.0.0.99 \
+      --gateway 10.246.112.1 --subnet-range 10.246.112.0/21 \
+      --allocation-pool start=10.246.116.23,end=10.246.116.87 \
       ext_subnet
 
 .. important::
@@ -201,11 +201,11 @@ Sample output from the last command:
    +---------------------+----------------------------------+
    | Field               | Value                            |
    +---------------------+----------------------------------+
-   | default_project_id  | 47c42bfc695c4efcba92ab2345336265 |
-   | domain_id           | 884c9966c24f4db291e2b89b27ce692b |
+   | default_project_id  | a67881c23bc840928b89054f35a6210e |
+   | domain_id           | 228443ef0e054a89a36d75261b6531e9 |
    | enabled             | True                             |
-   | id                  | 8b16e5335976418e99bf0b798e83e413 |
-   | name                | User1                            |
+   | id                  | 37a3ab572ea14e659f1d885d44147b8a |
+   | name                | user1                            |
    | options             | {}                               |
    | password_expires_at | None                             |
    +---------------------+----------------------------------+
@@ -214,7 +214,7 @@ We'll use the user's ID to assign her the 'Member' role:
 
 .. code-block:: none
 
-   openstack role add --user 8b16e5335976418e99bf0b798e83e413 \
+   openstack role add --user 37a3ab572ea14e659f1d885d44147b8a \
       --project project1 Member
 
 Create an OpenStack user authentication file for user 'user1'. All we're
@@ -226,14 +226,14 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**https://10.0.0.170:5000/v3**.
+**https://10.246.114.25:5000/v3**.
 
 The contents of the file, say ``project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
 .. code-block:: ini
 
-   export OS_AUTH_URL=https://10.0.0.174:5000/v3
+   export OS_AUTH_URL=https://10.246.114.25:5000/v3
    export OS_USER_DOMAIN_NAME=domain1
    export OS_USERNAME=user1
    export OS_PROJECT_DOMAIN_NAME=domain1
@@ -279,15 +279,15 @@ link this network to the public network created earlier.
 
 The non-admin user now creates a private internal network called 'user1_net'
 and an accompanying subnet called 'user1_subnet' (here the DNS server is the
-MAAS server at 10.0.0.2, but adjust to local conditions):
+MAAS server at 10.246.112.3, but adjust to local conditions):
 
 .. code-block:: none
 
    openstack network create --internal user1_net
 
-   openstack subnet create --network user1_net --dns-nameserver 10.0.0.2 \
+   openstack subnet create --network user1_net --dns-nameserver 10.246.112.3 \
       --subnet-range 192.168.0/24 \
-      --allocation-pool start=192.168.0.10,end=192.168.0.199 \
+      --allocation-pool start=192.168.0.10,end=192.168.0.99 \
       user1_subnet
 
 Now a router called 'user1_router' is created, added to the subnet, and told to
@@ -358,11 +358,11 @@ Sample output:
 
 .. code-block:: console
 
-   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
-   | ID                                   | Name    | Status | Networks                            | Image       | Flavor   |
-   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
-   | 687b96d0-ab22-459b-935b-a9d0b7e9964c | jammy-1 | ACTIVE | user1_net=192.168.0.154, 10.0.0.187 | jammy-amd64 | m1.small |
-   +--------------------------------------+---------+--------+-------------------------------------+-------------+----------+
+   +--------------------------------------+---------+--------+---------------------------------------+-------------+----------+
+   | ID                                   | Name    | Status | Networks                              | Image       | Flavor   |
+   +--------------------------------------+---------+--------+---------------------------------------+-------------+----------+
+   | 627a33c8-3c55-4878-bce3-3c12fc04e4b9 | jammy-1 | ACTIVE | user1_net=10.246.116.39, 192.168.0.98 | jammy-amd64 | m1.small |
+   +--------------------------------------+---------+--------+---------------------------------------+-------------+----------+
 
 The first address listed is in the private network and the second one is in the
 public network:
@@ -380,7 +380,7 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 22.04 LTS jammy-1 ttyS0
+   Ubuntu 22.04.1 LTS jammy-1 ttyS0
 
    jammy-1 login:
 

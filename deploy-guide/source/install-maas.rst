@@ -53,8 +53,8 @@ MAAS is also considered to be the sole provider of DHCP and DNS for the network
 hosting the MAAS cluster.
 
 The MAAS system's single network interface resides on subnet
-**10.0.0.0/24** and the system itself has an assigned IP address of
-**10.0.0.2**.
+**10.246.112.0/21** and the system itself has an assigned IP address of
+**10.246.112.3**.
 
 .. attention::
 
@@ -72,8 +72,8 @@ instructions`_ for details:
 .. code-block:: none
 
    sudo snap install maas-test-db
-   sudo snap install maas --channel=3.1/stable
-   sudo maas init region+rack --maas-url http://10.0.0.2:5240/MAAS --database-uri maas-test-db:///
+   sudo snap install maas --channel=3.2/stable
+   sudo maas init region+rack --maas-url http://10.246.112.3:5240/MAAS --database-uri maas-test-db:///
    sudo maas createadmin --username admin --password ubuntu --email admin@example.com --ssh-import lp:<unsername>
    sudo maas apikey --username admin > ~ubuntu/admin-api-key
 
@@ -107,11 +107,11 @@ MAAS administrator are:
 | Password: **ubuntu**
 |
 
-In this example, the address of the MAAS system is 10.0.0.2.
+In this example, the address of the MAAS system is 10.246.112.3.
 
 The web UI URL then becomes:
 
-**http://10.0.0.2:5240/MAAS**
+**http://10.246.112.3:5240/MAAS**
 
 You will be whisked through an on-boarding process when you access the web UI
 for the first time. Recall that we require 22.04 LTS AMD64 images.

@@ -28,7 +28,7 @@ this via a cloud definition file, such as ``maas-cloud.yaml``:
      maas-one:
        type: maas
        auth-types: [oauth1]
-       endpoint: http://10.0.0.2:5240/MAAS
+       endpoint: http://10.246.112.3:5240/MAAS
 
 We've called the cloud 'maas-one' and its endpoint is based on the IP address
 of the MAAS system.
@@ -79,7 +79,7 @@ call it 'maas-controller':
 
 .. code-block:: none
 
-   juju bootstrap --bootstrap-series=focal --constraints tags=juju maas-one maas-controller
+   juju bootstrap --bootstrap-series=jammy --constraints tags=juju maas-one maas-controller
 
 The ``--constraints`` option allows us to effectively select a node in the MAAS
 cluster. Recall that we attached a tag of 'juju' to the lower-resourced MAAS
@@ -108,7 +108,7 @@ the environment. It should now look very similar to this:
 .. code-block:: none
 
    Model      Controller       Cloud/Region      Version  SLA          Timestamp
-   openstack  maas-controller  maas-one/default  2.9.29   unsupported  20:28:32Z
+   openstack  maas-controller  maas-one/default  2.9.38   unsupported  20:28:32Z
 
    Model "admin/openstack" is empty.
 
