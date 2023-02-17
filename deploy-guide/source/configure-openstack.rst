@@ -7,7 +7,7 @@ Overview
 
 In the :doc:`previous section <install-openstack>`, we installed OpenStack. We
 are now going to configure OpenStack with the intent of making it consumable by
-regular users. Configuration will be performed by both the admin user and the
+regular users. Configuration will be performed by both the admin user and a
 non-admin user.
 
 Domains, projects, users, and roles are a vital part of OpenStack operations.
