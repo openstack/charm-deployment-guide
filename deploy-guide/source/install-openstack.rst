@@ -99,11 +99,13 @@ Ceph OSD
 ~~~~~~~~
 
 The ceph-osd application is deployed to four nodes with the `ceph-osd`_ charm.
-The name of the block devices backing the OSDs is dependent upon the hardware
-on the nodes. All possible devices across the nodes should be given as the
-value for the ``osd-devices`` option (space-separated). Here, we'll be using
-the same devices on each node: ``/dev/sda``, ``/dev/sdb``, ``/dev/sdc``, and
-``/dev/sdd``. File ``ceph-osd.yaml`` contains the configuration:
+
+The names of the block devices backing the OSDs is dependent upon the hardware
+on the MAAS nodes. All possible devices (across all the nodes) that are to be
+used for Ceph storage should be included in the value for the ``osd-devices``
+option (space-separated). Here, we'll be using the same devices on each node:
+``/dev/sda``, ``/dev/sdb``, ``/dev/sdc``, and ``/dev/sdd``. File
+``ceph-osd.yaml`` contains the configuration:
 
 .. code-block:: yaml
 
