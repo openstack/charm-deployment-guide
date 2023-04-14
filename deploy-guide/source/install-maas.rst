@@ -187,9 +187,9 @@ Tag nodes
 
 MAAS tags will be used to help organise and manage the five nodes.
 
-Tags are added on the ``Configuration`` tab of the same individual node page
-used to rename a node. Add tag 'compute' to the four cloud nodes and tag 'juju'
-to the Juju controller node.
+Tags are added on the ``Configuration`` tab on a node's configuration page.
+Add tag 'compute' to the four cloud nodes and tag 'juju' to the Juju controller
+node.
 
 See `MAAS tags`_ in the MAAS documentation for a full understanding of tags.
 
@@ -198,8 +198,12 @@ See `MAAS tags`_ in the MAAS documentation for a full understanding of tags.
 Create OVS bridge
 ~~~~~~~~~~~~~~~~~
 
-Create an Open vSwitch bridge from a network bond or a single interface. Here
-we will do the latter with interface 'enp1s0':
+An Open vSwitch (OVS) bridge reduces the requirement for two physical network
+interfaces. Such a bridge can be based on a network bond or a regular
+interface.
+
+OVS bridges are created on the ``Network`` tab on a node's configuration page.
+Here we will create a bridge from regular interface 'enp1s0':
 
 .. figure:: ./media/ovs-bridge-1.png
    :scale: 70%
@@ -210,7 +214,7 @@ we will do the latter with interface 'enp1s0':
 
 :raw-html:`<br />`
 
-The bridge will be named 'br-ex':
+The bridge's name will be referred to elsewhere in this guide. Call it 'br-ex':
 
 .. figure:: ./media/ovs-bridge-2.png
    :scale: 70%
