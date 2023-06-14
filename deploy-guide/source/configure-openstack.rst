@@ -62,9 +62,9 @@ Sample output:
 
 .. code-block:: console
 
-   OS_AUTH_URL=https://10.246.114.25:5000/v3
+   OS_AUTH_URL=https://10.246.114.43:5000/v3
    OS_USERNAME=admin
-   OS_PASSWORD=Aichohv7aigheiba
+   OS_PASSWORD=joongieVooj6hee4
    OS_USER_DOMAIN_NAME=admin_domain
    OS_PROJECT_NAME=admin
    OS_PROJECT_DOMAIN_NAME=admin_domain
@@ -97,12 +97,12 @@ The output will look similar to this:
    +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
    | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
-   | 3c48cac8e70e47698d38d1611fc6e224 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.25:35357/v3              |
-   | 5ba390395df64adf89f45f32d27969ae | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.114.43:8776/v3/$(tenant_id)s |
-   | 761629b7f09547cc8b84de5b207b3726 | RegionOne | glance       | image        | True    | admin     | https://10.246.114.19:9292                  |
-   | b58ea16e6e2e4919ba5ace59e376c361 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.37:8774/v2.1             |
-   | cca67377a66d4900820141284c93c52d | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.38:8778                  |
-   | ff4947f47e5f480fb8ba90dbde673c6f | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.24:9696                  |
+   | 00fa919f9d724339a4ce15f94306d6c7 | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.46:8778                  |
+   | a295322156f34db185a8af66c0863609 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.45:8774/v2.1             |
+   | ab99b7e5f63144af8bf5df4645007d57 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.43:35357/v3              |
+   | cb564a77d07d49a084b27a20d9a209d9 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.115.15:8776/v3/$(tenant_id)s |
+   | d3889e5eeb184cad9ab010a766deeb1d | RegionOne | glance       | image        | True    | admin     | https://10.246.115.11:9292                  |
+   | d7eaf43dfe97492b8ca9325c1c769e81 | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.31:9696                  |
    +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
 
 If the endpoints aren't displayed, it's likely your environment variables
@@ -226,14 +226,14 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**https://10.246.114.25:5000/v3**.
+**https://10.246.114.43:5000/v3**.
 
 The contents of the file, say ``project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
 .. code-block:: ini
 
-   export OS_AUTH_URL=https://10.246.114.25:5000/v3
+   export OS_AUTH_URL=https://10.246.114.43:5000/v3
    export OS_USER_DOMAIN_NAME=domain1
    export OS_USERNAME=user1
    export OS_PROJECT_DOMAIN_NAME=domain1
@@ -380,7 +380,7 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 22.04.1 LTS jammy-1 ttyS0
+   Ubuntu 22.04.2 LTS jammy-1 ttyS0
 
    jammy-1 login:
 

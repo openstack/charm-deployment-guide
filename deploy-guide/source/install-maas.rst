@@ -72,7 +72,7 @@ instructions`_ for details:
 .. code-block:: none
 
    sudo snap install maas-test-db
-   sudo snap install maas --channel=3.2/stable
+   sudo snap install maas --channel=3.3/stable
    sudo maas init region+rack --maas-url http://10.246.112.3:5240/MAAS --database-uri maas-test-db:///
    sudo maas createadmin --username admin --password ubuntu --email admin@example.com --ssh-import lp:<unsername>
    sudo maas apikey --username admin > ~ubuntu/admin-api-key
@@ -187,9 +187,9 @@ Tag nodes
 
 MAAS tags will be used to help organise and manage the five nodes.
 
-Tags are added on the ``Configuration`` tab on a node's configuration page.
-Add tag 'compute' to the four cloud nodes and tag 'juju' to the Juju controller
-node.
+Tags are added on the ``Configuration`` tab on a node's configuration page or
+via the green **Take action** button once you've selected the node. Add tag
+'compute' to the four cloud nodes and tag 'juju' to the Juju controller node.
 
 See `MAAS tags`_ in the MAAS documentation for a full understanding of tags.
 

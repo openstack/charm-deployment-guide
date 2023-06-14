@@ -108,7 +108,7 @@ the environment. It should now look very similar to this:
 .. code-block:: none
 
    Model      Controller       Cloud/Region      Version  SLA          Timestamp
-   openstack  maas-controller  maas-one/default  2.9.38   unsupported  20:28:32Z
+   openstack  maas-controller  maas-one/default  2.9.43   unsupported  20:28:32Z
 
    Model "admin/openstack" is empty.
 
