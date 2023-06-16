@@ -5,7 +5,7 @@ OpenStack Charms Deployment Guide
 The OpenStack Charms Deployment Guide demonstrates how to build an OpenStack
 cloud by making use of the tools provided by the OpenStack Charms project. Its
 aim is to impart a solid understanding of how the cloud is constructed by
-deploying and configuring each charm manually.
+deploying and configuring Juju charms manually.
 
 .. note::
 
