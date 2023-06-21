@@ -42,7 +42,7 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    'cg': ('https://docs.openstack.org/charm-guide/latest', None)
+    'cg': ('https://docs.openstack.org/charm-guide/2023.1', None)
 }
 
 # Add any paths that contain templates here, relative to this directory.
