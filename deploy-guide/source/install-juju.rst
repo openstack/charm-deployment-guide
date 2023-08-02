@@ -14,7 +14,7 @@ To install Juju:
 
 .. code-block:: none
 
-   sudo snap install juju --classic
+   sudo snap install juju --classic --channel 2.9
 
 Add MAAS to Juju
 ----------------
