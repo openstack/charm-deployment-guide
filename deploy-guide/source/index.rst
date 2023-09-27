@@ -18,6 +18,11 @@ deploying and configuring Juju charms manually.
 This guide can be :ref:`searched here <search>`. To help improve it you can
 `file an issue`_ or `submit a contribution`_.
 
+.. note::
+
+   This guide supports Juju version 3.x. Users of Juju 2.9.x seeking guidance
+   can read support note :ref:`cg:juju_29_3x_changes` in the Charm Guide.
+
 Software
 --------
 

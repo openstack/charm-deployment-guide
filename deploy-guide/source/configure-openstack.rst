@@ -49,8 +49,8 @@ Download the repository and source the ``openrc`` file:
 
    .. code-block:: none
 
-      juju run -m openstack --unit vault/leader 'leader-get root-ca'
-      juju run -m openstack --unit keystone/leader 'leader-get admin_passwd'
+      juju exec -m openstack --unit vault/leader 'leader-get root-ca'
+      juju exec -m openstack --unit keystone/leader 'leader-get admin_passwd'
 
 The admin user environment should also now be set up. Verify this:
 

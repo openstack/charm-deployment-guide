@@ -7,12 +7,12 @@ Juju controller and model. We are now going to use Juju to install OpenStack
 itself.
 
 Despite the length of this page, only two distinct Juju commands will be
-employed: :command:`juju deploy` and :command:`juju add-relation`. You may want
+employed: :command:`juju deploy` and :command:`juju integrate`. You may want
 to review these pertinent sections of the Juju documentation before continuing:
 
 * `Deploying applications`_
 * `Deploying to specific machines`_
-* `Managing relations`_ (integrations)
+* `Managing integrations`_
 
 .. TODO
    Cloud topology section goes here (modelled on openstack-base README)
@@ -67,7 +67,8 @@ which will cause error-like messages to be displayed in the output of the
 :command:`juju status` command. Do not be alarmed. Indeed, these are
 opportunities to learn about the interdependencies of the various pieces of
 software. Messages such as **Missing relation** and **blocked** will vanish
-once the appropriate applications and relations have been added and processed.
+once the appropriate applications and relations (integrations) have been added
+and processed.
 
 .. tip::
 
@@ -201,8 +202,8 @@ Here are the corresponding commands for Vault:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router vault-mysql-router
-   juju add-relation vault-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation vault-mysql-router:shared-db vault:shared-db
+   juju integrate vault-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate vault-mysql-router:shared-db vault:shared-db
 
 Vault must now be initialised and unsealed. The vault charm will also need to
 be authorised to carry out certain tasks. These steps are covered in the `vault
@@ -237,7 +238,7 @@ certificate, it is recommended to use the one signed by Vault's CA:
 
 .. code-block:: none
 
-   juju add-relation mysql-innodb-cluster:certificates vault:certificates
+   juju integrate mysql-innodb-cluster:certificates vault:certificates
 
 .. _neutron_networking:
 
@@ -317,22 +318,22 @@ Add the necessary relations:
 
 .. code-block:: none
 
-   juju add-relation neutron-api-plugin-ovn:neutron-plugin neutron-api:neutron-plugin-api-subordinate
-   juju add-relation neutron-api-plugin-ovn:ovsdb-cms ovn-central:ovsdb-cms
-   juju add-relation ovn-chassis:ovsdb ovn-central:ovsdb
-   juju add-relation ovn-chassis:nova-compute nova-compute:neutron-plugin
-   juju add-relation neutron-api:certificates vault:certificates
-   juju add-relation neutron-api-plugin-ovn:certificates vault:certificates
-   juju add-relation ovn-central:certificates vault:certificates
-   juju add-relation ovn-chassis:certificates vault:certificates
+   juju integrate neutron-api-plugin-ovn:neutron-plugin neutron-api:neutron-plugin-api-subordinate
+   juju integrate neutron-api-plugin-ovn:ovsdb-cms ovn-central:ovsdb-cms
+   juju integrate ovn-chassis:ovsdb ovn-central:ovsdb
+   juju integrate ovn-chassis:nova-compute nova-compute:neutron-plugin
+   juju integrate neutron-api:certificates vault:certificates
+   juju integrate neutron-api-plugin-ovn:certificates vault:certificates
+   juju integrate ovn-central:certificates vault:certificates
+   juju integrate ovn-chassis:certificates vault:certificates
 
 Join neutron-api to the cloud database:
 
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router neutron-api-mysql-router
-   juju add-relation neutron-api-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation neutron-api-mysql-router:shared-db neutron-api:shared-db
+   juju integrate neutron-api-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate neutron-api-mysql-router:shared-db neutron-api:shared-db
 
 Keystone
 ~~~~~~~~
@@ -349,15 +350,15 @@ Join keystone to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router keystone-mysql-router
-   juju add-relation keystone-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation keystone-mysql-router:shared-db keystone:shared-db
+   juju integrate keystone-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate keystone-mysql-router:shared-db keystone:shared-db
 
 Two additional relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation keystone:identity-service neutron-api:identity-service
-   juju add-relation keystone:certificates vault:certificates
+   juju integrate keystone:identity-service neutron-api:identity-service
+   juju integrate keystone:certificates vault:certificates
 
 RabbitMQ
 ~~~~~~~~
@@ -373,8 +374,8 @@ Two relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation rabbitmq-server:amqp neutron-api:amqp
-   juju add-relation rabbitmq-server:amqp nova-compute:amqp
+   juju integrate rabbitmq-server:amqp neutron-api:amqp
+   juju integrate rabbitmq-server:amqp nova-compute:amqp
 
 At this time the Unit section output to command :command:`juju status` should
 look similar to this:
@@ -433,8 +434,8 @@ Join nova-cloud-controller to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router ncc-mysql-router
-   juju add-relation ncc-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation ncc-mysql-router:shared-db nova-cloud-controller:shared-db
+   juju integrate ncc-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate ncc-mysql-router:shared-db nova-cloud-controller:shared-db
 
 .. note::
 
@@ -446,11 +447,11 @@ Five additional relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation nova-cloud-controller:identity-service keystone:identity-service
-   juju add-relation nova-cloud-controller:amqp rabbitmq-server:amqp
-   juju add-relation nova-cloud-controller:neutron-api neutron-api:neutron-api
-   juju add-relation nova-cloud-controller:cloud-compute nova-compute:cloud-compute
-   juju add-relation nova-cloud-controller:certificates vault:certificates
+   juju integrate nova-cloud-controller:identity-service keystone:identity-service
+   juju integrate nova-cloud-controller:amqp rabbitmq-server:amqp
+   juju integrate nova-cloud-controller:neutron-api neutron-api:neutron-api
+   juju integrate nova-cloud-controller:cloud-compute nova-compute:cloud-compute
+   juju integrate nova-cloud-controller:certificates vault:certificates
 
 Placement
 ~~~~~~~~~
@@ -467,16 +468,16 @@ Join placement to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router placement-mysql-router
-   juju add-relation placement-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation placement-mysql-router:shared-db placement:shared-db
+   juju integrate placement-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate placement-mysql-router:shared-db placement:shared-db
 
 Three additional relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation placement:identity-service keystone:identity-service
-   juju add-relation placement:placement nova-cloud-controller:placement
-   juju add-relation placement:certificates vault:certificates
+   juju integrate placement:identity-service keystone:identity-service
+   juju integrate placement:placement nova-cloud-controller:placement
+   juju integrate placement:certificates vault:certificates
 
 OpenStack dashboard
 ~~~~~~~~~~~~~~~~~~~
@@ -493,8 +494,8 @@ Join openstack-dashboard to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router dashboard-mysql-router
-   juju add-relation dashboard-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation dashboard-mysql-router:shared-db openstack-dashboard:shared-db
+   juju integrate dashboard-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate dashboard-mysql-router:shared-db openstack-dashboard:shared-db
 
 .. note::
 
@@ -506,8 +507,8 @@ Two additional relations are required:
 
 .. code-block:: none
 
-   juju add-relation openstack-dashboard:identity-service keystone:identity-service
-   juju add-relation openstack-dashboard:certificates vault:certificates
+   juju integrate openstack-dashboard:identity-service keystone:identity-service
+   juju integrate openstack-dashboard:certificates vault:certificates
 
 Glance
 ~~~~~~
@@ -524,17 +525,17 @@ Join glance to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router glance-mysql-router
-   juju add-relation glance-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation glance-mysql-router:shared-db glance:shared-db
+   juju integrate glance-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate glance-mysql-router:shared-db glance:shared-db
 
 Four additional relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation glance:image-service nova-cloud-controller:image-service
-   juju add-relation glance:image-service nova-compute:image-service
-   juju add-relation glance:identity-service keystone:identity-service
-   juju add-relation glance:certificates vault:certificates
+   juju integrate glance:image-service nova-cloud-controller:image-service
+   juju integrate glance:image-service nova-compute:image-service
+   juju integrate glance:identity-service keystone:identity-service
+   juju integrate glance:certificates vault:certificates
 
 At this time the Unit section output to command :command:`juju status` should
 look similar to this:
@@ -603,9 +604,9 @@ Three relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation ceph-mon:osd ceph-osd:mon
-   juju add-relation ceph-mon:client nova-compute:ceph
-   juju add-relation ceph-mon:client glance:ceph
+   juju integrate ceph-mon:osd ceph-osd:mon
+   juju integrate ceph-mon:client nova-compute:ceph
+   juju integrate ceph-mon:client glance:ceph
 
 For the above relations,
 
@@ -638,18 +639,18 @@ Join cinder to the cloud database:
 .. code-block:: none
 
    juju deploy --channel 8.0/stable mysql-router cinder-mysql-router
-   juju add-relation cinder-mysql-router:db-router mysql-innodb-cluster:db-router
-   juju add-relation cinder-mysql-router:shared-db cinder:shared-db
+   juju integrate cinder-mysql-router:db-router mysql-innodb-cluster:db-router
+   juju integrate cinder-mysql-router:shared-db cinder:shared-db
 
 Five additional relations can be added at this time:
 
 .. code-block:: none
 
-   juju add-relation cinder:cinder-volume-service nova-cloud-controller:cinder-volume-service
-   juju add-relation cinder:identity-service keystone:identity-service
-   juju add-relation cinder:amqp rabbitmq-server:amqp
-   juju add-relation cinder:image-service glance:image-service
-   juju add-relation cinder:certificates vault:certificates
+   juju integrate cinder:cinder-volume-service nova-cloud-controller:cinder-volume-service
+   juju integrate cinder:identity-service keystone:identity-service
+   juju integrate cinder:amqp rabbitmq-server:amqp
+   juju integrate cinder:image-service glance:image-service
+   juju integrate cinder:certificates vault:certificates
 
 The above ``glance:image-service`` relation will enable Cinder to consume the
 Glance API (e.g. making Cinder able to perform volume snapshots of Glance
@@ -667,9 +668,9 @@ Three relations need to be added:
 
 .. code-block:: none
 
-   juju add-relation cinder-ceph:storage-backend cinder:storage-backend
-   juju add-relation cinder-ceph:ceph ceph-mon:client
-   juju add-relation cinder-ceph:ceph-access nova-compute:ceph-access
+   juju integrate cinder-ceph:storage-backend cinder:storage-backend
+   juju integrate cinder-ceph:ceph ceph-mon:client
+   juju integrate cinder-ceph:ceph-access nova-compute:ceph-access
 
 Ceph RADOS Gateway
 ~~~~~~~~~~~~~~~~~~
@@ -688,7 +689,7 @@ A single relation is needed:
 
 .. code-block:: none
 
-   juju add-relation ceph-radosgw:mon ceph-mon:radosgw
+   juju integrate ceph-radosgw:mon ceph-mon:radosgw
 
 .. COMMENT (still: Feb 14, 2023)
    At the time of writing a jammy-aware ntp charm was not available.
@@ -707,7 +708,7 @@ A single relation is needed:
 
    .. code-block:: none
 
-      juju add-relation ceph-osd:juju-info ntp:juju-info
+      juju integrate ceph-osd:juju-info ntp:juju-info
 
 .. _test_openstack:
 
@@ -735,7 +736,7 @@ The password can be queried from Keystone:
 
 .. code-block:: none
 
-   juju run --unit keystone/leader leader-get admin_passwd
+   juju exec --unit keystone/leader leader-get admin_passwd
 
 The dashboard URL then becomes:
 
@@ -776,7 +777,7 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 .. _Charmhub: https://charmhub.io
 .. _Deploying applications: https://juju.is/docs/olm/deploy-a-charm-from-charmhub
 .. _Deploying to specific machines: https://juju.is/docs/olm/deploy-to-a-specific-machine
-.. _Managing relations: https://juju.is/docs/olm/manage-relations
+.. _Managing integrations: https://juju.is/docs/juju/manage-integrations
 .. _vault charm documentation: https://opendev.org/openstack/charm-vault/src/branch/stable/1.8/src/README.md#post-deployment-tasks
 
 .. CHARMS
