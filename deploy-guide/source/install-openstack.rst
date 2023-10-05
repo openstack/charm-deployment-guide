@@ -14,9 +14,6 @@ to review these pertinent sections of the Juju documentation before continuing:
 * `Deploying to specific machines`_
 * `Managing integrations`_
 
-.. TODO
-   Cloud topology section goes here (modelled on openstack-base README)
-
 This page will show how to install a minimal non-HA OpenStack cloud. See the
 :doc:`cg:admin/ha` page in the Charm Guide for guidance on that subject.
 
@@ -28,26 +25,27 @@ The cloud deployment involves two levels of software:
 * charms (e.g. keystone charm)
 * charm payload (e.g. Keystone service)
 
-A charm's software version (its revision) is expressed via its channel (e.g.
-'2023.1/stable'). Its payload version is auto-configured based on the channel,
-but it can be overridden via the ``source`` configuration option (e.g.
-internal mirror or PPA is needed). See the Charm Guide for more information:
+A charm's software version (its revision) is distinct from its payload version.
+The charm's channel both expresses the payload version and incorporates
+(assumes) an Ubuntu version for the underlying cloud node.
+
+For example, channel '2023.2/stable' installs an OpenStack 2023.2 payload (e.g.
+Keystone 23.0.0) that is only compatible with Ubuntu 22.04 LTS (Jammy).
+
+See the Charm Guide for more information:
 
 * :doc:`cg:project/charm-delivery` for charm channels
 * :doc:`cg:concepts/software-sources` for charm payload
 
-.. note::
-
-   For a successful deployment, both the charm channel and the charm payload
-   must be compatible. Note also that the Ubuntu version is incorporated in the
-   charm payload value.
+Optionally, the payload version can be manually specified (see the above
+Software sources page).
 
 OpenStack release
 -----------------
 
-OpenStack 2023.1 (Antelope) will be deployed atop Ubuntu 22.04 LTS (Jammy)
+OpenStack 2023.2 (Bobcat) will be deployed atop Ubuntu 22.04 LTS (Jammy)
 cloud nodes. In order to achieve this, charm channels appropriate for the
-chosen OpenStack release will be used (see :doc:`cg:project/charm-delivery`).
+chosen OpenStack release will be used.
 
 See :ref:`cg:perform_the_upgrade` in the Charm Guide for more details on cloud
 archive releases and how they are used when upgrading OpenStack.
@@ -55,7 +53,7 @@ archive releases and how they are used when upgrading OpenStack.
 .. important::
 
    The chosen OpenStack release may impact the installation and configuration
-   instructions. **This guide assumes that OpenStack 2023.1 is being
+   instructions. **This guide assumes that OpenStack 2023.2 is being
    deployed.**
 
 Installation progress
@@ -119,7 +117,7 @@ each of these nodes on the :doc:`Install MAAS <install-maas>` page:
 
 .. code-block:: none
 
-   juju deploy -n 4 --channel quincy/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
+   juju deploy -n 4 --channel reef/stable --config ceph-osd.yaml --constraints tags=compute ceph-osd
 
 If a message from a ceph-osd unit like "Non-pristine devices detected" appears
 in the output of :command:`juju status` you will need to use actions
@@ -154,7 +152,7 @@ our nodes. We've chosen machines 1, 2, and 3. To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to 1,2,3 --channel 2023.1/stable --config nova-compute.yaml nova-compute
+   juju deploy -n 3 --to 1,2,3 --channel 2023.2/stable --config nova-compute.yaml nova-compute
 
 .. note::
 
@@ -219,18 +217,18 @@ status` should look similar to this:
 .. code-block:: console
 
    Unit                     Workload  Agent  Machine  Public address  Ports     Message
-   ceph-osd/0               blocked   idle   0        10.246.114.38             Missing relation: monitor
-   ceph-osd/1*              blocked   idle   1        10.246.114.49             Missing relation: monitor
-   ceph-osd/2               blocked   idle   2        10.246.114.39             Missing relation: monitor
-   ceph-osd/3               blocked   idle   3        10.246.114.37             Missing relation: monitor
-   mysql-innodb-cluster/0*  active    idle   0/lxd/0  10.246.114.20             Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
-   mysql-innodb-cluster/1   active    idle   1/lxd/0  10.246.114.21             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
-   mysql-innodb-cluster/2   active    idle   2/lxd/0  10.246.114.19             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
-   nova-compute/0*          blocked   idle   1        10.246.114.49             Missing relations: messaging, image
-   nova-compute/1           blocked   idle   2        10.246.114.39             Missing relations: messaging, image
-   nova-compute/2           blocked   idle   3        10.246.114.37             Missing relations: image, messaging
-   vault/0*                 active    idle   3/lxd/0  10.246.114.22   8200/tcp  Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*  active    idle            10.246.114.22             Unit is ready
+   ceph-osd/0               blocked   idle   0        10.246.115.11             Missing relation: monitor
+   ceph-osd/1*              blocked   idle   1        10.246.114.47             Missing relation: monitor
+   ceph-osd/2               blocked   idle   2        10.246.114.17             Missing relation: monitor
+   ceph-osd/3               blocked   idle   3        10.246.114.16             Missing relation: monitor
+   mysql-innodb-cluster/0   active    idle   0/lxd/0  10.246.115.16             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/1*  active    idle   1/lxd/0  10.246.115.14             Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE failure.
+   mysql-innodb-cluster/2   active    idle   2/lxd/0  10.246.115.15             Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE failure.
+   nova-compute/0           blocked   idle   1        10.246.114.47             Missing relations: image, messaging
+   nova-compute/1           blocked   idle   2        10.246.114.17             Missing relations: messaging, image
+   nova-compute/2*          blocked   idle   3        10.246.114.16             Missing relations: messaging, image
+   vault/1*                 active    idle   3/lxd/1  10.246.115.17   8200/tcp  Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*  active    idle            10.246.115.17             Unit is ready
 
 Cloud applications are TLS-enabled via the ``vault:certificates`` relation.
 Below we start with the cloud database. Although the latter has a self-signed
@@ -297,22 +295,22 @@ charm. To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel 23.03/stable ovn-central
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel 23.09/stable ovn-central
 
 The neutron-api application will be containerised on machine 1 with the
 `neutron-api`_ charm:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 --channel 2023.1/stable --config neutron.yaml neutron-api
+   juju deploy --to lxd:1 --channel 2023.2/stable --config neutron.yaml neutron-api
 
 Deploy the subordinate charm applications with the `neutron-api-plugin-ovn`_
 and `ovn-chassis`_ charms:
 
 .. code-block:: none
 
-   juju deploy --channel 2023.1/stable neutron-api-plugin-ovn
-   juju deploy --channel 23.03/stable --config neutron.yaml ovn-chassis
+   juju deploy --channel 2023.2/stable neutron-api-plugin-ovn
+   juju deploy --channel 23.09/stable --config neutron.yaml ovn-chassis
 
 Add the necessary relations:
 
@@ -343,7 +341,7 @@ The keystone application will be containerised on machine 0 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:0 --channel 2023.1/stable keystone
+   juju deploy --to lxd:0 --channel 2023.2/stable keystone
 
 Join keystone to the cloud database:
 
@@ -382,34 +380,34 @@ look similar to this:
 
 .. code-block:: console
 
-   Unit                           Workload  Agent  Machine  Public address  Ports               Message
-   ceph-osd/0                     blocked   idle   0        10.246.114.38                       Missing relation: monitor
-   ceph-osd/1*                    blocked   idle   1        10.246.114.49                       Missing relation: monitor
-   ceph-osd/2                     blocked   idle   2        10.246.114.39                       Missing relation: monitor
-   ceph-osd/3                     blocked   idle   3        10.246.114.37                       Missing relation: monitor
-   keystone/0*                    active    idle   0/lxd/2  10.246.114.43   5000/tcp            Unit is ready
-     keystone-mysql-router/0*     active    idle            10.246.114.43                       Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.246.114.20                       Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.246.114.21                       Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.246.114.19                       Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   neutron-api/0*                 active    idle   1/lxd/2  10.246.114.31   9696/tcp            Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.246.114.31                       Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.246.114.31                       Unit is ready
-   nova-compute/0*                blocked   idle   1        10.246.114.49                       Missing relations: image
-     ovn-chassis/0                active    idle            10.246.114.49                       Unit is ready
-   nova-compute/1                 blocked   idle   2        10.246.114.39                       Missing relations: image
-     ovn-chassis/2                active    idle            10.246.114.39                       Unit is ready
-   nova-compute/2                 blocked   idle   3        10.246.114.37                       Missing relations: image
-     ovn-chassis/1*               active    idle            10.246.114.37                       Unit is ready
-   ovn-central/0*                 active    idle   0/lxd/1  10.246.114.30   6641/tcp,6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
-   ovn-central/1                  active    idle   1/lxd/1  10.246.114.28   6641/tcp,6642/tcp   Unit is ready (northd: active)
-   ovn-central/2                  active    idle   2/lxd/1  10.246.114.29   6641/tcp,6642/tcp   Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.246.114.44   5672/tcp,15672/tcp  Unit is ready
-   vault/0*                       active    idle   3/lxd/0  10.246.114.22   8200/tcp            Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.246.114.22                       Unit is ready
+   Unit                           Workload  Agent  Machine  Public address  Ports           Message
+   ceph-osd/0                     blocked   idle   0        10.246.115.11                   Missing relation: monitor
+   ceph-osd/1*                    blocked   idle   1        10.246.114.47                   Missing relation: monitor
+   ceph-osd/2                     blocked   idle   2        10.246.114.17                   Missing relation: monitor
+   ceph-osd/3                     blocked   idle   3        10.246.114.16                   Missing relation: monitor
+   keystone/0*                    active    idle   0/lxd/2  10.246.114.72   5000/tcp        Unit is ready
+     keystone-mysql-router/0*     active    idle            10.246.114.72                   Unit is ready
+   mysql-innodb-cluster/0         active    idle   0/lxd/0  10.246.115.16                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   mysql-innodb-cluster/1*        active    idle   1/lxd/0  10.246.115.14                   Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.246.115.15                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   neutron-api/0*                 active    idle   1/lxd/2  10.246.114.71   9696/tcp        Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.246.114.71                   Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.246.114.71                   Unit is ready
+   nova-compute/0                 blocked   idle   1        10.246.114.47                   Missing relations: image
+     ovn-chassis/3                active    idle            10.246.114.47                   Unit is ready
+   nova-compute/1                 blocked   idle   2        10.246.114.17                   Missing relations: image
+     ovn-chassis/0                active    idle            10.246.114.17                   Unit is ready
+   nova-compute/2*                blocked   idle   3        10.246.114.16                   Missing relations: image
+     ovn-chassis/2*               active    idle            10.246.114.16                   Unit is ready
+   ovn-central/0                  active    idle   0/lxd/1  10.246.115.18   6641-6642/tcp   Unit is ready (northd: active)
+   ovn-central/1                  active    idle   1/lxd/1  10.246.115.20   6641-6642/tcp   Unit is ready
+   ovn-central/2*                 active    idle   2/lxd/1  10.246.115.19   6641-6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
+   rabbitmq-server/0*             active    idle   2/lxd/2  10.246.114.73   5672,15672/tcp  Unit is ready
+   vault/1*                       active    idle   3/lxd/1  10.246.115.17   8200/tcp        Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.246.115.17                   Unit is ready
 
 Nova cloud controller
 ~~~~~~~~~~~~~~~~~~~~~
@@ -427,7 +425,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --channel 2023.1/stable --config ncc.yaml nova-cloud-controller
+   juju deploy --to lxd:3 --channel 2023.2/stable --config ncc.yaml nova-cloud-controller
 
 Join nova-cloud-controller to the cloud database:
 
@@ -461,7 +459,7 @@ The placement application will be containerised on machine 3 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --channel 2023.1/stable placement
+   juju deploy --to lxd:3 --channel 2023.2/stable placement
 
 Join placement to the cloud database:
 
@@ -487,7 +485,7 @@ The openstack-dashboard application (Horizon) will be containerised on machine
 
 .. code-block:: none
 
-   juju deploy --to lxd:2 --channel 2023.1/stable openstack-dashboard
+   juju deploy --to lxd:2 --channel 2023.2/stable openstack-dashboard
 
 Join openstack-dashboard to the cloud database:
 
@@ -518,7 +516,7 @@ charm. To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:3 --channel 2023.1/stable glance
+   juju deploy --to lxd:3 --channel 2023.2/stable glance
 
 Join glance to the cloud database:
 
@@ -542,42 +540,42 @@ look similar to this:
 
 .. code-block:: console
 
-   Unit                           Workload  Agent  Machine  Public address  Ports               Message
-   ceph-osd/0                     blocked   idle   0        10.246.114.38                       Missing relation: monitor
-   ceph-osd/1*                    blocked   idle   1        10.246.114.49                       Missing relation: monitor
-   ceph-osd/2                     blocked   idle   2        10.246.114.39                       Missing relation: monitor
-   ceph-osd/3                     blocked   idle   3        10.246.114.37                       Missing relation: monitor
-   glance/0*                      active    idle   3/lxd/3  10.246.115.11   9292/tcp            Unit is ready
-     glance-mysql-router/0*       active    idle            10.246.115.11                       Unit is ready
-   keystone/0*                    active    idle   0/lxd/2  10.246.114.43   5000/tcp            Unit is ready
-     keystone-mysql-router/0*     active    idle            10.246.114.43                       Unit is ready
-   mysql-innodb-cluster/0*        active    idle   0/lxd/0  10.246.114.20                       Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   mysql-innodb-cluster/1         active    idle   1/lxd/0  10.246.114.21                       Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.246.114.19                       Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to
-   ONE failure.
-   neutron-api/0*                 active    idle   1/lxd/2  10.246.114.31   9696/tcp            Unit is ready
-     neutron-api-mysql-router/0*  active    idle            10.246.114.31                       Unit is ready
-     neutron-api-plugin-ovn/0*    active    idle            10.246.114.31                       Unit is ready
-   nova-cloud-controller/0*       active    idle   3/lxd/1  10.246.114.45   8774/tcp,8775/tcp   Unit is ready
-     ncc-mysql-router/0*          active    idle            10.246.114.45                       Unit is ready
-   nova-compute/0*                active    idle   1        10.246.114.49                       Unit is ready
-     ovn-chassis/0                active    idle            10.246.114.49                       Unit is ready
-   nova-compute/1                 active    idle   2        10.246.114.39                       Unit is ready
-     ovn-chassis/2                active    idle            10.246.114.39                       Unit is ready
-   nova-compute/2                 active    idle   3        10.246.114.37                       Unit is ready
-     ovn-chassis/1*               active    idle            10.246.114.37                       Unit is ready
-   openstack-dashboard/0*         active    idle   2/lxd/3  10.246.114.47   80/tcp,443/tcp      Unit is ready
-     dashboard-mysql-router/0*    active    idle            10.246.114.47                       Unit is ready
-   ovn-central/0*                 active    idle   0/lxd/1  10.246.114.30   6641/tcp,6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
-   ovn-central/1                  active    idle   1/lxd/1  10.246.114.28   6641/tcp,6642/tcp   Unit is ready (northd: active)
-   ovn-central/2                  active    idle   2/lxd/1  10.246.114.29   6641/tcp,6642/tcp   Unit is ready
-   placement/0*                   active    idle   3/lxd/2  10.246.114.46   8778/tcp            Unit is ready
-     placement-mysql-router/0*    active    idle            10.246.114.46                       Unit is ready
-   rabbitmq-server/0*             active    idle   2/lxd/2  10.246.114.44   5672/tcp,15672/tcp  Unit is ready
-   vault/0*                       active    idle   3/lxd/0  10.246.114.22   8200/tcp            Unit is ready (active: true, mlock: disabled)
-     vault-mysql-router/0*        active    idle            10.246.114.22                       Unit is ready
+   Unit                           Workload  Agent  Machine  Public address  Ports           Message
+   ceph-osd/0                     blocked   idle   0        10.246.115.11                   Missing relation: monitor
+   ceph-osd/1*                    blocked   idle   1        10.246.114.47                   Missing relation: monitor
+   ceph-osd/2                     blocked   idle   2        10.246.114.17                   Missing relation: monitor
+   ceph-osd/3                     blocked   idle   3        10.246.114.16                   Missing relation: monitor
+   glance/0*                      active    idle   3/lxd/4  10.246.114.77   9292/tcp        Unit is ready
+     glance-mysql-router/0*       active    idle            10.246.114.77                   Unit is ready
+   keystone/0*                    active    idle   0/lxd/2  10.246.114.72   5000/tcp        Unit is ready
+     keystone-mysql-router/0*     active    idle            10.246.114.72                   Unit is ready
+   mysql-innodb-cluster/0         active    idle   0/lxd/0  10.246.115.16                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   mysql-innodb-cluster/1*        active    idle   1/lxd/0  10.246.115.14                   Unit is ready: Mode: R/W, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   mysql-innodb-cluster/2         active    idle   2/lxd/0  10.246.115.15                   Unit is ready: Mode: R/O, Cluster is ONLINE and can tolerate up to ONE
+   failure.
+   neutron-api/0*                 active    idle   1/lxd/2  10.246.114.71   9696/tcp        Unit is ready
+     neutron-api-mysql-router/0*  active    idle            10.246.114.71                   Unit is ready
+     neutron-api-plugin-ovn/0*    active    idle            10.246.114.71                   Unit is ready
+   nova-cloud-controller/0*       active    idle   3/lxd/2  10.246.114.74   8774-8775/tcp   Unit is ready
+     ncc-mysql-router/0*          active    idle            10.246.114.74                   Unit is ready
+   nova-compute/0                 active    idle   1        10.246.114.47                   Unit is ready
+     ovn-chassis/3                active    idle            10.246.114.47                   Unit is ready
+   nova-compute/1                 active    idle   2        10.246.114.17                   Unit is ready
+     ovn-chassis/0                active    idle            10.246.114.17                   Unit is ready
+   nova-compute/2*                active    idle   3        10.246.114.16                   Unit is ready
+     ovn-chassis/2*               active    idle            10.246.114.16                   Unit is ready
+   openstack-dashboard/0*         active    idle   2/lxd/3  10.246.114.76   80,443/tcp      Unit is ready
+     dashboard-mysql-router/0*    active    idle            10.246.114.76                   Unit is ready
+   ovn-central/0                  active    idle   0/lxd/1  10.246.115.18   6641-6642/tcp   Unit is ready (northd: active)
+   ovn-central/1                  active    idle   1/lxd/1  10.246.115.20   6641-6642/tcp   Unit is ready
+   ovn-central/2*                 active    idle   2/lxd/1  10.246.115.19   6641-6642/tcp   Unit is ready (leader: ovnnb_db, ovnsb_db)
+   placement/0*                   active    idle   3/lxd/3  10.246.114.75   8778/tcp        Unit is ready
+     placement-mysql-router/0*    active    idle            10.246.114.75                   Unit is ready
+   rabbitmq-server/0*             active    idle   2/lxd/2  10.246.114.73   5672,15672/tcp  Unit is ready
+   vault/1*                       active    idle   3/lxd/1  10.246.115.17   8200/tcp        Unit is ready (active: true, mlock: disabled)
+     vault-mysql-router/0*        active    idle            10.246.115.17                   Unit is ready
 
 Ceph monitor
 ~~~~~~~~~~~~
@@ -598,7 +596,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel quincy/stable --config ceph-mon.yaml ceph-mon
+   juju deploy -n 3 --to lxd:0,lxd:1,lxd:2 --channel reef/stable --config ceph-mon.yaml ceph-mon
 
 Three relations can be added at this time:
 
@@ -632,7 +630,7 @@ To deploy:
 
 .. code-block:: none
 
-   juju deploy --to lxd:1 --channel 2023.1/stable --config cinder.yaml cinder
+   juju deploy --to lxd:1 --channel 2023.2/stable --config cinder.yaml cinder
 
 Join cinder to the cloud database:
 
@@ -662,7 +660,7 @@ None`` in the configuration file). This will be implemented via the
 
 .. code-block:: none
 
-   juju deploy --channel 2023.1/stable cinder-ceph
+   juju deploy --channel 2023.2/stable cinder-ceph
 
 Three relations need to be added:
 
@@ -683,7 +681,7 @@ The ceph-radosgw application will be containerised on machine 0 with the
 
 .. code-block:: none
 
-   juju deploy --to lxd:0 --channel quincy/stable ceph-radosgw
+   juju deploy --to lxd:0 --channel reef/stable ceph-radosgw
 
 A single relation is needed:
 
@@ -712,61 +710,14 @@ A single relation is needed:
 
 .. _test_openstack:
 
-Final results and dashboard access
-----------------------------------
+Final results and next steps
+----------------------------
 
 Once all the applications have been deployed and the relations between them
 have been added we need to wait for the output of :command:`juju status` to
 settle. The final results should be devoid of any error-like messages. Example
 output (including relations) for a successful cloud deployment is given
 :ref:`here <install_openstack_juju_status>`.
-
-One milestone in the deployment of OpenStack is the first login to the Horizon
-dashboard. You will need its IP address and the admin password.
-
-Obtain the address in this way:
-
-.. code-block:: none
-
-   juju status --format=yaml openstack-dashboard | grep public-address | awk '{print $2}' | head -1
-
-In this example, the address is '10.246.114.47'.
-
-The password can be queried from Keystone:
-
-.. code-block:: none
-
-   juju exec --unit keystone/leader leader-get admin_passwd
-
-The dashboard URL then becomes:
-
-**http://10.246.114.47/horizon**
-
-The final credentials needed to log in are:
-
-| User Name: **admin**
-| Password: ********************
-| Domain: **admin_domain**
-|
-
-Once logged in you should see something like this:
-
-.. figure:: ./media/install-openstack_horizon.png
-   :scale: 70%
-   :alt: Horizon dashboard
-
-VM consoles
-~~~~~~~~~~~
-
-Enable a remote access protocol such as novnc (or spice) if you want to connect
-to VM consoles from within the dashboard:
-
-.. code-block:: none
-
-   juju config nova-cloud-controller console-access-protocol=novnc
-
-Next steps
-----------
 
 You have successfully deployed OpenStack using Juju and MAAS. The next step is
 to render the cloud functional for users. This will involve setting up
@@ -775,34 +726,34 @@ networks, images, and a user environment. Go to :doc:`Configure OpenStack
 
 .. LINKS
 .. _Charmhub: https://charmhub.io
-.. _Deploying applications: https://juju.is/docs/olm/deploy-a-charm-from-charmhub
-.. _Deploying to specific machines: https://juju.is/docs/olm/deploy-to-a-specific-machine
+.. _Deploying applications: https://juju.is/docs/juju/manage-applications#heading--deploy-an-application
+.. _Deploying to specific machines: https://juju.is/docs/juju/placement-directive
 .. _Managing integrations: https://juju.is/docs/juju/manage-integrations
 .. _vault charm documentation: https://opendev.org/openstack/charm-vault/src/branch/stable/1.8/src/README.md#post-deployment-tasks
 
 .. CHARMS
-.. _ceph-mon: https://charmhub.io/ceph-mon?channel=quincy/stable
-.. _ceph-osd: https://charmhub.io/ceph-osd?channel=quincy/stable
-.. _ceph-radosgw: https://charmhub.io/ceph-radosgw?channel=quincy/stable
-.. _cinder: https://charmhub.io/cinder?channel=2023.1/stable
-.. _cinder-ceph: https://charmhub.io/cinder-ceph?channel=2023.1/stable
-.. _glance: https://charmhub.io/glance?channel=2023.1/stable
-.. _keystone: https://charmhub.io/keystone?channel=2023.1/stable
-.. _mysql-innodb-cluster: https://charmhub.io/mysql-innodb-cluster?channel=8.0/stable
-.. _mysql-router: https://charmhub.io/mysql-router?channel=8.0/stable
-.. _neutron-gateway: https://charmhub.io/neutron-gateway?channel=2023.1/stable
-.. _neutron-api: https://charmhub.io/neutron-api?channel=2023.1/stable
-.. _neutron-api-plugin-ovn: https://charmhub.io/neutron-api-plugin-ovn?channel=2023.1/stable
-.. _neutron-openvswitch: https://charmhub.io/neutron-openvswitch?channel=2023.1/stable
-.. _nova-cloud-controller: https://charmhub.io/nova-cloud-controller?channel=2023.1/stable
-.. _nova-compute: https://charmhub.io/nova-compute?channel=2023.1/stable
+.. _ceph-mon: https://charmhub.io/ceph-mon
+.. _ceph-osd: https://charmhub.io/ceph-osd
+.. _ceph-radosgw: https://charmhub.io/ceph-radosgw
+.. _cinder: https://charmhub.io/cinder
+.. _cinder-ceph: https://charmhub.io/cinder-ceph
+.. _glance: https://charmhub.io/glance
+.. _keystone: https://charmhub.io/keystone
+.. _mysql-innodb-cluster: https://charmhub.io/mysql-innodb-cluster
+.. _mysql-router: https://charmhub.io/mysql-router
+.. _neutron-gateway: https://charmhub.io/neutron-gateway
+.. _neutron-api: https://charmhub.io/neutron-api
+.. _neutron-api-plugin-ovn: https://charmhub.io/neutron-api-plugin-ovn
+.. _neutron-openvswitch: https://charmhub.io/neutron-openvswitch
+.. _nova-cloud-controller: https://charmhub.io/nova-cloud-controller
+.. _nova-compute: https://charmhub.io/nova-compute
 .. _ntp: https://charmhub.io/ntp
-.. _openstack-dashboard: https://charmhub.io/openstack-dashboard?channel=2023.1/stable
-.. _ovn-central: https://charmhub.io/ovn-central?channel=23.03/stable
-.. _ovn-chassis: https://charmhub.io/ovn-chassis?channel=23.03/stable
-.. _placement: https://charmhub.io/placement?channel=2023.1/stable
-.. _rabbitmq-server: https://charmhub.io/rabbitmq-server?channel=3.9/stable
-.. _vault: https://charmhub.io/vault?channel=1.8/stable
+.. _openstack-dashboard: https://charmhub.io/openstack-dashboard
+.. _ovn-central: https://charmhub.io/ovn-central
+.. _ovn-chassis: https://charmhub.io/ovn-chassis
+.. _placement: https://charmhub.io/placement
+.. _rabbitmq-server: https://charmhub.io/rabbitmq-server
+.. _vault: https://charmhub.io/vault
 
 .. BUGS
 .. _LP #1826888: https://bugs.launchpad.net/charm-deployment-guide/+bug/1826888

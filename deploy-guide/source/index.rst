@@ -30,9 +30,9 @@ The software versions used in this guide are as follows:
 
 * **Ubuntu 22.04 LTS (Jammy)** for the Juju client, Juju controller, and all
   cloud nodes (including containers)
-* **MAAS 3.3.3**
-* **Juju 2.9.43**
-* **OpenStack 2023.1 (Antelope)**
+* **MAAS 3.3.4**
+* **Juju 3.1.5**
+* **OpenStack 2023.2 (Bobcat)**
 
 Cloud description
 -----------------

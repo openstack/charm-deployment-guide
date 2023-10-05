@@ -133,7 +133,12 @@ Check MAAS health
 
 Confirm the health of the MAAS system by visiting the **Controllers** page in
 the web UI. Select the controller name and ensure that the resulting page shows
-a green checkmark alongside items 'regiond' through 'dhcpd'.
+a green checkmark alongside items 'regiond' through 'dhcpd':
+
+.. figure:: ./media/maas-services.png
+   :scale: 100%
+   :align: left
+   :alt: Health of MAAS services
 
 Add nodes
 ~~~~~~~~~
@@ -210,7 +215,7 @@ Here we will create a bridge from regular interface 'enp1s0':
    :alt: Select interface to use for OVS bridge
 
 .. role:: raw-html(raw)
-    :format: html
+   :format: html
 
 :raw-html:`<br />`
 
@@ -221,7 +226,7 @@ The bridge's name will be referred to elsewhere in this guide. Call it 'br-ex':
    :alt: OVS bridge configuration
 
 .. role:: raw-html(raw)
-    :format: html
+   :format: html
 
 :raw-html:`<br />`
 

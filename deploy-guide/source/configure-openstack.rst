@@ -54,9 +54,9 @@ Sample output:
 
 .. code-block:: console
 
-   OS_AUTH_URL=https://10.246.114.43:5000/v3
+   OS_AUTH_URL=https://10.246.114.72:5000/v3
    OS_USERNAME=admin
-   OS_PASSWORD=joongieVooj6hee4
+   OS_PASSWORD=miuPaisoe7nuth3b
    OS_USER_DOMAIN_NAME=admin_domain
    OS_PROJECT_NAME=admin
    OS_PROJECT_DOMAIN_NAME=admin_domain
@@ -86,16 +86,16 @@ The output will look similar to this:
 
 .. code-block:: console
 
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
-   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
-   | 00fa919f9d724339a4ce15f94306d6c7 | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.46:8778                  |
-   | a295322156f34db185a8af66c0863609 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.45:8774/v2.1             |
-   | ab99b7e5f63144af8bf5df4645007d57 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.43:35357/v3              |
-   | cb564a77d07d49a084b27a20d9a209d9 | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.115.15:8776/v3/$(tenant_id)s |
-   | d3889e5eeb184cad9ab010a766deeb1d | RegionOne | glance       | image        | True    | admin     | https://10.246.115.11:9292                  |
-   | d7eaf43dfe97492b8ca9325c1c769e81 | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.31:9696                  |
-   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+| ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+| 0d6fd05701f843e3b52e541bc346bbb7 | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.71:9696                  |
+| 2e81734cf49e4ab2bfd46ae6ec53a45c | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.75:8778                  |
+| 6391cb50e823478f952cecbb86c7b77e | RegionOne | glance       | image        | True    | admin     | https://10.246.114.77:9292                  |
+| 6ccfa872775d49ceab6fdc532b3366b2 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.72:35357/v3              |
+| 9d2bf9caf3eb40599be7ab482d118de3 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.74:8774/v2.1             |
+| e4abf3a678a74cb994c0f77bc14d290a | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.114.81:8776/v3/$(tenant_id)s |
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
 
 If the endpoints aren't displayed, it's likely your environment variables
 aren't set correctly.
@@ -218,14 +218,14 @@ environment:
    echo $OS_AUTH_URL
 
 The output for the last command for this example is
-**https://10.246.114.43:5000/v3**.
+**https://10.246.114.72:5000/v3**.
 
 The contents of the file, say ``project1-rc``, will therefore look like this
 (assuming the user password is 'ubuntu'):
 
 .. code-block:: ini
 
-   export OS_AUTH_URL=https://10.246.114.43:5000/v3
+   export OS_AUTH_URL=https://10.246.114.72:5000/v3
    export OS_USERNAME=user1
    export OS_PASSWORD=ubuntu
    export OS_USER_DOMAIN_NAME=domain1
@@ -387,6 +387,53 @@ Connect to the instance in this way:
 .. code-block:: none
 
    ssh -i ~/cloud-keys/user1-key ubuntu@$FLOATING_IP
+
+Dashboard access
+----------------
+
+To log in to the Horizon dashboard you will need its IP address and the admin
+password.
+
+Obtain the address in this way:
+
+.. code-block:: none
+
+   juju status --format=yaml openstack-dashboard | grep public-address | awk '{print $2}' | head -1
+
+In this example, the address is '10.246.114.76'.
+
+The password can be queried from Keystone:
+
+.. code-block:: none
+
+   juju exec --unit keystone/leader leader-get admin_passwd
+
+The dashboard URL then becomes:
+
+**http://10.246.114.76/horizon**
+
+The final credentials needed to log in are:
+
+| User Name: **admin**
+| Password: ********************
+| Domain: **admin_domain**
+|
+
+Once logged in you should see something like this:
+
+.. figure:: ./media/install-openstack_horizon.png
+   :scale: 70%
+   :alt: Horizon dashboard
+
+VM consoles
+~~~~~~~~~~~
+
+Enable a remote access protocol such as novnc (or spice) if you want to connect
+to VM consoles from within the dashboard:
+
+.. code-block:: none
+
+   juju config nova-cloud-controller console-access-protocol=novnc
 
 Next steps
 ----------
