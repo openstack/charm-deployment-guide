@@ -32,27 +32,19 @@ Create the admin user environment
 
 To gain control of the cloud the Keystone administrator password and the root
 CA certificate are needed. This information can be most easily obtained by
-using files created and maintained for this purpose. They can be found in the
-`openstack-bundles`_ repository.
+using a file that is created for this purpose - often called an "openrc" file.
 
-Download the repository and source the ``openrc`` file:
+Download the :download:`openrc <openrc>` file and store it in a safe place.
+
+When you want to use this file, source it. Assuming it's now in your home
+directory:
 
 .. code-block:: none
 
-   git clone https://github.com/openstack-charmers/openstack-bundles ~/openstack-bundles
-   source ~/openstack-bundles/stable/openstack-base/openrc
+   source ~/openrc
 
-.. note::
-
-   For informational purposes, sourcing the file will result in the execution
-   of these two commands (to obtain the CA certificate and password):
-
-   .. code-block:: none
-
-      juju exec -m openstack --unit vault/leader 'leader-get root-ca'
-      juju exec -m openstack --unit keystone/leader 'leader-get admin_passwd'
-
-The admin user environment should also now be set up. Verify this:
+The admin user environment should now be set up. Verify this with the
+:command:`env` command:
 
 .. code-block:: none
 
@@ -416,6 +408,5 @@ As next steps, consider browsing these documentation sources:
 * `OpenStack Administrator Guides`_: upstream OpenStack administrative help
 
 .. LINKS
-.. _openstack-bundles: https://github.com/openstack-charmers/openstack-bundles
 .. _Reserved IP range: https://maas.io/docs/concepts-and-terms#heading--ip-ranges
 .. _OpenStack Administrator Guides: http://docs.openstack.org/user-guide-admin/content
