@@ -226,11 +226,17 @@ The contents of the file, say ``project1-rc``, will therefore look like this
 .. code-block:: ini
 
    export OS_AUTH_URL=https://10.246.114.43:5000/v3
-   export OS_USER_DOMAIN_NAME=domain1
    export OS_USERNAME=user1
-   export OS_PROJECT_DOMAIN_NAME=domain1
-   export OS_PROJECT_NAME=project1
    export OS_PASSWORD=ubuntu
+   export OS_USER_DOMAIN_NAME=domain1
+   export OS_PROJECT_NAME=project1
+   export OS_PROJECT_DOMAIN_NAME=domain1
+   export OS_AUTH_VERSION=3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_REGION_NAME=RegionOne
+   export OS_AUTH_PROTOCOL=https
+   export OS_CACERT=/home/ubuntu/snap/openstackclients/common/root-ca.crt
+   export OS_AUTH_TYPE=password
 
 Source the file to become the non-admin user:
 
@@ -372,7 +378,7 @@ The instance is ready when the output contains:
    .
    .
    .
-   Ubuntu 22.04.2 LTS jammy-1 ttyS0
+   Ubuntu 22.04.3 LTS jammy-1 ttyS0
 
    jammy-1 login:
 
