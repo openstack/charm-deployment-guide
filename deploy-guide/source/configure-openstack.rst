@@ -86,16 +86,16 @@ The output will look similar to this:
 
 .. code-block:: console
 
-+----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
-| ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
-+----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
-| 0d6fd05701f843e3b52e541bc346bbb7 | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.71:9696                  |
-| 2e81734cf49e4ab2bfd46ae6ec53a45c | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.75:8778                  |
-| 6391cb50e823478f952cecbb86c7b77e | RegionOne | glance       | image        | True    | admin     | https://10.246.114.77:9292                  |
-| 6ccfa872775d49ceab6fdc532b3366b2 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.72:35357/v3              |
-| 9d2bf9caf3eb40599be7ab482d118de3 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.74:8774/v2.1             |
-| e4abf3a678a74cb994c0f77bc14d290a | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.114.81:8776/v3/$(tenant_id)s |
-+----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+   | ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                                         |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
+   | 0d6fd05701f843e3b52e541bc346bbb7 | RegionOne | neutron      | network      | True    | admin     | https://10.246.114.71:9696                  |
+   | 2e81734cf49e4ab2bfd46ae6ec53a45c | RegionOne | placement    | placement    | True    | admin     | https://10.246.114.75:8778                  |
+   | 6391cb50e823478f952cecbb86c7b77e | RegionOne | glance       | image        | True    | admin     | https://10.246.114.77:9292                  |
+   | 6ccfa872775d49ceab6fdc532b3366b2 | RegionOne | keystone     | identity     | True    | admin     | https://10.246.114.72:35357/v3              |
+   | 9d2bf9caf3eb40599be7ab482d118de3 | RegionOne | nova         | compute      | True    | admin     | https://10.246.114.74:8774/v2.1             |
+   | e4abf3a678a74cb994c0f77bc14d290a | RegionOne | cinderv3     | volumev3     | True    | admin     | https://10.246.114.81:8776/v3/$(tenant_id)s |
+   +----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------------------------+
 
 If the endpoints aren't displayed, it's likely your environment variables
 aren't set correctly.
