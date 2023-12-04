@@ -25,7 +25,7 @@ Here are the hardware requirements:
 
 * 1 x MAAS system: 8GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage
 * 1 x Juju controller node: 4GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage
-* 4 x cloud nodes: 8GiB RAM, 2 CPUs, 1 NIC, 3 x 80GiB storage
+* 4 x cloud nodes: 8GiB RAM, 2 CPUs, 1 NIC, 2 x 80GiB storage
 
 .. note::
 
