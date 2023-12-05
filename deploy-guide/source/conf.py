@@ -42,7 +42,7 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    'cg': ('https://docs.openstack.org/charm-guide/latest', None)
+    'cg': ('https://docs.openstack.org/charm-guide/2023.2', None)
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -64,13 +64,14 @@ copyright = u'2016, OpenStack contributors'
 openstackdocs_repo_name = 'openstack/charm-deployment-guide'
 openstackdocs_bug_project = 'charm-deployment-guide'
 openstackdocs_bug_tag = u'deployment-guide'
+openstackdocs_auto_version = False
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = ''
+version = '2023.2 - Bobcat'
 # The full version, including alpha/beta/rc tags.
 release = ''
 
